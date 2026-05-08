@@ -73,7 +73,7 @@
 
                 $photoFile =
                     $_SERVER['DOCUMENT_ROOT'] .
-                    '/uploads/employees/' .
+                    '../uploads/employees/' .
                     $_SESSION['photo'];
                 
                 if (
@@ -83,7 +83,7 @@
                 
                     $userPhoto =
                         BASE_URL .
-                        'uploads/employees/' .
+                        '../uploads/employees/' .
                         $_SESSION['photo'];
                 }
 

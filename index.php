@@ -2,6 +2,10 @@
 ob_start();
 require_once "config/db.php";
 
+require_once "helpers/auth.php";
+require_once "helpers/csrf.php";
+require_once "helpers/helpers.php";
+
 if (isset($_SESSION['user_id'])) {
     header("Location: " . BASE_URL . "admin/dashboard.php");
     exit;
