@@ -1,0 +1,18 @@
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+}
+
+.btn {
+  border-radius: 8px;
+}

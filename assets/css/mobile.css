@@ -1,0 +1,37 @@
+@media (max-width: 992px) {
+  .main-content {
+    padding: 10px;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .page-card {
+    padding: 15px;
+  }
+
+  .sidebar {
+    max-width: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .table td,
+  .table th {
+    white-space: nowrap;
+    font-size: 13px;
+  }
+}
