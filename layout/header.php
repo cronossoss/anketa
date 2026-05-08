@@ -69,23 +69,24 @@
 
             <?php
 
-            $userPhoto = BASE_URL . 'assets/images/default-user.png';
+            $userPhoto =
+                BASE_URL . 'assets/images/default-user.png';
 
-                $photoFile =
-                    $_SERVER['DOCUMENT_ROOT'] .
-                    '../uploads/employees/' .
+            $photoFile =
+                __DIR__ .
+                '/../uploads/employees/' .
+                ($_SESSION['photo'] ?? '');
+
+            if (
+                !empty($_SESSION['photo']) &&
+                file_exists($photoFile)
+            ) {
+
+                $userPhoto =
+                    BASE_URL .
+                    'uploads/employees/' .
                     $_SESSION['photo'];
-                
-                if (
-                    !empty($_SESSION['photo']) &&
-                    file_exists($photoFile)
-                ) {
-                
-                    $userPhoto =
-                        BASE_URL .
-                        '../uploads/employees/' .
-                        $_SESSION['photo'];
-                }
+            }
 
             ?>
 
