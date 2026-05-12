@@ -1,5 +1,5 @@
 <?php
-require_once "../config/init.php";
+require_once __DIR__ . "/../config/init.php";
 
 require_login();
 require_admin();
@@ -50,10 +50,10 @@ require_admin();
 
     <div class="wrapper">
 
-        <?php include "../includes/admin/sidebar.php"; ?>
+        <?php include __DIR__ . "/../includes/admin/sidebar.php"; ?>
 
         <div class="main">
 
-            <?php include "../includes/admin/topbar.php"; ?>
+            <?php include __DIR__ . "/../includes/admin/topbar.php"; ?>
 
             <div class="content p-4">

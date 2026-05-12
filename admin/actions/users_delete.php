@@ -5,6 +5,7 @@ require_once "../../config/db.php";
 require_once "../../helpers/auth.php";
 require_once "../../helpers/csrf.php";
 require_once "../../helpers/helpers.php";
+require_once "../../helpers/audit.php";
 
 require_login();
 require_admin();
@@ -27,6 +28,14 @@ $stmt = $conn->prepare("
 $stmt->bind_param("i", $id);
 
 $stmt->execute();
+
+audit_log(
+    'users',
+    'delete',
+    $id,
+    'Obrisan korisnik ID: ' .
+        $id
+);
 
 redirect(
     BASE_URL .

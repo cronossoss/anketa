@@ -8,12 +8,20 @@ require_once "helpers/helpers.php";
 
 if (isset($_SESSION['user_id'])) {
 
-    if ($_SESSION['role'] === 'admin') {
+    if (is_admin_panel_role()) {
 
-        header("Location: " . BASE_URL . "admin/dashboard.php");
+        header(
+            "Location: " .
+                BASE_URL .
+                "admin/dashboard.php"
+        );
     } else {
 
-        header("Location: " . BASE_URL . "user/dashboard.php");
+        header(
+            "Location: " .
+                BASE_URL .
+                "user/dashboard.php"
+        );
     }
 
     exit;
@@ -105,9 +113,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link
-    rel="icon"
-    type="image/png"
-    href="<?= BASE_URL ?>assets/images/favicon.png">
+        rel="icon"
+        type="image/png"
+        href="<?= BASE_URL ?>assets/images/favicon.png">
 
     <title>Krušik login</title>
 
@@ -121,11 +129,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="text-center mb-4">
 
-            <img
-                src="<?= BASE_URL ?>assets/images/logo.png"
-                alt="Logo"
-                style="height: 64px;">
-           
+                <img
+                    src="<?= BASE_URL ?>assets/images/logo.png"
+                    alt="Logo"
+                    style="height: 64px;">
+
 
                 <h2 class="fw-bold login-title">
                     Dobrodošli na portal

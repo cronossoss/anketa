@@ -5,6 +5,7 @@ require_once "../../config/db.php";
 require_once "../../helpers/auth.php";
 require_once "../../helpers/csrf.php";
 require_once "../../helpers/helpers.php";
+require_once "../../helpers/audit.php";
 
 require_login();
 require_admin();
@@ -38,6 +39,13 @@ $stmt->bind_param("i", $id);
 
 $stmt->execute();
 
+audit_log(
+    'employees',
+    'delete',
+    $id,
+    'Obrisan zaposleni ID: ' .
+        $id
+);
 
 redirect(
     BASE_URL .

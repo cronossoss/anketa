@@ -5,6 +5,7 @@ require_once "../../config/db.php";
 require_once "../../helpers/auth.php";
 require_once "../../helpers/csrf.php";
 require_once "../../helpers/helpers.php";
+require_once "../../helpers/audit.php";
 
 require_login();
 require_admin();
@@ -173,6 +174,14 @@ $stmt->bind_param(
 );
 
 $stmt->execute();
+
+audit_log(
+    'employees',
+    'update',
+    $id,
+    'Izmenjen zaposleni: ' .
+        $first_name . ' ' . $last_name
+);
 
 
 redirect(

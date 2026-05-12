@@ -5,9 +5,10 @@ require_once "../../config/db.php";
 require_once "../../helpers/auth.php";
 require_once "../../helpers/csrf.php";
 require_once "../../helpers/helpers.php";
+require_once '../../helpers/audit.php';
 
 require_login();
-require_admin();
+require_role(['admin', 'hr']);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
@@ -170,6 +171,14 @@ $stmt->bind_param(
 );
 
 $stmt->execute();
+
+audit_log(
+    'employees',
+    'create',
+    $conn->insert_id,
+    'Kreiran zaposleni: ' .
+        $first_name . ' ' . $last_name
+);
 
 
 redirect(

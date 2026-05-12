@@ -4,7 +4,7 @@ $pageTitle = "Korisnički nalozi";
 include "../layouts/admin_layout_start.php";
 
 require_login();
-require_admin();
+require_role(['admin', 'it']);
 
 /* =========================
    DATA

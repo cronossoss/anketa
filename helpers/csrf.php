@@ -11,7 +11,6 @@ function csrf_token()
     return $_SESSION['csrf'];
 }
 
-
 function verify_csrf($token)
 {
     return hash_equals(

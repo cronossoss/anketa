@@ -3,9 +3,10 @@
 $pageTitle = "Organizacija";
 
 include "../layouts/admin_layout_start.php";
+require_once '../helpers/audit.php';
 
 require_login();
-require_admin();
+require_role(['admin', 'hr']);
 
 require_once "helpers/organization/tree_helpers.php";
 require_once "helpers/organization/tree_renderer.php";

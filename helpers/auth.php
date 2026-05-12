@@ -21,6 +21,49 @@ function require_admin()
     }
 }
 
+function has_role($roles)
+{
+    if (!isset($_SESSION['role'])) {
+
+        return false;
+    }
+
+    if (!is_array($roles)) {
+
+        $roles = [$roles];
+    }
+
+    return in_array(
+        $_SESSION['role'],
+        $roles
+    );
+}
+
+function require_role($roles)
+{
+    if (!has_role($roles)) {
+
+        http_response_code(403);
+
+        exit('403 Forbidden');
+    }
+}
+
+function is_admin_panel_role()
+{
+    $roles = [
+        'admin',
+        'hr',
+        'it',
+        'manager'
+    ];
+
+    return in_array(
+        $_SESSION['role'] ?? '',
+        $roles
+    );
+}
+
 
 function current_user_id()
 {
