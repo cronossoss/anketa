@@ -9,14 +9,6 @@ body {
   font-family: Arial, sans-serif;
 }
 
-.sidebar {
-  background: white;
-  min-height: 100vh;
-  width: 260px;
-  border-right: 1px solid #ddd;
-  padding: 0;
-}
-
 .main-content {
   padding: 20px;
   min-height: calc(100vh - 56px);
@@ -41,3 +33,5 @@ body {
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.15);
 }
+
+

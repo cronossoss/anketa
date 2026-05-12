@@ -1,12 +1,18 @@
 <?php
-require_once "../config/db.php";
 
-require_once "../helpers/auth.php";
-require_once "../helpers/csrf.php";
-require_once "../helpers/helpers.php";
+$pageTitle = "Zaposleni";
+include "../layouts/admin_layout_start.php";
 
 require_login();
 require_admin();
+
+
+
+$units = $conn->query("
+    SELECT id, code, name
+    FROM organizational_units
+    ORDER BY code
+");
 
 $employees = $conn->query("
     SELECT *
@@ -14,12 +20,10 @@ $employees = $conn->query("
     ORDER BY last_name, first_name
 ");
 
-include '../layout/header.php';
+
 ?>
 
-<?php include '../layout/sidebar.php'; ?>
-
-<main class="col-lg-10 main-content ms-auto">
+<main class="main-content">
 
     <div class="page-card">
 
@@ -28,12 +32,15 @@ include '../layout/header.php';
             <h3>Zaposleni</h3>
 
             <button
+                type="button"
+                id="addEmployeeBtn"
                 class="btn btn-primary"
-                onclick="openModal('employeeModal')">
+                data-bs-toggle="modal"
+                data-bs-target="#employeeModal">
 
                 Dodaj zaposlenog
-            </button>
 
+            </button>
         </div>
 
         <?php include '../partials/alerts.php'; ?>
@@ -46,10 +53,21 @@ include '../layout/header.php';
 
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Ime</th>
-                        <th>Prezime</th>
-                        <th>Akcije</th>
+                        <th style="width: 120px;">
+                            Matični broj
+                        </th>
+
+                        <th>
+                            Ime i prezime
+                        </th>
+
+                        <th>
+                            Pozicija
+                        </th>
+
+                        <th class="text-end" style="width: 180px;">
+                            Akcije
+                        </th>
                     </tr>
                 </thead>
 
@@ -57,24 +75,69 @@ include '../layout/header.php';
 
                     <?php while ($e = $employees->fetch_assoc()): ?>
 
-                    <tr class="employee-row">
+                        <tr class="employee-row">
 
-                        <td><?= $e['id'] ?></td>
-                        <td><?= $e['first_name'] ?></td>
-                        <td><?= $e['last_name'] ?></td>
+                            <td>
+                                <?= e($e['personal_id']) ?>
+                            </td>
 
-                        <td>
+                            <td>
 
-                            <button
-                                class="btn btn-sm btn-primary edit-employee-btn"
-                                data-id="<?= $e['id'] ?>">
+                                <button
+                                    type="button"
+                                    class="btn btn-link p-0 text-start view-employee-btn"
+                                    data-id="<?= $e['id'] ?>"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#employeeModal">
 
-                                Izmeni
-                            </button>
+                                    <?= e($e['first_name']) ?>
+                                    <?= e($e['last_name']) ?>
 
-                        </td>
+                                </button>
 
-                    </tr>
+                            </td>
+
+                            <td>
+                                <?= e($e['position'] ?? '-') ?>
+                            </td>
+                            <td class="d-flex gap-2">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-primary edit-employee-btn"
+                                    data-id="<?= $e['id'] ?>">
+
+                                    Izmeni
+
+                                </button>
+
+                                <form
+                                    method="POST"
+                                    action="<?= BASE_URL ?>admin/actions/employees_delete.php"
+                                    onsubmit="return confirm('Obrisati zaposlenog?');">
+
+                                    <input
+                                        type="hidden"
+                                        name="csrf"
+                                        value="<?= csrf_token() ?>">
+
+                                    <input
+                                        type="hidden"
+                                        name="delete_id"
+                                        value="<?= $e['id'] ?>">
+
+                                    <button
+                                        class="btn btn-sm btn-danger">
+
+                                        Obriši
+
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
 
                     <?php endwhile; ?>
 
@@ -88,8 +151,10 @@ include '../layout/header.php';
 
 </main>
 
+<?php
+$units->data_seek(0);
+?>
+
 <?php include '../partials/modals/employee_modal.php'; ?>
 
-<script src="assets/js/modules/employees.js"></script>
-
-<?php include '../layout/footer.php'; ?>
+<?php include "../layouts/footer.php"; ?>

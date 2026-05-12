@@ -11,3 +11,12 @@
 .table th {
   vertical-align: middle;
 }
+
+.view-employee-btn {
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.view-employee-btn:hover {
+    text-decoration: underline;
+}

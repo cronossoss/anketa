@@ -7,7 +7,15 @@ require_once "helpers/csrf.php";
 require_once "helpers/helpers.php";
 
 if (isset($_SESSION['user_id'])) {
-    header("Location: " . BASE_URL . "admin/dashboard.php");
+
+    if ($_SESSION['role'] === 'admin') {
+
+        header("Location: " . BASE_URL . "admin/dashboard.php");
+    } else {
+
+        header("Location: " . BASE_URL . "user/dashboard.php");
+    }
+
     exit;
 }
 
@@ -42,29 +50,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (password_verify($_POST['password'], $user['password'])) {
 
-                    session_regenerate_id(true);
+                session_regenerate_id(true);
 
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['role'] = $user['role'];
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['role'] = $user['role'];
 
-                    $_SESSION['name'] =
-                        trim(
-                            ($user['first_name'] ?? '') . ' ' .
+                $_SESSION['name'] =
+                    trim(
+                        ($user['first_name'] ?? '') . ' ' .
                             ($user['last_name'] ?? '')
-                        );
+                    );
 
-                    $_SESSION['photo'] =
-                        $user['photo'] ?? null;
+                $_SESSION['photo'] =
+                    file_exists(
+                        "uploads/employees/" . $user['photo']
+                    )
+                    ? $user['photo']
+                    : null;
 
-                    $conn->query("
+                $conn->query(
+                    "
                         UPDATE users
                         SET failed_attempts=0
                         WHERE id=" . $user['id']
-                    );
+                );
+
+                if (strtolower($user['role']) === 'admin') {
 
                     header("Location: " . BASE_URL . "admin/dashboard.php");
-                    exit;
-                
+                } else {
+
+                    header("Location: " . BASE_URL . "user/dashboard.php");
+                }
+
+                exit;
             } else {
                 $conn->query("UPDATE users SET failed_attempts = failed_attempts+1 WHERE id=" . $user['id']);
                 $error = "Pogrešan login";
@@ -84,6 +103,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <base href="<?= BASE_URL ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link
+    rel="icon"
+    type="image/png"
+    href="<?= BASE_URL ?>assets/images/favicon.png">
+
+    <title>Krušik login</title>
+
 </head>
 
 <body class="bg-light">
@@ -91,6 +118,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container vh-100 d-flex justify-content-center align-items-center">
 
         <div class="card p-4 shadow" style="width:350px">
+
+            <div class="text-center mb-4">
+
+            <img
+                src="<?= BASE_URL ?>assets/images/logo.png"
+                alt="Logo"
+                style="height: 64px;">
+           
+
+                <h2 class="fw-bold login-title">
+                    Dobrodošli na portal
+                    HK "Krušik" a.d. Valjevo
+                </h2>
+
+                <p class="text-muted login-subtitle mb-0">
+                    Prijavite se na sistem
+                </p>
+
+            </div>
+
+
+
 
             <h4>Prijava</h4>
 

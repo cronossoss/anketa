@@ -1,16 +1,14 @@
 <?php
-require_once "../config/db.php";
 
-require_once "../helpers/auth.php";
-require_once "../helpers/csrf.php";
-require_once "../helpers/helpers.php";
+$pageTitle = "Organizacija";
+
+include "../layouts/admin_layout_start.php";
 
 require_login();
 require_admin();
 
-include "../layout/header.php";
-include "../layout/sidebar.php";
-
+require_once "helpers/organization/tree_helpers.php";
+require_once "helpers/organization/tree_renderer.php";
 
 /* =========================
    DATA
@@ -22,303 +20,136 @@ $result = $conn->query("
     ORDER BY code
 ");
 
-$units = $result->fetch_all(MYSQLI_ASSOC);
+$units =
+    $result->fetch_all(MYSQLI_ASSOC);
+
+/* =========================
+   FILTER
+========================= */
+
+$filter =
+    $_GET['filter']
+    ?? 'all';
+
+$relationType =
+    $_GET['relation_type']
+    ?? 'organizational';
+
+/* =========================
+   EMPLOYEE STATS
+========================= */
+
+$employeeStats = [];
+
+$result = $conn->query("
+    SELECT
+        organizational_unit_id,
+        COUNT(*) AS total,
+        SUM(is_manager = 1) AS managers
+    FROM employees
+    GROUP BY organizational_unit_id
+");
+
+while ($row = $result->fetch_assoc()) {
+
+    $employeeStats[$row['organizational_unit_id']] = $row;
+}
+
+/* =========================
+   RELATIONS
+========================= */
+
+$stmt = $conn->prepare("
+    SELECT *
+    FROM organizational_relations
+    WHERE relation_type = ?
+    ORDER BY sort_order, id
+");
+
+$stmt->bind_param(
+    "s",
+    $relationType
+);
+
+$stmt->execute();
+
+$result =
+    $stmt->get_result();
+
+$relations =
+    $result->fetch_all(MYSQLI_ASSOC);
 
 
 /* =========================
-   INSERT
+   RELATION MAP
 ========================= */
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$relationMap = [];
 
-    if (!verify_csrf($_POST['csrf'])) {
-        die("CSRF");
-    }
+foreach ($relations as $relation) {
 
-    $parent_id = ($_POST['type'] === 'OC')
-        ? null
-        : (int)$_POST['parent_id'];
-
-    $type        = trim($_POST['type']);
-    $code        = trim($_POST['code']);
-    $name        = trim($_POST['name']);
-    $description = trim($_POST['description']);
-
-    $stmt = $conn->prepare("
-        INSERT INTO organizational_units
-        (
-            parent_id,
-            type,
-            code,
-            name,
-            description
-        )
-        VALUES
-        (?, ?, ?, ?, ?)
-    ");
-
-    $stmt->bind_param(
-        "issss",
-        $parent_id,
-        $type,
-        $code,
-        $name,
-        $description
-    );
-
-    $stmt->execute();
-
-    header("Location: organization.php");
-    exit;
+    $relationMap[$relation['parent_id']][] = $relation['child_id'];
 }
 
+$parentMap = [];
+
+foreach ($relations as $relation) {
+
+    $parentMap[$relation['child_id']] = $relation['parent_id'];
+}
 
 /* =========================
-   TREE
+   VISIBLE IDS
 ========================= */
 
-function renderTree($elements, $parent = null)
-{
-    $hasChildren = false;
+$visibleIds = getVisibleIds(
+    $units,
+    $filter,
+    $parentMap
+);
 
-    foreach ($elements as $element) {
+/* =========================
+   HELPERS
+========================= */
 
-        $elementParent = $element['parent_id'];
-
-        if ($parent === null) {
-
-            if ($elementParent !== null) {
-                continue;
-            }
-
-        } else {
-
-            if ((int)$elementParent !== (int)$parent) {
-                continue;
-            }
-        }
-
-        if (!$hasChildren) {
-            $hasChildren = true;
-            echo '<ul>';
-        }
-
-        echo '<li>';
-
-        $badge = match($element['type']) {
-            'OC' => 'primary',
-            'OJ' => 'success',
-            default => 'secondary'
-        };
-
-        echo '
-            <div class="tree-item">
-
-                <span class="badge bg-' . $badge . '">
-                    ' . e($element['type']) . '
-                </span>
-
-                <strong>
-                    ' . e($element['code']) . '
-                </strong>
-
-                -
-
-                ' . e($element['name']) . '
-
-            </div>
-        ';
-
-        renderTree($elements, $element['id']);
-
-        echo '</li>';
-    }
-
-    if ($hasChildren) {
-        echo '</ul>';
-    }
-}
 ?>
 
-
-<main class="col-lg-10 main-content ms-auto">
-
-    <div class="d-flex align-items-center mb-4">
-
-        <h2 class="mb-0">
-            Organizacija firme
-        </h2>
-
-    </div>
-
+<main class="main-content">
 
     <div class="row">
 
-        <!-- TREE -->
+        <?php include "partials/organization/sidebar.php"; ?>
 
-        <div class="col-lg-7 mb-4">
+        <!-- LEFT -->
+
+        <div class="col-lg-8 mb-4">
 
             <div class="page-card">
 
-                <h4 class="mb-4">
-                    Pregled organizacije
-                </h4>
+                <div class="d-flex justify-content-between align-items-center mb-4">
 
-                <div class="org-tree">
-
-                    <?php renderTree($units); ?>
+                    <h4 class="mb-0">
+                        Pregled organizacije
+                    </h4>
 
                 </div>
 
-            </div>
+                <?php include "partials/organization/filters.php"; ?>
 
-        </div>
-
-
-        <!-- FORM -->
-
-        <div class="col-lg-5">
-
-            <div class="page-card">
-
-                <h4 class="mb-4">
-                    Dodavanje organizacije
-                </h4>
-
-                <form method="POST">
-
-                    <input
-                        type="hidden"
-                        name="csrf"
-                        value="<?= csrf_token() ?>">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Tip
-                        </label>
-
-                        <select
-                            name="type"
-                            id="type"
-                            class="form-select"
-                            required>
-
-                            <option value="OC">
-                                Organizaciona celina
-                            </option>
-
-                            <option value="OJ">
-                                Organizaciona jedinica
-                            </option>
-
-                            <option value="OD">
-                                Organizacioni deo
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Nadređena jedinica
-                        </label>
-
-                        <select
-                            name="parent_id"
-                            id="parentSelect"
-                            class="form-select">
-
-                            <option value="">
-                                -- Nema --
-                            </option>
-
-                            <?php foreach($units as $u): ?>
-
-                                <option
-                                    value="<?= $u['id'] ?>"
-                                    data-type="<?= $u['type'] ?>">
-
-                                    <?= e($u['code']) ?>
-                                    -
-                                    <?= e($u['name']) ?>
-
-                                </option>
-
-                            <?php endforeach; ?>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Šifra
-                        </label>
-
-                        <input
-                            type="text"
-                            name="code"
-                            class="form-control"
-                            required>
-
-                    </div>
-
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Naziv
-                        </label>
-
-                        <input
-                            type="text"
-                            name="name"
-                            class="form-control"
-                            required>
-
-                    </div>
-
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Opis
-                        </label>
-
-                        <textarea
-                            name="description"
-                            class="form-control"
-                            rows="4"></textarea>
-
-                    </div>
-
-
-                    <button class="btn btn-primary w-100">
-
-                        Sačuvaj
-
-                    </button>
-
-                </form>
+                <?php include "partials/organization/tree.php"; ?>
 
             </div>
 
         </div>
+
+
 
     </div>
 
 </main>
 
+<?php include __DIR__ . "/partials/modals/organization_modal.php"; ?>
 
-<script src="../assets/js/modules/organization.js"></script>
+<script src="<?= BASE_URL ?>assets/js/modules/organization.js"></script>
 
-<?php include "../layout/footer.php"; ?>
-
-</body>
-</html>
+<?php include "../layouts/admin_layout_end.php"; ?>

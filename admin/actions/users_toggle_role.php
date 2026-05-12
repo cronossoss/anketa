@@ -1,5 +1,10 @@
 <?php
 
+ob_start();
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 require_once "../../config/db.php";
 
 require_once "../../helpers/auth.php";
@@ -9,6 +14,8 @@ require_login();
 require_admin();
 
 header('Content-Type: application/json');
+
+ob_clean();
 
 if (!verify_csrf($_POST['csrf'] ?? '')) {
 
@@ -54,8 +61,8 @@ if (!$user) {
 
 $newRole =
     strtolower($user['role']) === 'admin'
-        ? 'user'
-        : 'admin';
+    ? 'user'
+    : 'admin';
 
 $stmt = $conn->prepare("
     UPDATE users

@@ -1,10 +1,121 @@
-.employee-photo {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
+/* =========================
+   EMPLOYEE MODAL COMPACT
+========================= */
+
+#employeeModal .modal-dialog {
+    max-width: 1200px;
+}
+
+#employeeModal .modal-content {
+    border-radius: 10px;
+}
+
+#employeeModal .modal-header {
+    padding: 4px 18px;
+}
+
+#employeeModal .modal-body {
+    padding: 6px !important;
+}
+
+#employeeModal .modal-footer {
+    padding: 4px 18px;
+}
+
+/* PROFILE HEADER */
+
+.employee-profile-header {
+    padding-bottom: 4px;
+    margin-bottom: 4px !important;
+}
+
+.employee-profile-photo {
+    width: 82px;
+    height: 82px;
+    border-width: 2px;
 }
 
 .employee-name {
-  font-weight: 600;
+    font-size: 20px !important;
+    line-height: 1.05;
+    margin-bottom: 2px !important;
+}
+
+.employee-position {
+    font-size: 14px;
+    margin-bottom: 2px !important;
+}
+
+.employee-subtitle {
+    font-size: 12px;
+    margin-bottom: 4px !important;
+}
+
+/* CARDS */
+
+#employeeModal .card {
+    margin-bottom: 10px !important;
+}
+
+#employeeModal .card-body {
+    padding: 10px !important;
+}
+
+#employeeModal h5 {
+    margin-bottom: 8px !important;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* FORM GRID */
+
+#employeeModal .row.g-2 {
+    --bs-gutter-x: 8px;
+    --bs-gutter-y: 6px;
+}
+
+/* LABELS */
+
+#employeeModal .form-label {
+    margin-bottom: 2px !important;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+}
+
+/* INPUTS */
+
+#employeeModal .form-control,
+#employeeModal .form-select {
+    height: 30px !important;
+    min-height: 30px !important;
+
+    padding: 1px 8px !important;
+
+    font-size: 14px !important;
+
+    border-radius: 5px;
+}
+
+/* DATE INPUT */
+
+#employeeModal input[type="date"] {
+    padding-right: 6px !important;
+}
+
+/* CHECKBOX */
+
+#employeeModal .form-check {
+    margin-top: 2px !important;
+}
+
+#employeeModal .form-check-label {
+    font-size: 12px;
+}
+
+/* BUTTONS */
+
+#employeeModal .btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
 }

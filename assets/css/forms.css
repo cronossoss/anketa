@@ -7,12 +7,34 @@ label {
   margin-bottom: 5px;
 }
 
-input,
-select,
+.form-control,
+.form-select,
 textarea {
   width: 100%;
 }
 
 .btn {
   border-radius: 8px;
+}
+
+.login-title {
+    font-size: 22px;
+    line-height: 1.2;
+    color: #1f2937;
+}
+
+.login-subtitle {
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+
+    .login-title {
+        font-size: 24px;
+        line-height: 1.4;
+    }
+
+    .login-subtitle {
+        font-size: 15px;
+    }
 }
