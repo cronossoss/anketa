@@ -9,6 +9,19 @@ document.addEventListener(
         initCreateButton();
 
         initDatepickers();
+
+        const hasAccount =
+            document.getElementById(
+                'has_account'
+            );
+
+        if (hasAccount) {
+
+            hasAccount.addEventListener(
+                'change',
+                toggleSystemRole
+            );
+        }
     }
 );
 
@@ -75,6 +88,36 @@ function setDate(id, value) {
 
         element.value =
             formatted;
+    }
+}
+
+function toggleSystemRole() {
+
+    const hasAccount =
+        document.getElementById(
+            'has_account'
+        );
+
+    const wrapper =
+        document.getElementById(
+            'system_role_wrapper'
+        );
+
+    if (!hasAccount || !wrapper) return;
+
+    if (hasAccount.checked) {
+
+        wrapper.style.display =
+            'block';
+
+    } else {
+
+        wrapper.style.display =
+            'none';
+
+        document.getElementById(
+            'system_role'
+        ).value = '';
     }
 }
 
@@ -321,7 +364,19 @@ function initEditButtons() {
                     document.getElementById(
                         'is_manager'
                     ).checked =
-                        e.is_manager == 1;
+                        e.is_manager === 1;
+
+                    document.getElementById(
+                        'has_account'
+                    ).checked =
+                        e.has_account === 1;
+
+                    document.getElementById(
+                        'system_role'
+                    ).value =
+                        e.system_role || '';
+
+                    toggleSystemRole();
 
                     const preview =
                         document.getElementById(

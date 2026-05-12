@@ -83,6 +83,18 @@ $is_manager =
     isset($_POST['is_manager'])
     ? 1
     : 0;
+$has_account =
+    isset($_POST['has_account'])
+    ? 1
+    : 0;
+
+$system_role =
+    trim($_POST['system_role'] ?? '');
+
+if (!$has_account) {
+
+    $system_role = null;
+}
 
 $photo =
     !empty($personal_id)
@@ -129,12 +141,14 @@ $stmt = $conn->prepare("
         phone_private=?,
         bank_account=?,
         business_email=?,
-        business_phone=?
+        business_phone=?,
+        has_account=?,
+        system_role=?
     WHERE id=?
 ");
 
 $stmt->bind_param(
-    "ssisssisssssssssssi",
+    "ssisssisssssssssssisi",
     $first_name,
     $last_name,
     $organizational_unit_id,
@@ -153,6 +167,8 @@ $stmt->bind_param(
     $bank_account,
     $business_email,
     $business_phone,
+    $has_account,
+    $system_role,
     $id
 );
 

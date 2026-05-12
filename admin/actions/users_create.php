@@ -103,11 +103,12 @@ if (
 
 
 /* =========================
-   MANAGER CHECK
+   ACCOUNT ACCESS CHECK
 ========================= */
 
-if (!$emp['is_manager']) {
-    exit('Only managers allowed');
+if (!(int)$emp['has_account']) {
+
+    exit('Employee has no system access');
 }
 
 
@@ -166,6 +167,13 @@ $password = password_hash(
 
 
 /* =========================
+   ROLE
+========================= */
+
+$role = $emp['system_role'] ?: 'user';
+
+
+/* =========================
    INSERT
 ========================= */
 
@@ -178,20 +186,15 @@ $stmt = $conn->prepare("
         role
     )
     VALUES
-    (?, ?, ?, 'user')
+    (?, ?, ?, ?)
 ");
 
 $stmt->bind_param(
-    "ssi",
+    "ssis",
     $username,
     $password,
-    $emp_id
+    $emp_id,
+    $role
 );
 
 $stmt->execute();
-
-
-redirect(
-    BASE_URL .
-        'admin/users.php'
-);

@@ -453,14 +453,85 @@
                                             name="is_manager"
                                             id="is_manager">
 
-                                        <label
-                                            class="form-check-label small">
+                                        <label class="form-check-label small">
 
                                             Rukovodilac
 
                                         </label>
 
                                     </div>
+
+                                </div>
+
+                                <div class="col-md-12 mt-2">
+
+                                    <hr>
+
+                                    <h6 class="small text-muted mb-2">
+                                        Pristup aplikaciji
+                                    </h6>
+
+                                </div>
+
+                                <div class="col-xl-4 col-md-6">
+
+                                    <div class="form-check mt-1">
+
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="has_account"
+                                            id="has_account">
+
+                                        <label class="form-check-label small">
+
+                                            Korisnik aplikacije
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                <div
+                                    class="col-xl-4 col-md-6"
+                                    id="system_role_wrapper"
+                                    style="display:none;">
+
+                                    <label class="form-label small mb-1">
+                                        Sistemska uloga
+                                    </label>
+
+                                    <select
+                                        class="form-select form-select-sm"
+                                        name="system_role"
+                                        id="system_role">
+
+                                        <option value="">
+                                            -- Izaberi --
+                                        </option>
+
+                                        <option value="admin">
+                                            Administrator
+                                        </option>
+
+                                        <option value="hr">
+                                            HR
+                                        </option>
+
+                                        <option value="manager">
+                                            Manager
+                                        </option>
+
+                                        <option value="it">
+                                            IT
+                                        </option>
+
+                                        <option value="user">
+                                            Korisnik
+                                        </option>
+
+                                    </select>
 
                                 </div>
 
@@ -513,7 +584,32 @@
         return parts[2] + '.' + parts[1] + '.' + parts[0];
     }
 
+
+
     document.addEventListener('DOMContentLoaded', function() {
+
+        const hasAccount = document.getElementById('has_account');
+        const systemRoleWrapper = document.getElementById(
+            'system_role_wrapper'
+        );
+
+        function toggleSystemRole() {
+
+            if (hasAccount.checked) {
+
+                systemRoleWrapper.style.display = 'block';
+
+            } else {
+
+                systemRoleWrapper.style.display = 'none';
+
+                document.getElementById('system_role').value = '';
+            }
+        }
+
+        hasAccount.addEventListener('change', toggleSystemRole);
+
+        toggleSystemRole();
 
         const employeeModal = document.getElementById('employeeModal');
 
@@ -549,6 +645,10 @@
 
                 document.getElementById('is_manager').checked = false;
 
+                document.getElementById('has_account').checked = false;
+
+                document.getElementById('system_role').value = '';
+
                 // HEADER
 
                 document.getElementById('employeeDisplayName').innerText =
@@ -564,6 +664,64 @@
                     'Pozicija nije definisana';
 
                 toggleContractEnd();
+
+            }
+
+            // EDIT MODE
+            if (button && button.classList.contains('edit-employee-btn')) {
+
+                /* const employee = JSON.parse(
+                    button.getAttribute('data-employee')
+                ); */
+
+                let employee = {};
+
+                try {
+
+                    employee = JSON.parse(
+                        button.getAttribute('data-employee')
+                    );
+
+                    console.log(employee);
+
+                } catch (e) {
+
+                    console.error(e);
+
+                }
+
+                console.log(
+                    document.getElementById('has_account')
+                );
+
+                console.log(
+                    document.getElementById('system_role')
+                );
+
+                console.log(employee);
+
+                document.getElementById('first_name').value =
+                    employee.first_name || '';
+
+                document.getElementById('last_name').value =
+                    employee.last_name || '';
+
+                document.getElementById('position').value =
+                    employee.position || '';
+
+                document.getElementById('email').value =
+                    employee.email || '';
+
+                document.getElementById('is_manager').checked =
+                    employee.is_manager == 1;
+
+                document.getElementById('has_account').checked =
+                    employee.has_account == 1;
+
+                document.getElementById('system_role').value =
+                    employee.system_role || '';
+
+                toggleSystemRole();
 
             }
 

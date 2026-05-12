@@ -10,10 +10,15 @@ require_admin();
    DATA
 ========================= */
 $employees = $conn->query("
-    SELECT e.id, e.first_name, e.last_name, e.position
+    SELECT 
+        e.id,
+        e.first_name,
+        e.last_name,
+        e.position,
+        e.system_role
     FROM employees e
     LEFT JOIN users u ON u.employee_id = e.id
-    WHERE e.is_manager = 1
+    WHERE e.has_account = 1
     AND u.id IS NULL
     ORDER BY e.first_name
 ");
@@ -25,7 +30,8 @@ $users = $conn->query("
         u.role,
         e.first_name,
         e.last_name,
-        e.position
+        e.position,
+        e.system_role
     FROM users u
     LEFT JOIN employees e ON e.id = u.employee_id
     ORDER BY e.first_name
@@ -60,8 +66,13 @@ $users = $conn->query("
 
                         <?php while ($e = $employees->fetch_assoc()): ?>
                             <option value="<?= $e['id'] ?>">
+
                                 <?= e($e['first_name'] . ' ' . $e['last_name']) ?>
+
                                 (<?= e($e['position'] ?? '-') ?>)
+
+                                - <?= strtoupper(e($e['system_role'] ?? 'user')) ?>
+
                             </option>
                         <?php endwhile; ?>
 

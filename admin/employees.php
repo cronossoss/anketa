@@ -105,7 +105,14 @@ $employees = $conn->query("
                                 <button
                                     type="button"
                                     class="btn btn-sm btn-primary edit-employee-btn"
-                                    data-id="<?= $e['id'] ?>">
+                                    data-id="<?= $e['id'] ?>"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#employeeModal"
+                                    data-employee='<?= htmlspecialchars(
+                                                        json_encode($e),
+                                                        ENT_QUOTES,
+                                                        "UTF-8"
+                                                    ) ?>'>
 
                                     Izmeni
 
