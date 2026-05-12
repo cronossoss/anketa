@@ -42,7 +42,11 @@ function renderTreeNode(
             ? 'opacity-50'
             : ''
         ) .
-        '">
+        '"
+        data-unit-id="' . $element['id'] . '"
+        
+        data-unit-name="' . e($element['name']) . '">
+
 
         <button
             type="button"

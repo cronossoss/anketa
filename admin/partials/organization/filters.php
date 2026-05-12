@@ -14,11 +14,6 @@ $hierarchicalBtn =
     $relationType === 'hierarchical'
     ? 'btn-dark'
     : 'btn-outline-dark';
-
-$functionalBtn =
-    $relationType === 'functional'
-    ? 'btn-dark'
-    : 'btn-outline-dark';
 ?>
 <?php
 
@@ -31,11 +26,6 @@ $organizationalBtn =
 
 $hierarchicalBtn =
     $relationType === 'hierarchical'
-    ? 'btn-dark'
-    : 'btn-outline-dark';
-
-$functionalBtn =
-    $relationType === 'functional'
     ? 'btn-dark'
     : 'btn-outline-dark';
 
@@ -61,15 +51,7 @@ $functionalBtn =
 
         </a>
 
-        <a
-            href="?relation_type=functional&filter=<?= $filter ?>"
-            class="btn btn-sm <?= $functionalBtn ?>">
-
-            Funkcionalna
-
-        </a>
-
-
+        
         <a
             href="?relation_type=<?= $relationType ?>&filter=all"
             class="btn btn-sm btn-outline-dark">

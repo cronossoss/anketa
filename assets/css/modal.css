@@ -31,24 +31,26 @@
 }
 
 .employee-profile-header {
-    background: linear-gradient(
-        135deg,
-        #ffffff,
-        #f8f9fa
-    );
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
 
     border-radius: 14px;
 
     padding: 16px;
 }
 
+.employee-row {
+    cursor: pointer;
+}
+
+.employee-row:hover {
+    background: #f8f9fa;
+}
 
 /* =========================
    MOBILE
 ========================= */
 
 @media (max-width: 768px) {
-
     .modal-dialog {
         margin: 8px;
     }

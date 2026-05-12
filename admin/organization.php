@@ -148,7 +148,23 @@ $visibleIds = getVisibleIds(
 
 </main>
 
+<?php
+
+$units = $conn->query("
+    SELECT
+        id,
+        code,
+        name
+    FROM organizational_units
+    ORDER BY name
+");
+?>
+
+<?php include __DIR__ . "/partials/modals/organization_employees_modal.php"; ?>
+
 <?php include __DIR__ . "/partials/modals/organization_modal.php"; ?>
+
+<?php include __DIR__ . "/partials/modals/employee_view_modal.php"; ?>
 
 <script src="<?= BASE_URL ?>assets/js/modules/organization.js"></script>
 
