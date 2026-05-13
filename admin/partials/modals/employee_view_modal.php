@@ -69,7 +69,7 @@
 
                                 <span
                                     class="badge bg-secondary"
-                                    id="viewEmployeeManagerBadge">
+                                    id="viewEmployeeRoleBadge">
 
                                     Zaposleni
 

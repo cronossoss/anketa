@@ -170,8 +170,19 @@ async function openEmployeeModal(employeeId) {
         }
 
         const employee = data.employee;
+        console.log('1');
 
-        document.getElementById('viewEmployeePhoto').src = employee.photo
+        console.log(employee.is_manager);
+
+        const photo = document.getElementById('viewEmployeePhoto');
+
+        photo.onerror = function () {
+            this.onerror = null;
+
+            this.src = APP.baseUrl + 'assets/images/default-user.png';
+        };
+
+        photo.src = employee.photo
             ? APP.baseUrl + 'uploads/employees/' + employee.photo
             : APP.baseUrl + 'assets/images/default-user.png';
 
@@ -185,9 +196,6 @@ async function openEmployeeModal(employeeId) {
         document.getElementById('viewEmployeeOj').innerText = employee.unit_name ?? '-';
 
         document.getElementById('viewEmployeePosition').innerText = employee.position ?? '-';
-
-        document.getElementById('viewEmployeeManagerBadge').innerText =
-            employee.is_manager == 1 ? 'Rukovodilac' : 'Zaposleni';
 
         // PERSONAL
 
@@ -228,6 +236,8 @@ async function openEmployeeModal(employeeId) {
         document.getElementById('viewEmployeeBusinessPhone').innerText =
             employee.business_phone ?? '-';
 
+        console.log('2');
+
         // CLOSE PREVIOUS MODAL
 
         const employeesModal = bootstrap.Modal.getInstance(
@@ -242,7 +252,18 @@ async function openEmployeeModal(employeeId) {
 
         const modal = new bootstrap.Modal(document.getElementById('employeeViewModal'));
 
+        console.log('3');
+
         modal.show();
+
+        const roleBadge = document.getElementById('viewEmployeeRoleBadge');
+
+        console.log('4');
+
+        roleBadge.className =
+            Number(employee.is_manager) === 1 ? 'badge bg-warning text-dark' : 'badge bg-secondary';
+
+        roleBadge.innerText = Number(employee.is_manager) === 1 ? 'Rukovodilac' : 'Zaposleni';
     } catch (error) {
         console.error(error);
 

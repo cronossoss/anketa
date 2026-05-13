@@ -1,122 +1,84 @@
-document.addEventListener(
-    'DOMContentLoaded',
-    () => {
+document.addEventListener('DOMContentLoaded', () => {
+    const selects = document.querySelectorAll('.user-role-select');
 
-        const toggles =
-            document.querySelectorAll(
-                '.role-toggle'
-            );
-
-        if (!toggles.length) {
-            return;
-        }
-
-        toggles.forEach(toggle => {
-
-            toggle.addEventListener(
-                'change',
-                function () {
-
-                    const id =
-                        this.dataset.id;
-
-                    const checkbox =
-                        this;
-
-                    const badge =
-                        this.closest('td')
-                            .querySelector(
-                                '.role-badge'
-                            );
-
-                            console.log(APP.csrfToken);
-
-                    fetch(
-                        APP.baseUrl +
-                        'admin/actions/users_toggle_role.php',
-
-                        {
-                            method: 'POST',
-
-                            headers: {
-                                'Content-Type':
-                                    'application/x-www-form-urlencoded'
-                            },
-
-                            body:
-                                'id=' + id +
-                                '&csrf=' +
-                                encodeURIComponent(
-                                    APP.csrfToken
-                                )
-                        }
-                    )
-                    .then(async res => {
-
-                      const text = await res.text();
-
-                      console.log(text);
-
-                      return JSON.parse(text);
-                  })
-
-                    .then(data => {
-
-                        if (
-                            data.status === 'ok'
-                        ) {
-
-                            if (
-                                data.role === 'admin'
-                            ) {
-
-                                badge.classList.remove(
-                                    'bg-secondary'
-                                );
-
-                                badge.classList.add(
-                                    'bg-danger'
-                                );
-
-                                badge.innerText =
-                                    'Admin';
-
-                            } else {
-
-                                badge.classList.remove(
-                                    'bg-danger'
-                                );
-
-                                badge.classList.add(
-                                    'bg-secondary'
-                                );
-
-                                badge.innerText =
-                                    'User';
-                            }
-
-                        } else {
-
-                            checkbox.checked =
-                                !checkbox.checked;
-
-                            alert('Greška');
-                        }
-                    })
-
-                    .catch(error => {
-
-                        console.error(error);
-
-                        checkbox.checked =
-                            !checkbox.checked;
-
-                        alert(
-                            'Greška konekcije'
-                        );
-                    });
-                }
-            );
-        });
+    if (!selects.length) {
+        return;
     }
-);
+
+    selects.forEach((select) => {
+        select.addEventListener('change', async function () {
+            const userId = this.dataset.id;
+
+            const role = this.value;
+
+            const row = this.closest('tr');
+
+            const badge = row.querySelector('.role-badge');
+
+            try {
+                const response = await fetch(
+                    APP.baseUrl + 'admin/actions/users_update_role.php',
+
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+
+                        body: JSON.stringify({
+                            user_id: userId,
+                            role: role,
+                            csrf: APP.csrfToken,
+                        }),
+                    },
+                );
+
+                const result = await response.text();
+
+                if (result !== 'OK') {
+                    return;
+                }
+
+                badge.className = 'badge role-badge';
+
+                switch (role) {
+                    case 'admin':
+                        badge.classList.add('bg-danger');
+
+                        badge.innerText = 'Admin';
+
+                        break;
+
+                    case 'it':
+                        badge.classList.add('bg-dark');
+
+                        badge.innerText = 'IT';
+
+                        break;
+
+                    case 'hr':
+                        badge.classList.add('bg-info');
+
+                        badge.innerText = 'HR';
+
+                        break;
+
+                    case 'manager':
+                        badge.classList.add('bg-warning', 'text-dark');
+
+                        badge.innerText = 'Manager';
+
+                        break;
+
+                    default:
+                        badge.classList.add('bg-secondary');
+
+                        badge.innerText = 'User';
+                }
+            } catch (error) {
+                alert('Greška konekcije');
+            }
+        });
+    });
+});

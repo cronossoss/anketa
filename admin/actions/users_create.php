@@ -171,7 +171,7 @@ $password = password_hash(
    ROLE
 ========================= */
 
-$role = $emp['system_role'] ?: 'user';
+$role = 'user';
 
 
 /* =========================
@@ -207,3 +207,6 @@ audit_log(
     'Kreiran korisnik: ' .
         $username
 );
+
+header("Location: ../users.php");
+exit;

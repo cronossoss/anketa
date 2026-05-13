@@ -1,5 +1,5 @@
 <?php
-$pageTitle = "Pregled anketa";
+$pageTitle = "Pregled izveštaja";
 
 include "../layouts/admin_layout_start.php";
 
@@ -7,11 +7,12 @@ require_login();
 
 require_role(['admin', 'it', 'hr', 'manager']);
 
+
 ?>
 
 <main class="col-lg-10 main-content ms-auto">
 
-<h3>Pregled anketa</h3>
+<h3>Pregled izveštaja</h3>
 
 <table class="table table-bordered">
     <tr>

@@ -5,7 +5,7 @@ require_once "../../config/db.php";
 require_once "../../helpers/auth.php";
 
 require_login();
-require_admin();
+require_role(['admin', 'it']);
 
 header('Content-Type: application/json');
 

@@ -9,13 +9,22 @@ require_role(['admin', 'it']);
 /* =========================
    DATA
 ========================= */
+
+$roles = [
+    'admin' => 'Admin',
+    'it' => 'IT',
+    'hr' => 'HR',
+    'manager' => 'Manager',
+    'user' => 'User'
+];
+
 $employees = $conn->query("
     SELECT 
         e.id,
         e.first_name,
         e.last_name,
         e.position,
-        e.system_role
+        'user' AS system_role
     FROM employees e
     LEFT JOIN users u ON u.employee_id = e.id
     WHERE e.has_account = 1
@@ -30,8 +39,7 @@ $users = $conn->query("
         u.role,
         e.first_name,
         e.last_name,
-        e.position,
-        e.system_role
+        e.position
     FROM users u
     LEFT JOIN employees e ON e.id = u.employee_id
     ORDER BY e.first_name
@@ -71,7 +79,7 @@ $users = $conn->query("
 
                                 (<?= e($e['position'] ?? '-') ?>)
 
-                                - <?= strtoupper(e($e['system_role'] ?? 'user')) ?>
+                                
 
                             </option>
                         <?php endwhile; ?>
@@ -93,13 +101,27 @@ $users = $conn->query("
                 <table class="table table-hover align-middle">
 
                     <thead>
+
                         <tr>
+
                             <th>Username</th>
-                            <th>Zaposleni</th>
+
+                            <th class="d-none d-md-table-cell">
+                                Zaposleni
+                            </th>
+
                             <th>Pozicija</th>
-                            <th>Rola</th>
-                            <th class="text-end">Akcije</th>
+
+                            <th class="d-none d-md-table-cell">
+                                Rola
+                            </th>
+
+                            <th class="text-end d-none d-md-table-cell">
+                                Akcije
+                            </th>
+
                         </tr>
+
                     </thead>
 
                     <tbody>
@@ -107,41 +129,172 @@ $users = $conn->query("
                         <?php while ($u = $users->fetch_assoc()): ?>
                             <tr>
 
-                                <td><?= e($u['email']) ?></td>
-                                <td><?= e($u['first_name'] . ' ' . $u['last_name']) ?></td>
-                                <td><?= e($u['position'] ?? '-') ?></td>
-
                                 <td>
-                                    <label class="form-check form-switch">
-                                        <input
-                                            class="form-check-input role-toggle"
-                                            type="checkbox"
-                                            data-id="<?= $u['id'] ?>"
-                                            <?= ($u['role'] === 'admin') ? 'checked' : '' ?>>
-                                    </label>
 
-                                    <span class="badge role-badge <?= ($u['role'] === 'admin') ? 'bg-danger' : 'bg-secondary' ?>">
-                                        <?= ($u['role'] === 'admin') ? 'Admin' : 'User' ?>
-                                    </span>
+                                    <div class="fw-semibold">
+                                        <?= e($u['email']) ?>
+                                    </div>
+
+                                    <div class="small text-muted d-md-none mt-1">
+                                        <?= e($u['first_name'] . ' ' . $u['last_name']) ?>
+                                    </div>
+
                                 </td>
 
-                                <td class="text-end">
+                                <td class="d-none d-md-table-cell">
+                                    <?= e($u['first_name'] . ' ' . $u['last_name']) ?>
+                                </td>
+
+                                <td>
+                                    <?= e($u['position'] ?? '-') ?>
+                                </td>
+
+                                <td class="d-none d-md-table-cell">
+
+                                    <?php
+
+                                    $badgeClass = match ($u['role']) {
+                                        'admin' => 'bg-danger',
+                                        'it' => 'bg-dark',
+                                        'hr' => 'bg-info',
+                                        'manager' => 'bg-warning text-dark',
+                                        default => 'bg-secondary'
+                                    };
+
+                                    ?>
+
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <select
+                                            class="form-select form-select-sm user-role-select"
+                                            data-id="<?= $u['id'] ?>"
+                                            style="width: 140px;">
+
+                                            <?php foreach ($roles as $value => $label): ?>
+
+                                                <option
+                                                    value="<?= $value ?>"
+                                                    <?= ($u['role'] === $value) ? 'selected' : '' ?>>
+
+                                                    <?= $label ?>
+
+                                                </option>
+
+                                            <?php endforeach; ?>
+
+                                        </select>
+
+                                        <span class="badge role-badge <?= $badgeClass ?>">
+                                            <?= e($roles[$u['role']] ?? 'User') ?>
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+                                <td class="text-end d-none d-md-table-cell">
 
                                     <form
                                         method="POST"
-                                        action="<?= BASE_URL ?>admin/actions/users_reset_password.php" class="d-inline">
+                                        action="<?= BASE_URL ?>admin/actions/users_reset_password.php"
+                                        class="d-inline">
+
                                         <input type="hidden" name="reset_id" value="<?= $u['id'] ?>">
                                         <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
-                                        <button class="btn btn-sm btn-warning">Reset lozinke</button>
+
+                                        <button class="btn btn-sm btn-warning">
+                                            Reset lozinke
+                                        </button>
+
                                     </form>
 
                                     <form
                                         method="POST"
-                                        action="<?= BASE_URL ?>admin/actions/users_delete.php" class="d-inline" onsubmit="return confirm('Obrisati korisnika?');">
+                                        action="<?= BASE_URL ?>admin/actions/users_delete.php"
+                                        class="d-inline"
+                                        onsubmit="return confirm('Obrisati korisnika?');">
+
                                         <input type="hidden" name="delete_id" value="<?= $u['id'] ?>">
                                         <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
-                                        <button class="btn btn-sm btn-danger">Obriši</button>
+
+                                        <button class="btn btn-sm btn-danger">
+                                            Obriši
+                                        </button>
+
                                     </form>
+
+                                </td>
+
+                            </tr>
+
+                            <tr class="d-md-none bg-light">
+
+                                <td colspan="3">
+
+                                    <div class="mb-2">
+
+                                        <div class="small text-muted mb-1">
+                                            Rola
+                                        </div>
+
+                                        <div class="d-flex align-items-center gap-2">
+
+                                            <select
+                                                class="form-select form-select-sm user-role-select"
+                                                data-id="<?= $u['id'] ?>">
+
+                                                <?php foreach ($roles as $value => $label): ?>
+
+                                                    <option
+                                                        value="<?= $value ?>"
+                                                        <?= ($u['role'] === $value) ? 'selected' : '' ?>>
+
+                                                        <?= $label ?>
+
+                                                    </option>
+
+                                                <?php endforeach; ?>
+
+                                            </select>
+
+                                            <span class="badge role-badge <?= $badgeClass ?>">
+                                                <?= e($roles[$u['role']] ?? 'User') ?>
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+
+                                        <form
+                                            method="POST"
+                                            action="<?= BASE_URL ?>admin/actions/users_reset_password.php">
+
+                                            <input type="hidden" name="reset_id" value="<?= $u['id'] ?>">
+                                            <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
+
+                                            <button class="btn btn-sm btn-warning w-100">
+                                                Reset lozinke
+                                            </button>
+
+                                        </form>
+
+                                        <form
+                                            method="POST"
+                                            action="<?= BASE_URL ?>admin/actions/users_delete.php"
+                                            onsubmit="return confirm('Obrisati korisnika?');">
+
+                                            <input type="hidden" name="delete_id" value="<?= $u['id'] ?>">
+                                            <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
+
+                                            <button class="btn btn-sm btn-danger w-100">
+                                                Obriši
+                                            </button>
+
+                                        </form>
+
+                                    </div>
 
                                 </td>
 
@@ -158,3 +311,4 @@ $users = $conn->query("
 </main>
 
 <?php include "../layouts/footer.php"; ?>
+

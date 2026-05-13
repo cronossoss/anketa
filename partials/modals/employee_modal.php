@@ -91,7 +91,7 @@
 
                                     <span
                                         class="badge bg-secondary"
-                                        id="employeeManagerBadge">
+                                        id="employeeDisplayRoleBadge">
 
                                         Zaposleni
 

@@ -89,7 +89,7 @@ $employees = $conn->query("
                                     class="btn btn-link p-0 text-start view-employee-btn"
                                     data-id="<?= $e['id'] ?>"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#employeeModal">
+                                    data-bs-target="#">
 
                                     <?= e($e['first_name']) ?>
                                     <?= e($e['last_name']) ?>
@@ -164,5 +164,7 @@ $units->data_seek(0);
 ?>
 
 <?php include '../partials/modals/employee_modal.php'; ?>
+
+
 
 <?php include "../layouts/footer.php"; ?>

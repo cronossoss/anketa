@@ -68,7 +68,9 @@
 
 <script src="<?= BASE_URL ?>assets/js/modules/employees.js"></script>
 
-<script src="<?= BASE_URL ?>assets/js/modules/users.js"></script>
+<script src="<?= BASE_URL ?>assets/js/modules/users.js?v=<?= time() ?>"></script>
+
+
 
 </body>
 

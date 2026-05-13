@@ -1,53 +1,37 @@
-document.addEventListener(
-    'DOMContentLoaded',
-    () => {
+document.addEventListener('DOMContentLoaded', () => {
+    initEmployeeSearch();
 
-        initEmployeeSearch();
+    initEditButtons();
 
-        initEditButtons();
+    initCreateButton();
 
-        initCreateButton();
+    initDatepickers();
 
-        initDatepickers();
+    const hasAccount = document.getElementById('has_account');
 
-        const hasAccount =
-            document.getElementById(
-                'has_account'
-            );
-
-        if (hasAccount) {
-
-            hasAccount.addEventListener(
-                'change',
-                toggleSystemRole
-            );
-        }
+    if (hasAccount) {
+        hasAccount.addEventListener('change', toggleSystemRole);
     }
-);
+});
 
 /* =========================
    DATEPICKER
 ========================= */
 
 function initDatepickers() {
+    document.querySelectorAll('.datepicker').forEach((el) => {
+        flatpickr(el, {
+            locale: 'sr',
 
-    document
-        .querySelectorAll('.datepicker')
-        .forEach(el => {
+            dateFormat: 'Y-m-d',
 
-            flatpickr(el, {
+            altInput: true,
 
-                locale: "sr",
+            altFormat: 'd.m.Y',
 
-                dateFormat: "Y-m-d",
-
-                altInput: true,
-
-                altFormat: "d.m.Y",
-
-                allowInput: true
-            });
+            allowInput: true,
         });
+    });
 }
 
 /* =========================
@@ -55,69 +39,40 @@ function initDatepickers() {
 ========================= */
 
 function setValue(id, value) {
-
-    const element =
-        document.getElementById(id);
+    const element = document.getElementById(id);
 
     if (!element) return;
 
-    element.value =
-        value ?? '';
+    element.value = value ?? '';
 }
 
 function setDate(id, value) {
-
-    const element =
-        document.getElementById(id);
+    const element = document.getElementById(id);
 
     if (!element) return;
 
-    const formatted =
-        value
-            ? value.split(' ')[0]
-            : '';
+    const formatted = value ? value.split(' ')[0] : '';
 
     if (element._flatpickr) {
-
-        element._flatpickr.setDate(
-            formatted,
-            true
-        );
-
+        element._flatpickr.setDate(formatted, true);
     } else {
-
-        element.value =
-            formatted;
+        element.value = formatted;
     }
 }
 
 function toggleSystemRole() {
+    const hasAccount = document.getElementById('has_account');
 
-    const hasAccount =
-        document.getElementById(
-            'has_account'
-        );
-
-    const wrapper =
-        document.getElementById(
-            'system_role_wrapper'
-        );
+    const wrapper = document.getElementById('system_role_wrapper');
 
     if (!hasAccount || !wrapper) return;
 
     if (hasAccount.checked) {
-
-        wrapper.style.display =
-            'block';
-
+        wrapper.style.display = 'block';
     } else {
+        wrapper.style.display = 'none';
 
-        wrapper.style.display =
-            'none';
-
-        document.getElementById(
-            'system_role'
-        ).value = '';
+        document.getElementById('system_role').value = '';
     }
 }
 
@@ -126,36 +81,17 @@ function toggleSystemRole() {
 ========================= */
 
 function initEmployeeSearch() {
-
-    const search =
-        document.getElementById(
-            'employeeSearch'
-        );
+    const search = document.getElementById('employeeSearch');
 
     if (!search) return;
 
-    search.addEventListener(
-        'keyup',
-        function () {
+    search.addEventListener('keyup', function () {
+        const value = this.value.toLowerCase();
 
-            const value =
-                this.value.toLowerCase();
-
-            document
-                .querySelectorAll(
-                    '.employee-row'
-                )
-                .forEach(row => {
-
-                    row.style.display =
-                        row.innerText
-                            .toLowerCase()
-                            .includes(value)
-                                ? ''
-                                : 'none';
-                });
-        }
-    );
+        document.querySelectorAll('.employee-row').forEach((row) => {
+            row.style.display = row.innerText.toLowerCase().includes(value) ? '' : 'none';
+        });
+    });
 }
 
 /* =========================
@@ -163,38 +99,21 @@ function initEmployeeSearch() {
 ========================= */
 
 function initCreateButton() {
-
-    const btn =
-        document.getElementById(
-            'addEmployeeBtn'
-        );
+    const btn = document.getElementById('addEmployeeBtn');
 
     if (!btn) return;
 
-    btn.addEventListener(
-        'click',
-        () => {
+    btn.addEventListener('click', () => {
+        resetEmployeeForm();
 
-            resetEmployeeForm();
+        document.getElementById('employeeModalTitle').innerText = 'Dodavanje zaposlenog';
 
-            document.getElementById(
-                'employeeModalTitle'
-            ).innerText =
-                'Dodavanje zaposlenog';
+        document.getElementById('employeeForm').action =
+            APP.baseUrl + 'admin/actions/employees_create.php';
 
-            document.getElementById(
-                'employeeForm'
-            ).action =
-                APP.baseUrl +
-                'admin/actions/employees_create.php';
-
-            document.getElementById(
-                'employeePhotoPreview'
-            ).src =
-                APP.baseUrl +
-                'assets/images/default-user.png';
-        }
-    );
+        document.getElementById('employeePhotoPreview').src =
+            APP.baseUrl + 'assets/images/default-user.png';
+    });
 }
 
 /* =========================
@@ -202,223 +121,116 @@ function initCreateButton() {
 ========================= */
 
 function initEditButtons() {
+    document.querySelectorAll('.edit-employee-btn, .view-employee-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            resetEmployeeForm();
 
-    document
-        .querySelectorAll(
-            '.edit-employee-btn, .view-employee-btn'
-        )
-        .forEach(btn => {
+            const id = btn.dataset.id;
 
-            btn.addEventListener(
-                'click',
-                async () => {
+            const response = await fetch(APP.baseUrl + 'admin/actions/employees_get.php?id=' + id);
 
-                    resetEmployeeForm();
+            const data = await response.json();
 
-                    const id =
-                        btn.dataset.id;
+            if (data.status !== 'ok') {
+                alert('Greška');
 
-                    const response =
-                        await fetch(
-                            APP.baseUrl +
-                            'admin/actions/employees_get.php?id=' +
-                            id
-                        );
+                return;
+            }
 
-                    const data =
-                        await response.json();
+            const e = data.employee;
 
-                    if (
-                        data.status !== 'ok'
-                    ) {
+            console.log(e);
 
-                        alert('Greška');
+            document.getElementById('employeeDisplayName').innerText =
+                e.first_name + ' ' + e.last_name;
 
-                        return;
-                    }
+            document.getElementById('employeeDisplayPid').innerText = e.personal_id ?? '-';
 
-                    const e =
-                        data.employee;
+            document.getElementById('employeeDisplayPosition').innerText = e.position ?? '-';
 
-                    console.log(e);
+            const roleBadge = document.getElementById('employeeDisplayRoleBadge');
 
-                    document.getElementById(
-                        'employeeDisplayName'
-                    ).innerText =
-                        e.first_name + ' ' + e.last_name;
+            if (roleBadge) {
+                if (Number(e.is_manager) === 1) {
+                    roleBadge.className = 'badge bg-warning text-dark';
 
-                    document.getElementById(
-                        'employeeDisplayPid'
-                    ).innerText =
-                        e.personal_id ?? '-';
+                    roleBadge.innerText = 'Rukovodilac';
+                } else {
+                    roleBadge.className = 'badge bg-secondary';
 
-                    document.getElementById(
-                        'employeeDisplayPosition'
-                    ).innerText =
-                        e.position ?? '-';
-
-                    document.getElementById(
-                        'employeeDisplayOj'
-                    ).innerText =
-                        '(' +
-                        (e.unit_code ?? '-') +
-                        ') ' +
-                        (e.unit_name ?? '-');
-
-                    document.getElementById(
-                        'employeeModalTitle'
-                    ).innerText =
-                        'Podaci o zaposlenom';
-
-                    document.getElementById(
-                        'employeeForm'
-                    ).action =
-                        APP.baseUrl +
-                        'admin/actions/employees_update.php';
-
-                    setValue(
-                        'employee_id',
-                        e.id
-                    );
-
-                    setValue(
-                        'first_name',
-                        e.first_name
-                    );
-
-                    setValue(
-                        'last_name',
-                        e.last_name
-                    );
-
-                    setValue(
-                        'position',
-                        e.position
-                    );
-
-                    setValue(
-                        'email',
-                        e.email
-                    );
-
-                    setValue(
-                        'personal_id',
-                        e.personal_id
-                    );
-
-                    setValue(
-                        'jmbg',
-                        e.jmbg
-                    );
-
-                    setValue(
-                        'address',
-                        e.address
-                    );
-
-                    setValue(
-                        'phone_private',
-                        e.phone_private
-                    );
-
-                    setValue(
-                        'bank_account',
-                        e.bank_account
-                    );
-
-                    setValue(
-                        'business_email',
-                        e.business_email
-                    );
-
-                    setValue(
-                        'business_phone',
-                        e.business_phone
-                    );
-
-                    setValue(
-                        'contract_type',
-                        e.contract_type
-                    );
-
-                    setValue(
-                        'organizational_unit_id',
-                        e.organizational_unit_id
-                    );
-
-                    setDate(
-                        'birth_date',
-                        e.birth_date
-                    );
-
-                    setDate(
-                        'hire_date',
-                        e.hire_date
-                    );
-
-                    setDate(
-                        'contract_end',
-                        e.contract_end
-                    );
-
-                    document.getElementById(
-                        'is_manager'
-                    ).checked =
-                        e.is_manager === 1;
-
-                    document.getElementById(
-                        'has_account'
-                    ).checked =
-                        e.has_account === 1;
-
-                    document.getElementById(
-                        'system_role'
-                    ).value =
-                        e.system_role || '';
-
-                    toggleSystemRole();
-
-                    const preview =
-                        document.getElementById(
-                            'employeePhotoPreview'
-                        );
-
-                    if (e.photo) {
-
-                        preview.src =
-                            APP.baseUrl +
-                            'uploads/employees/' +
-                            e.photo;
-
-                    } else {
-
-                        preview.src =
-                            APP.baseUrl +
-                            'assets/images/default-user.png';
-                    }
-
-                    const modalElement =
-                        document.getElementById(
-                            'employeeModal'
-                        );
-
-                    let modal =
-                        bootstrap.Modal.getInstance(
-                            modalElement
-                        );
-
-                    if (!modal) {
-
-                        modal =
-                            new bootstrap.Modal(
-                                modalElement
-                            );
-                    }
-
-                    modal.show();
+                    roleBadge.innerText = 'Zaposleni';
                 }
-            );
+            }
+
+            document.getElementById('employeeDisplayOj').innerText =
+                '(' + (e.unit_code ?? '-') + ') ' + (e.unit_name ?? '-');
+
+            document.getElementById('employeeModalTitle').innerText = 'Podaci o zaposlenom';
+
+            document.getElementById('employeeForm').action =
+                APP.baseUrl + 'admin/actions/employees_update.php';
+
+            setValue('employee_id', e.id);
+
+            setValue('first_name', e.first_name);
+
+            setValue('last_name', e.last_name);
+
+            setValue('position', e.position);
+
+            setValue('email', e.email);
+
+            setValue('personal_id', e.personal_id);
+
+            setValue('jmbg', e.jmbg);
+
+            setValue('address', e.address);
+
+            setValue('phone_private', e.phone_private);
+
+            setValue('bank_account', e.bank_account);
+
+            setValue('business_email', e.business_email);
+
+            setValue('business_phone', e.business_phone);
+
+            setValue('contract_type', e.contract_type);
+
+            setValue('organizational_unit_id', e.organizational_unit_id);
+
+            setDate('birth_date', e.birth_date);
+
+            setDate('hire_date', e.hire_date);
+
+            setDate('contract_end', e.contract_end);
+
+            document.getElementById('is_manager').checked = e.is_manager === 1;
+
+            document.getElementById('has_account').checked = e.has_account === 1;
+
+            document.getElementById('system_role').value = e.system_role || '';
+
+            toggleSystemRole();
+
+            const preview = document.getElementById('employeePhotoPreview');
+
+            if (e.photo) {
+                preview.src = APP.baseUrl + 'uploads/employees/' + e.photo;
+            } else {
+                preview.src = APP.baseUrl + 'assets/images/default-user.png';
+            }
+
+            const modalElement = document.getElementById('employeeModal');
+
+            let modal = bootstrap.Modal.getInstance(modalElement);
+
+            if (!modal) {
+                modal = new bootstrap.Modal(modalElement);
+            }
+
+            modal.show();
         });
+    });
 }
 
 /* =========================
@@ -426,12 +238,7 @@ function initEditButtons() {
 ========================= */
 
 function resetEmployeeForm() {
+    document.getElementById('employeeForm').reset();
 
-    document.getElementById(
-        'employeeForm'
-    ).reset();
-
-    document.getElementById(
-        'employee_id'
-    ).value = '';
+    document.getElementById('employee_id').value = '';
 }
