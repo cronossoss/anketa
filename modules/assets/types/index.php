@@ -1,6 +1,6 @@
 <?php
 
-$pageTitle = "Tipovi opreme";
+$pageTitle = "Tipovi inventara";
 
 include "../../../layouts/admin_layout_start.php";
 
@@ -21,7 +21,7 @@ $result = $conn->query("
 
         <div class="d-flex justify-content-between mb-3 mobile-stack">
 
-            <h3>Tipovi opreme</h3>
+            
 
             <button
                 class="btn btn-primary"

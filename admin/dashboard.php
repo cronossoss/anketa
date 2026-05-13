@@ -13,132 +13,58 @@ require_role(['admin', 'hr', 'it', 'manager']);
 
     <div class="col-12 col-sm-6 col-xl-3">
 
-        <div class="card dashboard-card">
+        <div class="dashboard-card">
 
-            <div class="card-body">
+            <div class="dashboard-card-icon">
+                <i class="fas fa-laptop"></i>
+            </div>
 
-                <h6 class="text-muted">
-                    Desktop računari
-                </h6>
+            <div class="dashboard-card-content">
+
+                <h3>Assets</h3>
+
+                <p>
+                    Upravljanje IT opremom i inventarom
+                </p>
+
+                <a
+                    href="/anketa/modules/assets/items/index.php"
+                    class="btn btn-primary"
+                >
+                    Otvori modul
+                </a>
 
             </div>
 
         </div>
 
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="card dashboard-card">
-
-            <div class="card-body">
-
-                <h6 class="text-muted">
-                    Laptop računari
-                </h6>
-
-            </div>
-
-        </div>
+        
 
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
 
-        <div class="card dashboard-card">
 
-            <div class="card-body">
+    
 
-                <h6 class="text-muted">
-                    Potrebni računari
-                </h6>
+    
 
-            </div>
+    
 
-        </div>
-
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="card dashboard-card">
-
-            <div class="card-body">
-
-                <h6 class="text-muted">
-                    Obuke
-                </h6>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="card dashboard-card">
-
-            <div class="card-body">
-
-                <h6 class="text-muted">
-                    Ankete
-                </h6>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="card dashboard-card">
-
-            <div class="card-body">
-
-                <h6 class="text-muted">
-                    Izveštaji
-                </h6>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="card dashboard-card">
-
-            <div class="card-body">
-
-                <h6 class="text-muted">
-                    Dokumentacija
-                </h6>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="card dashboard-card">
-
-            <div class="card-body">
-
-                <h6 class="text-muted">
-                    Planovi
-                </h6>
-
-            </div>
-
-        </div>
-
-    </div>
-
+    
 </div>
 
 <?php include "../layouts/footer.php"; ?>

@@ -35,20 +35,29 @@ $menu = [
     ],
 
     [
-        'title' => 'Tipovi opreme',
+        'title' => 'Tipovi inventara',
         'icon'  => 'bi bi-tags',
-        'page'  => 'index.php',
+        'page' => 'asset-types',
         'url'   => BASE_URL . 'modules/assets/types/index.php',
         'roles' => ['admin', 'it']
     ],
 
     [
-        'title' => 'Kategorije opreme',
+        'title' => 'Kategorije inventara',
         'icon'  => 'bi bi-list-task',
-        'page'  => 'index.php',
+        'page'  => 'asset-categories',
         'url'   => BASE_URL . 'modules/assets/categories/index.php',
         'roles' => ['admin', 'it']
     ],
+
+    [
+        'title' => 'Inventar',
+        'icon'  => 'bi bi-pc-display',
+        'page' => 'asset-items',
+        'url'   => BASE_URL . 'modules/assets/items/index.php',
+        'roles' => ['admin', 'it']
+    ],
+
 
     [
         'title' => 'Audit log',

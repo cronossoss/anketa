@@ -1,13 +1,51 @@
 <?php
 $current = basename($_SERVER['PHP_SELF']);
 
-function isActive($page)
+function isActive($identifier): string
 {
-    global $current;
+    $uri = $_SERVER['REQUEST_URI'];
 
-    return $current === $page
-        ? 'active'
-        : '';
+    $map = [
+
+        'dashboard.php' =>
+            '/admin/dashboard.php',
+
+        'organization.php' =>
+            '/admin/organization.php',
+
+        'employees.php' =>
+            '/admin/employees.php',
+
+        'users.php' =>
+            '/admin/users.php',
+
+        'asset-types' =>
+            '/modules/assets/types/',
+
+        'asset-categories' =>
+            '/modules/assets/categories/',
+
+        'asset-items' =>
+            '/modules/assets/items/',
+
+        'audit_logs.php' =>
+            '/admin/audit_logs.php',
+
+        'surveys.php' =>
+            '/admin/surveys.php',
+
+        'reports.php' =>
+            '/admin/reports.php',
+    ];
+
+    if (
+        isset($map[$identifier])
+        && strpos($uri, $map[$identifier]) !== false
+    ) {
+        return 'active';
+    }
+
+    return '';
 }
 ?>
 
