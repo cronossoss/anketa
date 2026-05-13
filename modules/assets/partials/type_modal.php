@@ -9,34 +9,25 @@
 
             <form
                 method="POST"
-                id="typeForm"
-                action="<?= BASE_URL ?>modules/assets/actions/asset_types_create.php">
+                action="../actions/asset_types_create.php">
 
                 <input
                     type="hidden"
-                    name="csrf"
+                    name="csrf_token"
                     value="<?= csrf_token() ?>">
-
-                <input
-                    type="hidden"
-                    name="id"
-                    id="type_id">
 
                 <div class="modal-header">
 
-                    <h5
-                        class="modal-title"
-                        id="typeModalTitle">
+                    <h5 class="modal-title">
 
-                        Dodavanje tipa
+                        Dodaj tip inventara
 
                     </h5>
 
                     <button
                         type="button"
                         class="btn-close"
-                        data-bs-dismiss="modal">
-                    </button>
+                        data-bs-dismiss="modal"></button>
 
                 </div>
 
@@ -52,14 +43,13 @@
 
                         <input
                             type="text"
-                            class="form-control"
                             name="name"
-                            id="type_name"
+                            class="form-control"
                             required>
 
                     </div>
 
-                    <div>
+                    <div class="mb-3">
 
                         <label class="form-label">
 
@@ -69,9 +59,8 @@
 
                         <input
                             type="text"
-                            class="form-control"
                             name="code"
-                            id="type_code">
+                            class="form-control">
 
                     </div>
 
@@ -80,19 +69,105 @@
                 <div class="modal-footer">
 
                     <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
+                        type="submit"
+                        class="btn btn-primary">
 
-                        Zatvori
+                        Sačuvaj
 
                     </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    class="modal fade"
+    id="editTypeModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="../actions/asset_types_update.php">
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= csrf_token() ?>">
+
+                <input
+                    type="hidden"
+                    name="id"
+                    id="edit_type_id">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Izmena tipa
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Naziv
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="name"
+                            id="edit_type_name"
+                            class="form-control"
+                            required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Šifra
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="code"
+                            id="edit_type_code"
+                            class="form-control">
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
 
                     <button
                         type="submit"
                         class="btn btn-primary">
 
-                        Sačuvaj
+                        Sačuvaj izmene
 
                     </button>
 

@@ -1,6 +1,7 @@
 <?php
 
-$pageTitle = "Kategorije inventara";
+$pageTitle = "Definicije atributa";
+$currentPage = 'asset-attributes';
 
 include "../../../layouts/admin_layout_start.php";
 
@@ -10,17 +11,20 @@ require_role(['admin', 'it']);
 
 $result = $conn->query("
     SELECT
-        c.*,
-        t.name AS type_name
-    FROM asset_categories c
-    LEFT JOIN asset_types t
-        ON t.id = c.asset_type_id
-    ORDER BY c.name
+        a.*,
+        c.name AS category_name
+    FROM asset_attribute_definitions a
+    LEFT JOIN asset_categories c
+        ON c.id = a.category_id
+    ORDER BY
+        c.name,
+        a.sort_order,
+        a.name
 ");
 
-$types = $conn->query("
+$categories = $conn->query("
     SELECT *
-    FROM asset_types
+    FROM asset_categories
     ORDER BY name
 ");
 ?>
@@ -34,9 +38,9 @@ $types = $conn->query("
             <button
                 class="btn btn-primary"
                 data-bs-toggle="modal"
-                data-bs-target="#categoryModal">
+                data-bs-target="#attributeModal">
 
-                Dodaj kategoriju
+                Dodaj atribut
 
             </button>
 
@@ -50,13 +54,17 @@ $types = $conn->query("
 
                     <tr>
 
-                        <th>Tip</th>
+                        <th>Kategorija</th>
 
                         <th>Naziv</th>
 
                         <th>Šifra</th>
 
-                        <th width="120">
+                        <th>Tip polja</th>
+
+                        <th>Required</th>
+
+                        <th width="140">
                             Akcije
                         </th>
 
@@ -72,7 +80,7 @@ $types = $conn->query("
 
                             <td>
 
-                                <?= e($row['type_name']) ?>
+                                <?= e($row['category_name']) ?>
 
                             </td>
 
@@ -90,16 +98,40 @@ $types = $conn->query("
 
                             <td>
 
+                                <?= e($row['field_type']) ?>
+
+                            </td>
+
+                            <td>
+
+                                <?=
+                                $row['is_required']
+                                    ? 'DA'
+                                    : 'NE'
+                                ?>
+
+                            </td>
+
+                            <td>
+
                                 <button
-                                    class="btn btn-sm btn-warning edit-category-btn"
+                                    class="btn btn-sm btn-warning edit-attribute-btn"
 
                                     data-id="<?= $row['id'] ?>"
+
+                                    data-category-id="<?= $row['category_id'] ?>"
 
                                     data-name="<?= e($row['name']) ?>"
 
                                     data-code="<?= e($row['code']) ?>"
 
-                                    data-type-id="<?= $row['asset_type_id'] ?>">
+                                    data-field-type="<?= $row['field_type'] ?>"
+
+                                    data-options="<?= e($row['options']) ?>"
+
+                                    data-required="<?= $row['is_required'] ?>"
+
+                                    data-sort="<?= $row['sort_order'] ?>">
 
                                     <i class="fa-solid fa-pen"></i>
 
@@ -107,7 +139,7 @@ $types = $conn->query("
 
                                 <form
                                     method="POST"
-                                    action="../actions/asset_categories_delete.php"
+                                    action="../actions/asset_attribute_delete.php"
                                     class="d-inline">
 
                                     <input
@@ -123,7 +155,7 @@ $types = $conn->query("
                                     <button
                                         type="submit"
                                         class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Obrisati kategoriju?')">
+                                        onclick="return confirm('Obrisati atribut?')">
 
                                         <i class="fa-solid fa-trash"></i>
 
@@ -147,8 +179,8 @@ $types = $conn->query("
 
 </main>
 
-<?php include '../partials/category_modal.php'; ?>
+<?php include '../partials/attribute_modal.php'; ?>
 
-<script src="../js/categories.js"></script>
+<script src="../js/attributes.js"></script>
 
 <?php include "../../../layouts/footer.php"; ?>

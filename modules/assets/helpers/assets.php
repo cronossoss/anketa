@@ -1,26 +1,50 @@
 <?php
 
-function getAssetById(
-    mysqli $conn,
-    int $id
-): ?array {
+function getAssetTypes($conn)
+{
+    $sql = "
+        SELECT
+            id,
+            name,
+            code,
+            created_at
+        FROM asset_types
+        ORDER BY name ASC
+    ";
+
+    $result = $conn->query($sql);
+
+    $types = [];
+
+    if ($result && $result->num_rows > 0) {
+
+        while ($row = $result->fetch_assoc()) {
+
+            $types[] = $row;
+        }
+    }
+
+    return $types;
+}
+
+function getAssetTypeById(
+    $conn,
+    $id
+) {
 
     $stmt = $conn->prepare("
         SELECT
-            a.*,
-            t.name AS type_name,
-            c.name AS category_name
-        FROM assets a
-        LEFT JOIN asset_types t
-            ON t.id = a.asset_type_id
-        LEFT JOIN asset_categories c
-            ON c.id = a.category_id
-        WHERE a.id = ?
+            id,
+            name,
+            code,
+            created_at
+        FROM asset_types
+        WHERE id = ?
         LIMIT 1
     ");
 
     $stmt->bind_param(
-        'i',
+        "i",
         $id
     );
 
@@ -28,7 +52,5 @@ function getAssetById(
 
     $result = $stmt->get_result();
 
-    $asset = $result->fetch_assoc();
-
-    return $asset ?: null;
+    return $result->fetch_assoc();
 }

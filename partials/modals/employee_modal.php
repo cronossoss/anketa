@@ -443,6 +443,34 @@
 
                                 </div>
 
+                                <div class="card mt-4">
+
+                                    <div class="card-header">
+
+                                        <h5 class="mb-0">
+
+                                            Zadužen inventar
+
+                                        </h5>
+
+                                    </div>
+
+                                    <div class="card-body p-0">
+
+                                        <div id="employeeAssetsContainer">
+
+                                            <div class="p-3 text-muted">
+
+                                                Učitavanje inventara...
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
                                 <div class="col-md-12">
 
                                     <div class="form-check mt-1">
@@ -752,4 +780,124 @@
         toggleContractEnd();
 
     });
+
+    async function loadEmployeeAssets(
+        employeeId
+    ) {
+
+        const container =
+            document.getElementById(
+                'employeeAssetsContainer'
+            );
+
+        if (!container) {
+            return;
+        }
+
+        container.innerHTML = `
+        <div class="p-3 text-muted">
+            Učitavanje inventara...
+        </div>
+    `;
+
+        try {
+
+            const response =
+                await fetch(
+                    APP.baseUrl +
+                    'modules/assets/api/get_employee_assets.php?employee_id=' +
+                    employeeId
+                );
+
+            const assets =
+                await response.json();
+
+            if (!assets.length) {
+
+                container.innerHTML = `
+                <div class="p-3 text-muted">
+                    Zaposleni nema zadužen inventar.
+                </div>
+            `;
+
+                return;
+            }
+
+            let html = `
+            <div class="table-responsive">
+
+                <table class="table table-sm mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Kategorija</th>
+
+                            <th>Uređaj</th>
+
+                            <th>Inventarski broj</th>
+
+                            <th>Zadužen od</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+        `;
+
+            assets.forEach(asset => {
+
+                html += `
+                <tr>
+
+                    <td>
+                        ${asset.category_name ?? ''}
+                    </td>
+
+                    <td>
+                        ${asset.manufacturer ?? ''}
+                        ${asset.model ?? ''}
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-secondary">
+
+                            ${asset.inventory_number ?? ''}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+                        ${asset.assigned_at ?? ''}
+                    </td>
+
+                </tr>
+            `;
+            });
+
+            html += `
+                    </tbody>
+
+                </table>
+
+            </div>
+        `;
+
+            container.innerHTML = html;
+
+        } catch (error) {
+
+            console.error(error);
+
+            container.innerHTML = `
+            <div class="p-3 text-danger">
+                Greška pri učitavanju inventara.
+            </div>
+        `;
+        }
+    }
 </script>

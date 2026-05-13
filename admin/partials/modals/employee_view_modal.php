@@ -195,6 +195,36 @@
 
                 </div>
 
+                <div class="card mt-4">
+
+                    <div class="card-header">
+
+                        <h5 class="mb-0">
+
+                            Zadužen inventar
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body p-0">
+
+                        <div id="viewEmployeeAssetsContainer">
+
+                            <div class="p-3 text-muted">
+
+                                Učitavanje inventara...
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
                 <!-- POSLOVNI PODACI -->
 
                 <div class="card border-0 shadow-sm">

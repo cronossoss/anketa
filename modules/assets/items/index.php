@@ -4,7 +4,6 @@ $pageTitle = "Inventar";
 
 include "../../../layouts/admin_layout_start.php";
 
-
 require_once $_SERVER['DOCUMENT_ROOT']
     . '/anketa/config/init.php';
 require_once '../helpers/permissions.php';
@@ -91,56 +90,54 @@ while ($row = $result->fetch_assoc()) {
 
     <tbody>
 
-    <?php foreach ($assets as $asset): ?>
+        <?php foreach ($assets as $asset): ?>
 
-        <tr
-            class="asset-row"
-            data-id="<?= $asset['id'] ?>"
-        >
+            <tr
+                class="asset-row"
+                data-id="<?= $asset['id'] ?>">
 
-            <td>
-                <?= htmlspecialchars(
-                    $asset['inventory_number']
-                ) ?>
-            </td>
-
-            <td>
-
-                <a
-                    href="#"
-                    class="asset-view-btn"
-                    data-id="<?= $asset['id'] ?>"
-                >
+                <td>
                     <?= htmlspecialchars(
-                        $asset['name']
+                        $asset['inventory_number']
                     ) ?>
-                </a>
+                </td>
 
-            </td>
+                <td>
 
-            <td>
-                <?= htmlspecialchars(
-                    $asset['category_name']
-                ) ?>
-            </td>
+                    <a
+                        href="#"
+                        class="asset-view-btn"
+                        data-id="<?= $asset['id'] ?>">
+                        <?= htmlspecialchars(
+                            $asset['name']
+                        ) ?>
+                    </a>
 
-            <td>
-                <?= htmlspecialchars(
-                    $asset['employee_name']
-                    ?? '-'
-                ) ?>
-            </td>
+                </td>
 
-            <td>
-                <?= htmlspecialchars(
-                    $asset['organizational_unit_name']
-                    ?? '-'
-                ) ?>
-            </td>
+                <td>
+                    <?= htmlspecialchars(
+                        $asset['category_name']
+                    ) ?>
+                </td>
 
-        </tr>
+                <td>
+                    <?= htmlspecialchars(
+                        $asset['employee_name']
+                            ?? '-'
+                    ) ?>
+                </td>
 
-    <?php endforeach; ?>
+                <td>
+                    <?= htmlspecialchars(
+                        $asset['organizational_unit_name']
+                            ?? '-'
+                    ) ?>
+                </td>
+
+            </tr>
+
+        <?php endforeach; ?>
 
     </tbody>
 </table>

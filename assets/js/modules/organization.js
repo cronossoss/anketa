@@ -236,8 +236,6 @@ async function openEmployeeModal(employeeId) {
         document.getElementById('viewEmployeeBusinessPhone').innerText =
             employee.business_phone ?? '-';
 
-        console.log('2');
-
         // CLOSE PREVIOUS MODAL
 
         const employeesModal = bootstrap.Modal.getInstance(
@@ -252,9 +250,9 @@ async function openEmployeeModal(employeeId) {
 
         const modal = new bootstrap.Modal(document.getElementById('employeeViewModal'));
 
-        console.log('3');
-
         modal.show();
+
+        loadEmployeeAssets(employeeId);
 
         const roleBadge = document.getElementById('viewEmployeeRoleBadge');
 
@@ -283,4 +281,124 @@ function formatDate(dateString) {
     }
 
     return parts[2] + '.' + parts[1] + '.' + parts[0];
+}
+
+async function loadEmployeeAssets(
+    employeeId
+) {
+
+    const container =
+        document.getElementById(
+            'employeeAssetsContainer'
+        );
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="p-3 text-muted">
+            Učitavanje inventara...
+        </div>
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                APP.baseUrl +
+                'modules/assets/api/get_employee_assets.php?employee_id=' +
+                employeeId
+            );
+
+        const assets =
+            await response.json();
+
+        if (!assets.length) {
+
+            container.innerHTML = `
+                <div class="p-3 text-muted">
+                    Zaposleni nema zadužen inventar.
+                </div>
+            `;
+
+            return;
+        }
+
+        let html = `
+            <div class="table-responsive">
+
+                <table class="table mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Kategorija</th>
+
+                            <th>Uređaj</th>
+
+                            <th>Inventarski broj</th>
+
+                            <th>Zadužen od</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+        `;
+
+        assets.forEach(asset => {
+
+            html += `
+                <tr>
+
+                    <td>
+                        ${asset.category_name ?? ''}
+                    </td>
+
+                    <td>
+                        ${asset.manufacturer ?? ''}
+                        ${asset.model ?? ''}
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-secondary">
+
+                            ${asset.inventory_number ?? ''}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+                        ${asset.assigned_at ?? ''}
+                    </td>
+
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+
+                </table>
+
+            </div>
+        `;
+
+        container.innerHTML = html;
+
+    } catch (error) {
+
+        console.error(error);
+
+        container.innerHTML = `
+            <div class="p-3 text-danger">
+                Greška pri učitavanju inventara.
+            </div>
+        `;
+    }
 }

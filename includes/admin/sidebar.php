@@ -8,36 +8,44 @@ function isActive($identifier): string
     $map = [
 
         'dashboard.php' =>
-            '/admin/dashboard.php',
+        '/admin/dashboard.php',
 
         'organization.php' =>
-            '/admin/organization.php',
+        '/admin/organization.php',
 
         'employees.php' =>
-            '/admin/employees.php',
+        '/admin/employees.php',
 
         'users.php' =>
-            '/admin/users.php',
+        '/admin/users.php',
+
+        'assets-dashboard' =>
+        '/modules/assets/index.php',
 
         'asset-types' =>
-            '/modules/assets/types/',
+        '/modules/assets/types/',
 
         'asset-categories' =>
-            '/modules/assets/categories/',
+        '/modules/assets/categories/',
+
+        'asset-attributes' =>
+        '/modules/assets/attributes/',
 
         'asset-items' =>
-            '/modules/assets/items/',
+        '/modules/assets/assets/',
+
+        'asset-assignments' =>
+        '/modules/assets/assignments/',
 
         'audit_logs.php' =>
-            '/admin/audit_logs.php',
+        '/admin/audit_logs.php',
 
         'surveys.php' =>
-            '/admin/surveys.php',
+        '/admin/surveys.php',
 
         'reports.php' =>
-            '/admin/reports.php',
+        '/admin/reports.php',
     ];
-
     if (
         isset($map[$identifier])
         && strpos($uri, $map[$identifier]) !== false

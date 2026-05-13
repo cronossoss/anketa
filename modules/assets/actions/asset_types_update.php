@@ -15,33 +15,40 @@ if (
     die('CSRF greška.');
 }
 
-$assetTypeId =
-    (int)($_POST['asset_type_id'] ?? 0);
+$id = (int)($_POST['id'] ?? 0);
 
 $name = trim($_POST['name'] ?? '');
-
 $code = trim($_POST['code'] ?? '');
 
+if ($id <= 0) {
+
+    die('Pogrešan ID.');
+}
+
+if ($name === '') {
+
+    die('Naziv je obavezan.');
+}
+
 $stmt = $conn->prepare("
-    INSERT INTO asset_categories (
-        asset_type_id,
-        name,
-        code
-    )
-    VALUES (?, ?, ?)
+    UPDATE asset_types
+    SET
+        name = ?,
+        code = ?
+    WHERE id = ?
 ");
 
 $stmt->bind_param(
-    "iss",
-    $assetTypeId,
+    "ssi",
     $name,
-    $code
+    $code,
+    $id
 );
 
 $stmt->execute();
 
 header(
-    "Location: ../categories/index.php"
+    "Location: ../types/index.php"
 );
 
 exit;

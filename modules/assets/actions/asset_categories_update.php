@@ -15,6 +15,8 @@ if (
     die('CSRF greška.');
 }
 
+$id = (int)($_POST['id'] ?? 0);
+
 $assetTypeId =
     (int)($_POST['asset_type_id'] ?? 0);
 
@@ -23,19 +25,20 @@ $name = trim($_POST['name'] ?? '');
 $code = trim($_POST['code'] ?? '');
 
 $stmt = $conn->prepare("
-    INSERT INTO asset_categories (
-        asset_type_id,
-        name,
-        code
-    )
-    VALUES (?, ?, ?)
+    UPDATE asset_categories
+    SET
+        asset_type_id = ?,
+        name = ?,
+        code = ?
+    WHERE id = ?
 ");
 
 $stmt->bind_param(
-    "iss",
+    "issi",
     $assetTypeId,
     $name,
-    $code
+    $code,
+    $id
 );
 
 $stmt->execute();

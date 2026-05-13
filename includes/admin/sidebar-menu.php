@@ -35,29 +35,51 @@ $menu = [
     ],
 
     [
-        'title' => 'Tipovi inventara',
-        'icon'  => 'bi bi-tags',
-        'page' => 'asset-types',
-        'url'   => BASE_URL . 'modules/assets/types/index.php',
-        'roles' => ['admin', 'it']
-    ],
-
-    [
-        'title' => 'Kategorije inventara',
-        'icon'  => 'bi bi-list-task',
-        'page'  => 'asset-categories',
-        'url'   => BASE_URL . 'modules/assets/categories/index.php',
-        'roles' => ['admin', 'it']
-    ],
-
-    [
         'title' => 'Inventar',
         'icon'  => 'bi bi-pc-display',
-        'page' => 'asset-items',
-        'url'   => BASE_URL . 'modules/assets/items/index.php',
-        'roles' => ['admin', 'it']
-    ],
+        'page'  => 'inventory',
+        'roles' => ['admin', 'it'],
 
+        'submenu' => [
+
+            [
+                'title' => 'Pregled inventara',
+                'url'   => BASE_URL . 'modules/assets/index.php',
+                'page'  => 'assets-dashboard'
+            ],
+
+            [
+                'title' => 'IT Inventar',
+                'url'   => BASE_URL . 'modules/assets/assets/index.php',
+                'page'  => 'asset-items'
+            ],
+
+            [
+                'title' => 'Zaduženja',
+                'url'   => BASE_URL . 'modules/assets/assignments/index.php',
+                'page'  => 'asset-assignments'
+            ],
+
+            [
+                'title' => 'Tipovi inventara',
+                'url'   => BASE_URL . 'modules/assets/types/index.php',
+                'page'  => 'asset-types'
+            ],
+
+            [
+                'title' => 'Kategorije inventara',
+                'url'   => BASE_URL . 'modules/assets/categories/index.php',
+                'page'  => 'asset-categories'
+            ],
+
+            [
+                'title' => 'Definicije atributa',
+                'url'   => BASE_URL . 'modules/assets/attributes/definitions.php',
+                'page'  => 'asset-attributes'
+            ]
+
+        ]
+    ],
 
     [
         'title' => 'Audit log',
@@ -88,23 +110,94 @@ $menu = [
 ];
 ?>
 
+
+
+
+
+
 <ul class="nav flex-column">
 
     <?php foreach ($menu as $item): ?>
 
         <?php if (!has_role($item['roles'])) continue; ?>
 
+        <?php $isSubmenuActive = false;
+
+        if (isset($item['submenu'])) {
+
+            foreach ($item['submenu'] as $sub) {
+
+                if (isActive($sub['page'])) {
+
+                    $isSubmenuActive = true;
+
+                    break;
+                }
+            }
+        }
+        ?>
+
         <li class="nav-item mb-2">
 
-            <a
-                class="nav-link text-white <?= isActive($item['page']) ?>"
-                href="<?= $item['url'] ?>">
+            <?php if (isset($item['submenu'])): ?>
 
-                <i class="<?= e($item['icon']) ?> me-2"></i>
+                <a
+                    class="nav-link text-white d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse"
+                    href="#submenu-<?= md5($item['title']) ?>"
+                    role="button">
 
-                <?= e($item['title']) ?>
+                    <span>
 
-            </a>
+                        <i class="<?= e($item['icon']) ?> me-2"></i>
+
+                        <?= e($item['title']) ?>
+
+                    </span>
+
+                    <i class="bi bi-chevron-down"></i>
+
+                </a>
+
+                <div
+                    class="collapse <?= $isSubmenuActive ? 'show' : '' ?>"
+                    id="submenu-<?= md5($item['title']) ?>">
+
+                    <ul class="nav flex-column ms-3 mt-2">
+
+                        <?php foreach ($item['submenu'] as $sub): ?>
+
+                            <li class="nav-item mb-1">
+
+                                <a
+                                    class="nav-link text-white small <?= isActive($sub['page']) ?>"
+                                    href="<?= $sub['url'] ?>">
+
+                                    <?= e($sub['title']) ?>
+
+                                </a>
+
+                            </li>
+
+                        <?php endforeach; ?>
+
+                    </ul>
+
+                </div>
+
+            <?php else: ?>
+
+                <a
+                    class="nav-link text-white <?= isActive($item['page']) ?>"
+                    href="<?= $item['url'] ?>">
+
+                    <i class="<?= e($item['icon']) ?> me-2"></i>
+
+                    <?= e($item['title']) ?>
+
+                </a>
+
+            <?php endif; ?>
 
         </li>
 
