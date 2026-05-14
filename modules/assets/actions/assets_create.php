@@ -69,11 +69,18 @@ $stmt = $conn->prepare("
     WHERE inventory_number = ?
 ");
 
-$stmt->execute([
+$stmt->bind_param(
+    "s",
     $inventoryNumber
-]);
+);
 
-if ($stmt->fetch()) {
+$stmt->execute();
+
+$result =
+    $stmt->get_result();
+
+if ($result->num_rows > 0) {
+
     die('Inventarski broj već postoji.');
 }
 

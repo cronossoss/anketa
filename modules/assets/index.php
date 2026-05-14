@@ -2,140 +2,183 @@
 
 $pageTitle = "Inventar";
 
+$currentPage = 'assets-dashboard';
+
 include "../../layouts/admin_layout_start.php";
 
 require_once $_SERVER['DOCUMENT_ROOT']
     . '/anketa/config/init.php';
-require_once 'helpers/permissions.php';
-require_once 'helpers/audit.php';
+
+require_once $_SERVER['DOCUMENT_ROOT']
+    . '/anketa/modules/assets/helpers/permissions.php';
 
 require_Login();
 
 if (!hasRole(['admin', 'it'])) {
+
     die('Nemate dozvolu.');
-} ?>
+}
 
-<li class="sidebar-item has-submenu">
+/* =========================
+   COUNTERS
+========================= */
 
-    <a
-        href="#"
-        class="sidebar-link">
+$totalAssets = $conn
+    ->query("
+        SELECT COUNT(*) AS total
+        FROM assets
+    ")
+    ->fetch_assoc()['total'];
 
-        <i class="fa-solid fa-computer"></i>
+$assignedAssets = $conn
+    ->query("
+        SELECT COUNT(*) AS total
+        FROM assets
+        WHERE status = 'assigned'
+    ")
+    ->fetch_assoc()['total'];
 
-        <span>
+$freeAssets = $conn
+    ->query("
+        SELECT COUNT(*) AS total
+        FROM assets
+        WHERE status != 'assigned'
+    ")
+    ->fetch_assoc()['total'];
 
-            Inventar
+$repairAssets = $conn
+    ->query("
+        SELECT COUNT(*) AS total
+        FROM assets
+        WHERE status = 'repair'
+    ")
+    ->fetch_assoc()['total'];
+?>
 
-        </span>
+<main class="main-content">
 
-        <i class="fa-solid fa-chevron-down submenu-arrow"></i>
+    <div class="page-card">
 
-    </a>
+        <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <ul class="sidebar-submenu">
+            <h3 class="mb-0">
 
-        <li>
+                Inventar
+
+            </h3>
 
             <a
-                href="/anketa/modules/assets/index.php">
-
-                <i class="fa-solid fa-table-columns"></i>
-
-                Pregled inventara
-
-            </a>
-
-        </li>
-
-        <li>
-
-            <a
-                href="/anketa/modules/assets/assets/index.php">
-
-                <i class="fa-solid fa-laptop"></i>
+                href="<?= BASE_URL ?>modules/assets/assets/index.php"
+                class="btn btn-primary">
 
                 IT Inventar
 
             </a>
 
-        </li>
+        </div>
 
-        <li>
+        <div class="row g-3">
 
-            <a
-                href="/anketa/modules/assets/assignments/index.php">
+            <div class="col-md-3">
 
-                <i class="fa-solid fa-user-check"></i>
+                <div class="card shadow-sm border-0">
 
-                Zaduženja
+                    <div class="card-body">
 
-            </a>
+                        <div class="text-muted small mb-1">
 
-        </li>
+                            Ukupno uređaja
 
-        <li>
+                        </div>
 
-            <a
-                href="/anketa/modules/assets/history/index.php">
+                        <h2 class="mb-0">
 
-                <i class="fa-solid fa-clock-rotate-left"></i>
+                            <?= $totalAssets ?>
 
-                Istorija promena
+                        </h2>
 
-            </a>
+                    </div>
 
-        </li>
+                </div>
 
-        <li class="submenu-divider">
+            </div>
 
-            <span>
+            <div class="col-md-3">
 
-                Administracija
+                <div class="card shadow-sm border-0">
 
-            </span>
+                    <div class="card-body">
 
-        </li>
+                        <div class="text-muted small mb-1">
 
-        <li>
+                            Zaduženi
 
-            <a
-                href="/anketa/modules/assets/types/index.php">
+                        </div>
 
-                <i class="fa-solid fa-layer-group"></i>
+                        <h2 class="mb-0 text-success">
 
-                Tipovi inventara
+                            <?= $assignedAssets ?>
 
-            </a>
+                        </h2>
 
-        </li>
+                    </div>
 
-        <li>
+                </div>
 
-            <a
-                href="/anketa/modules/assets/categories/index.php">
+            </div>
 
-                <i class="fa-solid fa-folder-tree"></i>
+            <div class="col-md-3">
 
-                Kategorije
+                <div class="card shadow-sm border-0">
 
-            </a>
+                    <div class="card-body">
 
-        </li>
+                        <div class="text-muted small mb-1">
 
-        <li>
+                            Slobodni
 
-            <a
-                href="/anketa/modules/assets/attributes/definitions.php">
+                        </div>
 
-                <i class="fa-solid fa-list-check"></i>
+                        <h2 class="mb-0 text-warning">
 
-                Atributi
+                            <?= $freeAssets ?>
 
-            </a>
+                        </h2>
 
-        </li>
+                    </div>
 
-    </ul>
+                </div>
 
-</li>
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-body">
+
+                        <div class="text-muted small mb-1">
+
+                            Na servisu
+
+                        </div>
+
+                        <h2 class="mb-0 text-danger">
+
+                            <?= $repairAssets ?>
+
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<?php include "../../layouts/footer.php"; ?>

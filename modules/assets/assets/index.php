@@ -141,7 +141,13 @@ while ($row = $employeesResult->fetch_assoc()) {
 
                             <td>
 
-                                <?= e($row['inventory_number']) ?>
+                                <a
+                                    href="view.php?id=<?= $row['id'] ?>"
+                                    class="fw-semibold text-decoration-none">
+
+                                    <?= e($row['inventory_number']) ?>
+
+                                </a>
 
                             </td>
 
@@ -195,11 +201,18 @@ while ($row = $employeesResult->fetch_assoc()) {
 
                                 <?php else: ?>
 
-                                    <span class="badge bg-warning text-dark">
+                                    <button
+                                        class="btn btn-sm btn-warning assign-asset-btn"
+                                        data-id="<?= $row['id'] ?>"
+                                        data-name="<?= e($row['name']) ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#assignAssetModal">
 
-                                        Nije zadužen
+                                        <i class="fa-solid fa-user-plus me-1"></i>
 
-                                    </span>
+                                        Zaduži
+
+                                    </button>
 
                                 <?php endif; ?>
 
@@ -218,6 +231,140 @@ while ($row = $employeesResult->fetch_assoc()) {
     </div>
 
 </main>
+
+<div
+    class="modal fade"
+    id="assignAssetModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="../actions/assign_asset.php">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Zaduženje inventara
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input
+                        type="hidden"
+                        name="asset_id"
+                        id="assign_asset_id">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Inventar
+
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="assign_asset_name"
+                            readonly>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Zaposleni
+
+                        </label>
+
+                        <select
+                            name="employee_id"
+                            class="form-select"
+                            required>
+
+                            <option value="">
+
+                                Izaberi zaposlenog
+
+                            </option>
+
+                            <?php foreach ($employees as $employee): ?>
+
+                                <option value="<?= $employee['id'] ?>">
+
+                                    <?= e(
+                                        $employee['first_name']
+                                            . ' '
+                                            . $employee['last_name']
+                                            . ' ('
+                                            . $employee['personal_id']
+                                            . ')'
+                                    ) ?>
+
+                                </option>
+
+                            <?php endforeach; ?>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        Sačuvaj
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+document
+    .querySelectorAll('.assign-asset-btn')
+    .forEach(btn => {
+
+        btn.addEventListener('click', () => {
+
+            document.getElementById(
+                'assign_asset_id'
+            ).value = btn.dataset.id;
+
+            document.getElementById(
+                'assign_asset_name'
+            ).value = btn.dataset.name;
+        });
+    });
+
+</script>
 <?php include '../partials/asset_modal.php'; ?>
 
 <script src="../js/assets.js"></script>

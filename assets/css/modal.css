@@ -47,6 +47,170 @@
 }
 
 /* =========================
+   GLOBAL COMPACT MODALS
+========================= */
+
+.modal .modal-body {
+    padding: 12px !important;
+}
+
+.modal .modal-header {
+    padding: 10px 14px !important;
+}
+
+.modal .modal-footer {
+    padding: 10px 14px !important;
+}
+
+/* FORM GROUPS */
+
+.modal .mb-3 {
+    margin-bottom: 8px !important;
+}
+
+.modal .row {
+    --bs-gutter-y: 0.35rem !important;
+}
+
+/* LABELS */
+
+.modal .form-label {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    margin-bottom: 2px !important;
+    color: #555 !important;
+}
+
+/* INPUTS */
+
+.modal .form-control,
+.modal .form-select {
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 4px 10px !important;
+    font-size: 13px !important;
+    border-radius: 6px !important;
+    line-height: 1.2 !important;
+}
+
+/* TEXTAREA */
+
+.modal textarea.form-control {
+    min-height: 70px !important;
+    height: auto !important;
+    padding-top: 6px !important;
+}
+
+/* TABLES */
+
+.modal .table {
+    font-size: 13px !important;
+}
+
+.modal .table th,
+.modal .table td {
+    padding: 6px 8px !important;
+}
+
+/* BUTTONS */
+
+.modal .btn {
+    padding: 5px 12px !important;
+    font-size: 13px !important;
+    border-radius: 6px !important;
+}
+
+/* CARDS */
+
+.modal .card {
+    margin-bottom: 10px !important;
+    border-radius: 8px !important;
+}
+
+.modal .card-body {
+    padding: 10px !important;
+}
+
+.modal .card-header {
+    padding: 8px 10px !important;
+}
+
+/* PROFILE HEADER */
+
+.employee-profile-header {
+    padding: 10px !important;
+}
+
+.employee-profile-header h3 {
+    font-size: 20px !important;
+    margin-bottom: 2px !important;
+}
+
+/* SMALL TEXT */
+
+.modal small,
+.modal .text-muted {
+    font-size: 11px !important;
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+    .modal .modal-body {
+        padding: 10px !important;
+    }
+
+    .modal .form-control,
+    .modal .form-select {
+        min-height: 36px !important;
+        height: 36px !important;
+    }
+
+    .modal .btn {
+        min-height: 38px !important;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+    .modal-body {
+        padding: 10px;
+    }
+
+    .modal .card-body {
+        padding: 10px;
+    }
+
+    .modal .form-control,
+    .modal .form-select {
+        min-height: 38px;
+        font-size: 14px;
+    }
+
+    .modal .btn {
+        min-height: 40px;
+    }
+
+    .modal .table {
+        font-size: 12px;
+    }
+
+    .modal .table th,
+    .modal .table td {
+        padding: 6px 8px;
+    }
+
+    .employee-profile-header {
+        padding: 10px;
+    }
+
+    .employee-profile-header h3 {
+        font-size: 18px;
+    }
+}
+
+/* =========================
    MOBILE
 ========================= */
 
