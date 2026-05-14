@@ -18,6 +18,11 @@
                     name="csrf_token"
                     value="<?= csrf_token() ?>">
 
+                <input
+                    type="hidden"
+                    name="id"
+                    id="attribute_id">
+
                 <div class="modal-header">
 
                     <h5 class="modal-title">
@@ -47,6 +52,7 @@
 
                             <select
                                 name="category_id"
+                                id="category_id"
                                 class="form-select"
                                 required>
 
@@ -54,7 +60,10 @@
                                     Izaberi kategoriju
                                 </option>
 
-                                <?php mysqli_data_seek($categories, 0); ?>
+
+                                <?php
+                                /** @var mysqli_result $categories */
+                                mysqli_data_seek($categories, 0); ?>
 
                                 <?php while ($category = $categories->fetch_assoc()): ?>
 
@@ -81,6 +90,7 @@
                             <input
                                 type="text"
                                 name="name"
+                                id="name"
                                 class="form-control"
                                 required>
 
@@ -101,6 +111,7 @@
                             <input
                                 type="text"
                                 name="code"
+                                id="code"
                                 class="form-control">
 
                         </div>
@@ -115,6 +126,7 @@
 
                             <select
                                 name="field_type"
+                                id="field_type"
                                 class="form-select"
                                 required>
 
@@ -147,6 +159,7 @@
 
                         <textarea
                             name="options"
+                            id="options"
                             class="form-control"
                             rows="4"></textarea>
 
@@ -165,6 +178,7 @@
                             <input
                                 type="number"
                                 name="sort_order"
+                                id="sort_order"
                                 class="form-control"
                                 value="0">
 
@@ -181,6 +195,7 @@
                             <input
                                 type="checkbox"
                                 name="is_required"
+                                id="is_required"
                                 value="1">
 
                         </div>

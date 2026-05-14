@@ -64,7 +64,7 @@ $returnStmt->execute();
 
 $statusStmt = $conn->prepare("
     UPDATE assets
-    SET status = 'active'
+    SET status = 'slobodan'
     WHERE id = ?
 ");
 

@@ -137,7 +137,7 @@ while ($row = $employeesResult->fetch_assoc()) {
                             !empty($row['employee_id']);
                         ?>
 
-                        <tr class="<?= !$isAssigned ? 'table-warning' : '' ?>">
+                        <tr class="<?= $isAssigned ? 'table-warning' : '' ?>">
 
                             <td>
 
@@ -177,9 +177,25 @@ while ($row = $employeesResult->fetch_assoc()) {
 
                             <td>
 
-                                <span class="badge bg-secondary">
+                                <?php
 
-                                    <?= e($row['status']) ?>
+                                $statusClass = match ($row['status']) {
+
+                                    'slobodan' => 'success',
+
+                                    'zaduzen' => 'primary',
+
+                                    'servis' => 'warning',
+
+                                    'rashod' => 'dark',
+
+                                    default => 'secondary'
+                                };
+                                ?>
+
+                                <span class="badge bg-<?= $statusClass ?>">
+
+                                    <?= e(ucfirst($row['status'])) ?>
 
                                 </span>
 
@@ -202,18 +218,27 @@ while ($row = $employeesResult->fetch_assoc()) {
                                 <?php else: ?>
 
                                     <button
-                                        class="btn btn-sm btn-warning assign-asset-btn"
+                                        type="button"
+                                        class="btn btn-warning btn-sm assign-btn"
+
                                         data-id="<?= $row['id'] ?>"
-                                        data-name="<?= e($row['name']) ?>"
+
+                                        data-name="<?= e(
+                                                        $row['inventory_number']
+                                                            . ' | '
+                                                            . $row['manufacturer']
+                                                            . ' '
+                                                            . $row['model']
+                                                    ) ?>"
+
                                         data-bs-toggle="modal"
                                         data-bs-target="#assignAssetModal">
 
-                                        <i class="fa-solid fa-user-plus me-1"></i>
+                                        <i class="fa-solid fa-user-plus"></i>
 
                                         Zaduži
 
                                     </button>
-
                                 <?php endif; ?>
 
                             </td>
@@ -278,8 +303,8 @@ while ($row = $employeesResult->fetch_assoc()) {
 
                         <input
                             type="text"
+                            id="asset_name"
                             class="form-control"
-                            id="assign_asset_name"
                             readonly>
 
                     </div>
@@ -347,23 +372,21 @@ while ($row = $employeesResult->fetch_assoc()) {
 </div>
 
 <script>
+    document
+        .querySelectorAll('.assign-btn')
+        .forEach(btn => {
 
-document
-    .querySelectorAll('.assign-asset-btn')
-    .forEach(btn => {
+            btn.addEventListener('click', () => {
 
-        btn.addEventListener('click', () => {
+                document.getElementById(
+                    'assign_asset_id'
+                ).value = btn.dataset.id;
 
-            document.getElementById(
-                'assign_asset_id'
-            ).value = btn.dataset.id;
-
-            document.getElementById(
-                'assign_asset_name'
-            ).value = btn.dataset.name;
+                document.getElementById(
+                    'asset_name'
+                ).value = btn.dataset.name;
+            });
         });
-    });
-
 </script>
 <?php include '../partials/asset_modal.php'; ?>
 

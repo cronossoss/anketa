@@ -94,8 +94,8 @@ $assignmentStmt->execute();
 
 $currentAssignment =
     $assignmentStmt
-        ->get_result()
-        ->fetch_assoc();
+    ->get_result()
+    ->fetch_assoc();
 
 /* =========================
    DYNAMIC ATTRIBUTES
@@ -128,7 +128,7 @@ $attributesStmt->execute();
 
 $attributes =
     $attributesStmt
-        ->get_result();
+    ->get_result();
 ?>
 
 <main class="main-content">
@@ -214,7 +214,12 @@ $attributes =
 
                 <?php if ($currentAssignment): ?>
 
-                    <button class="btn btn-warning btn-sm">
+                    <button
+                        type="button"
+                        class="btn btn-warning btn-sm"
+
+                        data-bs-toggle="modal"
+                        data-bs-target="#changeAssignmentModal">
 
                         <i class="fa-solid fa-user-gear me-1"></i>
 
@@ -244,7 +249,7 @@ $attributes =
 
                     </form>
 
-                        
+
 
                 <?php else: ?>
 
@@ -680,6 +685,162 @@ $attributes =
 
                 </div>
 
+                <!-- ISTORIJA ZADUZENJA -->
+
+                <div class="card shadow-sm border-0 mb-4">
+
+                    <div class="card-header">
+
+                        <h5 class="mb-0">
+
+                            Istorija zaduženja
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <?php
+
+                        $historyStmt = $conn->prepare("
+            SELECT
+                aa.assigned_at,
+                aa.returned_at,
+                aa.notes,
+
+                e.first_name,
+                e.last_name,
+                e.personal_id
+
+            FROM asset_assignments aa
+
+            LEFT JOIN employees e
+                ON e.id = aa.employee_id
+
+            WHERE aa.asset_id = ?
+
+            ORDER BY aa.assigned_at DESC
+        ");
+
+                        $historyStmt->bind_param(
+                            "i",
+                            $id
+                        );
+
+                        $historyStmt->execute();
+
+                        $history =
+                            $historyStmt->get_result();
+                        ?>
+
+                        <?php if ($history->num_rows > 0): ?>
+
+                            <div class="table-responsive">
+
+                                <table class="table table-sm align-middle">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th>Zaposleni</th>
+
+                                            <th>Matični broj</th>
+
+                                            <th>Od</th>
+
+                                            <th>Do</th>
+
+                                            <th>Status</th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+                                        <?php while ($h = $history->fetch_assoc()): ?>
+
+                                            <tr>
+
+                                                <td>
+
+                                                    <?= e(
+                                                        $h['first_name']
+                                                            . ' '
+                                                            . $h['last_name']
+                                                    ) ?>
+
+                                                </td>
+
+                                                <td>
+
+                                                    <?= e($h['personal_id']) ?>
+
+                                                </td>
+
+                                                <td>
+
+                                                    <?= e($h['assigned_at']) ?>
+
+                                                </td>
+
+                                                <td>
+
+                                                    <?= e(
+                                                        $h['returned_at']
+                                                            ?? '-'
+                                                    ) ?>
+
+                                                </td>
+
+                                                <td>
+
+                                                    <?php if ($h['returned_at']): ?>
+
+                                                        <span class="badge bg-secondary">
+
+                                                            Razdužen
+
+                                                        </span>
+
+                                                    <?php else: ?>
+
+                                                        <span class="badge bg-success">
+
+                                                            Aktivno
+
+                                                        </span>
+
+                                                    <?php endif; ?>
+
+                                                </td>
+
+                                            </tr>
+
+                                        <?php endwhile; ?>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        <?php else: ?>
+
+                            <div class="text-muted">
+
+                                Nema istorije zaduženja.
+
+                            </div>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
@@ -815,54 +976,6 @@ $attributes =
 
                         </div>
 
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-
-                                Status
-
-                            </label>
-
-                            <select
-                                name="status"
-                                class="form-select">
-
-                                <option
-                                    value="active"
-                                    <?= $asset['status'] === 'active' ? 'selected' : '' ?>>
-
-                                    Active
-
-                                </option>
-
-                                <option
-                                    value="assigned"
-                                    <?= $asset['status'] === 'assigned' ? 'selected' : '' ?>>
-
-                                    Assigned
-
-                                </option>
-
-                                <option
-                                    value="repair"
-                                    <?= $asset['status'] === 'repair' ? 'selected' : '' ?>>
-
-                                    Repair
-
-                                </option>
-
-                                <option
-                                    value="reserve"
-                                    <?= $asset['status'] === 'reserve' ? 'selected' : '' ?>>
-
-                                    Reserve
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
                     </div>
 
                 </div>
@@ -874,6 +987,116 @@ $attributes =
                         class="btn btn-primary">
 
                         Sačuvaj izmene
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    class="modal fade"
+    id="changeAssignmentModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="../actions/assignment_change.php">
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= csrf_token() ?>">
+
+                <input
+                    type="hidden"
+                    name="assignment_id"
+                    value="<?= $currentAssignment['id'] ?? '' ?>">
+
+                <input
+                    type="hidden"
+                    name="asset_id"
+                    value="<?= $asset['id'] ?>">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Promena zaduženja
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <label class="form-label">
+
+                        Novi zaposleni
+
+                    </label>
+
+                    <select
+                        name="employee_id"
+                        class="form-select"
+                        required>
+
+                        <option value="">
+                            Izaberi zaposlenog
+                        </option>
+
+                        <?php
+
+                        $emps = $conn->query("
+                            SELECT
+                                id,
+                                first_name,
+                                last_name
+                            FROM employees
+                            ORDER BY first_name, last_name
+                        ");
+
+                        while ($emp = $emps->fetch_assoc()):
+                        ?>
+
+                            <option value="<?= $emp['id'] ?>">
+
+                                <?= e(
+                                    $emp['first_name']
+                                        . ' '
+                                        . $emp['last_name']
+                                ) ?>
+
+                            </option>
+
+                        <?php endwhile; ?>
+
+                    </select>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="submit"
+                        class="btn btn-warning">
+
+                        Promeni
 
                     </button>
 

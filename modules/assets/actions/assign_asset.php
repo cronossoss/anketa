@@ -53,8 +53,8 @@ $assetStmt->execute();
 
 $asset =
     $assetStmt
-        ->get_result()
-        ->fetch_assoc();
+    ->get_result()
+    ->fetch_assoc();
 
 if (!$asset) {
 
@@ -82,8 +82,8 @@ $checkStmt->execute();
 
 $activeAssignment =
     $checkStmt
-        ->get_result()
-        ->fetch_assoc();
+    ->get_result()
+    ->fetch_assoc();
 
 if ($activeAssignment) {
 
@@ -121,16 +121,32 @@ $stmt->execute();
 
 $statusStmt = $conn->prepare("
     UPDATE assets
-    SET status = 'assigned'
+    SET status = 'zaduzen'
     WHERE id = ?
 ");
+
+if (!$statusStmt) {
+
+    die($conn->error);
+}
 
 $statusStmt->bind_param(
     "i",
     $assetId
 );
 
-$statusStmt->execute();
+if (!$statusStmt->execute()) {
+
+    die($statusStmt->error);
+}
+
+$result = $conn->query("
+    SELECT status
+    FROM assets
+    WHERE id = {$assetId}
+");
+
+
 
 /* =========================
    AUDIT

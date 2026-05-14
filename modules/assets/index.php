@@ -34,7 +34,7 @@ $assignedAssets = $conn
     ->query("
         SELECT COUNT(*) AS total
         FROM assets
-        WHERE status = 'assigned'
+        WHERE status = 'zaduzen'
     ")
     ->fetch_assoc()['total'];
 
@@ -42,7 +42,7 @@ $freeAssets = $conn
     ->query("
         SELECT COUNT(*) AS total
         FROM assets
-        WHERE status != 'assigned'
+        WHERE status != 'slobodno'
     ")
     ->fetch_assoc()['total'];
 
@@ -50,7 +50,7 @@ $repairAssets = $conn
     ->query("
         SELECT COUNT(*) AS total
         FROM assets
-        WHERE status = 'repair'
+        WHERE status = 'servis'
     ")
     ->fetch_assoc()['total'];
 ?>

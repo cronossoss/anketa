@@ -37,6 +37,9 @@ function isActive($identifier): string
         'asset-assignments' =>
         '/modules/assets/assignments/',
 
+        'asset-services' =>
+        '/modules/assets/services/',
+
         'audit_logs.php' =>
         '/admin/audit_logs.php',
 

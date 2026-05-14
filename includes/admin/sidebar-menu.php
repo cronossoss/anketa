@@ -61,6 +61,12 @@ $menu = [
             ],
 
             [
+                'title' => 'Servisi',
+                'url'   => BASE_URL . 'modules/assets/services/index.php',
+                'page'  => 'asset-services'
+            ],
+
+            [
                 'title' => 'Tipovi inventara',
                 'url'   => BASE_URL . 'modules/assets/types/index.php',
                 'page'  => 'asset-types'

@@ -137,7 +137,7 @@ if ($employeeId > 0) {
 
     $statusStmt = $conn->prepare("
         UPDATE assets
-        SET status = 'assigned'
+        SET status = 'zaduzen'
         WHERE id = ?
     ");
 

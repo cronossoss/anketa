@@ -156,7 +156,15 @@ $result = $conn->query("
                             <td>
 
                                 <button
-                                    class="btn btn-sm btn-warning">
+                                    type="button"
+                                    class="btn btn-sm btn-warning change-assignment-btn"
+
+                                    data-id="<?= $row['id'] ?>"
+                                    data-employee-id="<?= $row['employee_id'] ?>"
+                                    data-asset-id="<?= $row['asset_id'] ?>"
+
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#changeAssignmentModal">
 
                                     Promena
 
@@ -295,5 +303,156 @@ $result = $conn->query("
     </div>
 
 </main>
+
+<div
+    class="modal fade"
+    id="changeAssignmentModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="../actions/assignment_change.php">
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= csrf_token() ?>">
+
+                <input
+                    type="hidden"
+                    name="assignment_id"
+                    id="change_assignment_id">
+
+                <input
+                    type="hidden"
+                    name="asset_id"
+                    id="change_asset_id">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Promena zaduženja
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Novi zaposleni
+
+                        </label>
+
+                        <select
+                            name="employee_id"
+                            class="form-select"
+                            required>
+
+                            <option value="">
+                                Izaberi zaposlenog
+                            </option>
+
+                            <?php
+
+                            $employees = $conn->query("
+                                SELECT
+                                    id,
+                                    first_name,
+                                    last_name
+                                FROM employees
+                                ORDER BY
+                                    first_name,
+                                    last_name
+                            ");
+
+                            while ($emp = $employees->fetch_assoc()):
+                            ?>
+
+                                <option value="<?= $emp['id'] ?>">
+
+                                    <?= e(
+                                        $emp['first_name']
+                                            . ' '
+                                            . $emp['last_name']
+                                    ) ?>
+
+                                </option>
+
+                            <?php endwhile; ?>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Napomena
+
+                        </label>
+
+                        <textarea
+                            name="note"
+                            class="form-control"
+                            rows="3"></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="submit"
+                        class="btn btn-warning">
+
+                        Promeni zaduženje
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document
+        .querySelectorAll('.change-assignment-btn')
+        .forEach(button => {
+
+            button.addEventListener('click', () => {
+
+                document.getElementById(
+                        'change_assignment_id'
+                    ).value =
+                    button.dataset.id;
+
+                document.getElementById(
+                        'change_asset_id'
+                    ).value =
+                    button.dataset.assetId;
+            });
+        });
+</script>
 
 <?php include "../../../layouts/footer.php"; ?>

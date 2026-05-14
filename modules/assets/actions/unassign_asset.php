@@ -45,8 +45,8 @@ $stmt->execute();
 
 $assignment =
     $stmt
-        ->get_result()
-        ->fetch_assoc();
+    ->get_result()
+    ->fetch_assoc();
 
 if (!$assignment) {
 
@@ -76,7 +76,7 @@ $updateStmt->execute();
 
 $statusStmt = $conn->prepare("
     UPDATE assets
-    SET status = 'active'
+    SET status = 'slobodan'
     WHERE id = ?
 ");
 

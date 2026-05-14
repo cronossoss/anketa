@@ -138,38 +138,6 @@
 
                           </div>
 
-                          <div class="col-md-6 mb-3">
-
-                              <label class="form-label">
-
-                                  Status
-
-                              </label>
-
-                              <select
-                                  name="status"
-                                  class="form-select">
-
-                                  <option value="active">
-                                      Active
-                                  </option>
-
-                                  <option value="assigned">
-                                      Assigned
-                                  </option>
-
-                                  <option value="repair">
-                                      Repair
-                                  </option>
-
-                                  <option value="reserve">
-                                      Reserve
-                                  </option>
-
-                              </select>
-
-                          </div>
-
                       </div>
 
                       <hr>
