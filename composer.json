@@ -1,0 +1,12 @@
+{
+    "name": "mirkonikodijevic/anketa",
+    "authors": [
+        {
+            "name": "Mirko Nikodijević",
+            "email": "nikodijevicmirko@gmail.com"
+        }
+    ],
+    "require": {
+        "phpoffice/phpspreadsheet": "^5.7"
+    }
+}

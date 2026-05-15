@@ -12,12 +12,9 @@ require_once $_SERVER['DOCUMENT_ROOT']
 require_once $_SERVER['DOCUMENT_ROOT']
     . '/anketa/modules/assets/helpers/permissions.php';
 
-require_Login();
+require_login();
 
-if (!hasRole(['admin', 'it'])) {
-
-    die('Nemate dozvolu.');
-}
+require_role(['admin', 'it']);
 
 /* =========================
    COUNTERS
@@ -42,7 +39,7 @@ $freeAssets = $conn
     ->query("
         SELECT COUNT(*) AS total
         FROM assets
-        WHERE status != 'slobodno'
+        WHERE status = 'slobodno'
     ")
     ->fetch_assoc()['total'];
 

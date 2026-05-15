@@ -12,12 +12,9 @@ require_once dirname(__DIR__)
 require_once dirname(__DIR__)
     . '/helpers/audit.php';
     
-require_Login();
+require_login();
 
-if (!hasRole(['admin', 'it'])) {
-
-    die('Nemate dozvolu.');
-}
+require_role(['admin', 'it']);
 
 /* =========================
    INPUT

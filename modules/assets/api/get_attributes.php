@@ -3,7 +3,7 @@
 require_once $_SERVER['DOCUMENT_ROOT']
     . '/anketa/config/init.php';
 
-require_Login();
+require_login();
 
 header('Content-Type: application/json');
 

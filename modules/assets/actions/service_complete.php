@@ -1,150 +1,168 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/config/init.php';
-
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/helpers/audit.php';
+require_once '../../../config/init.php';
+require_once dirname(__DIR__) . '/helpers/audit.php';
 
 require_login();
 
 require_role(['admin', 'it']);
 
-if (!verify_csrf($_POST['csrf_token'])) {
+$serviceId =
+    (int) ($_POST['service_id'] ?? 0);
 
-    die('CSRF greška.');
+$resolution =
+    trim($_POST['resolution'] ?? 'return');
+
+$note =
+    trim($_POST['note'] ?? '');
+
+if (!$serviceId) {
+
+    die('Neispravan servis.');
 }
-
-$service_id =
-    (int) $_POST['service_id'];
 
 /* =========================
    SERVICE
 ========================= */
 
-$stmt = $conn->prepare("
-    SELECT
-        id,
-        asset_id,
-        status
+$serviceResult = $conn->query("
+    SELECT *
     FROM asset_services
-    WHERE id = ?
+    WHERE id = {$serviceId}
+    LIMIT 1
 ");
 
-$stmt->bind_param(
-    "i",
-    $service_id
-);
-
-$stmt->execute();
-
 $service =
-    $stmt
-    ->get_result()
-    ->fetch_assoc();
+    $serviceResult->fetch_assoc();
 
 if (!$service) {
 
     die('Servis nije pronađen.');
 }
 
-$conn->begin_transaction();
+$assetId =
+    (int) $service['asset_id'];
 
-try {
+/* =========================
+   ACTIVE ASSIGNMENT
+========================= */
 
-    /* COMPLETE SERVICE */
+$assignmentResult = $conn->query("
+    SELECT *
+    FROM asset_assignments
+    WHERE asset_id = {$assetId}
+    AND returned_at IS NULL
+    ORDER BY id DESC
+    LIMIT 1
+");
 
-    $stmt = $conn->prepare("
-        UPDATE asset_services
-        SET
-            status = 'completed',
-            completed_at = NOW()
-        WHERE id = ?
-    ");
+$assignment =
+    $assignmentResult->fetch_assoc();
 
-    $stmt->bind_param(
-        "i",
-        $service_id
-    );
+/* =========================
+   COMPLETE SERVICE
+========================= */
 
-    $stmt->execute();
+$noteEscaped =
+    $conn->real_escape_string($note);
 
-    /* RETURN ASSET */
+$conn->query("
+    UPDATE asset_services
+    SET
+        status = 'completed',
+        completed_at = NOW(),
+        notes = CONCAT(
+            COALESCE(notes, ''),
+            '\n\n',
+            'Završetak: {$noteEscaped}'
+        )
+    WHERE id = {$serviceId}
+");
 
-    $stmt = $conn->prepare("
+/* =========================
+   RETURN TO USER
+========================= */
+
+if ($resolution === 'return') {
+
+    $conn->query("
         UPDATE assets
-        SET status = 'slobodan'
-        WHERE id = ?
+        SET status = 'zaduzen'
+        WHERE id = {$assetId}
     ");
-
-    $stmt->bind_param(
-        "i",
-        $service['asset_id']
-    );
-
-    $stmt->execute();
-
-    /* STATUS HISTORY */
-
-    $stmt = $conn->prepare("
-        INSERT INTO asset_status_history
-        (
-            asset_id,
-            old_status,
-            new_status,
-            changed_by,
-            notes
-        )
-        VALUES
-        (
-            ?,
-            'repair',
-            'active',
-            ?,
-            ?
-        )
-    ");
-
-    $changed_by =
-        $_SESSION['user_id'] ?? null;
-
-    $note =
-        'Servis završen';
-
-    $stmt->bind_param(
-        "iis",
-        $service['asset_id'],
-        $changed_by,
-        $note
-    );
-
-    $stmt->execute();
-
-    audit_log(
-
-        'assets_services',
-
-        'complete',
-
-        $service_id,
-
-        'Servis je završen'
-    );
-
-    $conn->commit();
-
-    $_SESSION['success'] =
-        'Servis je završen.';
-} catch (Exception $e) {
-
-    $conn->rollback();
-
-    die($e->getMessage());
 }
 
+/* =========================
+   UNASSIGN
+========================= */
+
+elseif ($resolution === 'unassign') {
+
+    if ($assignment) {
+
+        $assignmentId =
+            (int) $assignment['id'];
+
+        $conn->query("
+            UPDATE asset_assignments
+            SET returned_at = NOW()
+            WHERE id = {$assignmentId}
+        ");
+    }
+
+    $conn->query("
+        UPDATE assets
+        SET status = 'slobodno'
+        WHERE id = {$assetId}
+    ");
+}
+
+/* =========================
+   DISPOSE
+========================= */
+
+elseif ($resolution === 'dispose') {
+
+    if ($assignment) {
+
+        $assignmentId =
+            (int) $assignment['id'];
+
+        $conn->query("
+            UPDATE asset_assignments
+            SET returned_at = NOW()
+            WHERE id = {$assignmentId}
+        ");
+    }
+
+    $conn->query("
+        UPDATE assets
+        SET
+            status = 'rashodovan',
+            disposed_at = NOW(),
+            disposal_reason = '{$noteEscaped}'
+        WHERE id = {$assetId}
+    ");
+}
+
+/* =========================
+   AUDIT
+========================= */
+
+logAudit(
+    $conn,
+    $_SESSION['user_id'],
+    'services',
+    'complete',
+    $serviceId,
+    'Završen servis uređaja ID: ' . $assetId
+);
+
+$_SESSION['success'] =
+    'Servis uspešno završen.';
+
 header(
-    'Location: ../services/view.php?id='
-        . $service_id
+    'Location: ../services/index.php'
 );
 
 exit;

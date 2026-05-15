@@ -1,15 +1,14 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/config/init.php';
-require_once '../helpers/permissions.php';
-require_once '../helpers/audit.php';
+require_once '../../../config/init.php';
 
-require_Login();
+require_once dirname(__DIR__) . '/helpers/permissions.php';
 
-if (!hasRole(['admin', 'it'])) {
-    die('Nemate dozvolu.');
-}
+require_once dirname(__DIR__) . '/helpers/audit.php';
+
+require_login();
+
+require_role(['admin', 'it']);
 
 $inventoryNumber =
     trim($_POST['inventory_number'] ?? '');
@@ -17,26 +16,16 @@ $inventoryNumber =
 $categoryId =
     (int) ($_POST['category_id'] ?? 0);
 
-$typeStmt = $conn->prepare("
+$typeResult = $conn->query("
     SELECT asset_type_id
     FROM asset_categories
-    WHERE id = ?
+    WHERE id = {$categoryId}
 ");
 
-$typeStmt->bind_param(
-    "i",
-    $categoryId
-);
-
-$typeStmt->execute();
-
-$typeResult =
-    $typeStmt
-    ->get_result()
-    ->fetch_assoc();
+$typeRow = $typeResult->fetch_assoc();
 
 $assetTypeId =
-    (int)($typeResult['asset_type_id'] ?? 0);
+    (int)($typeRow['asset_type_id'] ?? 0);
 
 $manufacturer =
     trim($_POST['manufacturer'] ?? '');
@@ -63,21 +52,16 @@ if (
     die('Popunite obavezna polja.');
 }
 
-$stmt = $conn->prepare("
+$inventoryNumberEscaped =
+    $conn->real_escape_string(
+        $inventoryNumber
+    );
+
+$result = $conn->query("
     SELECT id
     FROM assets
-    WHERE inventory_number = ?
+    WHERE inventory_number = '{$inventoryNumberEscaped}'
 ");
-
-$stmt->bind_param(
-    "s",
-    $inventoryNumber
-);
-
-$stmt->execute();
-
-$result =
-    $stmt->get_result();
 
 if ($result->num_rows > 0) {
 

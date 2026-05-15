@@ -6,9 +6,6 @@ $currentPage = 'asset-services';
 
 include "../../../layouts/admin_layout_start.php";
 
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/config/init.php';
-
 require_login();
 
 require_role(['admin', 'it']);
@@ -444,8 +441,10 @@ $interventions =
                         value="<?= $service['id'] ?>">
 
                     <button
-                        type="submit"
-                        class="btn btn-success w-100">
+                        type="button"
+                        class="btn btn-success w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#completeServiceModal">
 
                         Završi servis
 
@@ -579,6 +578,151 @@ $interventions =
                         class="btn btn-primary">
 
                         Sačuvaj
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    class="modal fade"
+    id="completeServiceModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="../actions/service_complete.php">
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= csrf_token() ?>">
+
+                <input
+                    type="hidden"
+                    name="service_id"
+                    value="<?= $service['id'] ?>">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Završetak servisa
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+
+                            Ishod servisa
+
+                        </label>
+
+                        <div class="form-check mb-2">
+
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="resolution"
+                                value="return"
+                                checked>
+
+                            <label class="form-check-label">
+
+                                Vrati korisniku
+
+                            </label>
+
+                        </div>
+
+                        <div class="form-check mb-2">
+
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="resolution"
+                                value="unassign">
+
+                            <label class="form-check-label">
+
+                                Razduži uređaj
+
+                            </label>
+
+                        </div>
+
+                        <div class="form-check">
+
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="resolution"
+                                value="dispose">
+
+                            <label class="form-check-label text-danger">
+
+                                Rashoduj uređaj
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Napomena
+
+                        </label>
+
+                        <textarea
+                            name="note"
+                            class="form-control"
+                            rows="4"></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Otkaži
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-success">
+
+                        Potvrdi
 
                     </button>
 

@@ -9,11 +9,9 @@ include "../../../layouts/admin_layout_start.php";
 require_once $_SERVER['DOCUMENT_ROOT']
     . '/anketa/config/init.php';
 
-require_Login();
+require_login();
 
-if (!hasRole(['admin', 'it'])) {
-    die('Nemate dozvolu.');
-}
+require_role(['admin', 'it']);
 
 $id = (int) ($_GET['id'] ?? 0);
 

@@ -9,11 +9,9 @@ require_once $_SERVER['DOCUMENT_ROOT']
 require_once '../helpers/permissions.php';
 require_once '../helpers/audit.php';
 
-require_Login();
+require_login();
 
-if (!hasRole(['admin', 'it'])) {
-    die('Nemate dozvolu.');
-}
+require_role(['admin', 'it']);
 
 $result = $conn->query("
     SELECT
