@@ -45,3 +45,16 @@ function pluralize(
 
     return $many;
 }
+
+function dump($data)
+{
+    echo '<pre>';
+    print_r($data);
+    echo '</pre>';
+}
+
+function dd($data)
+{
+    dump($data);
+    die();
+}
