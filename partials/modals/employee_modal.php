@@ -39,8 +39,10 @@
 
                     <button
                         type="button"
-                        class="btn-close"
+                        class="employee-close-btn"
                         data-bs-dismiss="modal">
+
+                        <i class="bi bi-x-lg"></i>
                     </button>
 
                 </div>
@@ -605,200 +607,364 @@
 <script>
     function formatDate(dateString) {
 
-        if (!dateString) return '';
+        if (!dateString) {
+            return '-';
+        }
 
         const parts = dateString.split('-');
+
+        if (parts.length !== 3) {
+            return dateString;
+        }
 
         return parts[2] + '.' + parts[1] + '.' + parts[0];
     }
 
-
-
     document.addEventListener('DOMContentLoaded', function() {
 
-        const hasAccount = document.getElementById('has_account');
-        const systemRoleWrapper = document.getElementById(
-            'system_role_wrapper'
-        );
+        const employeeViewModal =
+            document.getElementById(
+                'employeeViewModal'
+            );
 
-        function toggleSystemRole() {
-
-            if (hasAccount.checked) {
-
-                systemRoleWrapper.style.display = 'block';
-
-            } else {
-
-                systemRoleWrapper.style.display = 'none';
-
-                document.getElementById('system_role').value = '';
-            }
+        if (!employeeViewModal) {
+            return;
         }
 
-        hasAccount.addEventListener('change', toggleSystemRole);
+        employeeViewModal.addEventListener(
+            'show.bs.modal',
+            async function(event) {
 
-        toggleSystemRole();
+                const button =
+                    event.relatedTarget;
 
-        const employeeModal = document.getElementById('employeeModal');
-
-        employeeModal.addEventListener('show.bs.modal', function(event) {
-
-            const button = event.relatedTarget;
-
-            // CREATE MODE
-            if (button && button.id === 'addEmployeeBtn') {
-
-                // RESET ONLY CREATE VALUES
-
-                document.getElementById('employee_id').value = '';
-
-                document.getElementById('first_name').value = '';
-                document.getElementById('last_name').value = '';
-                document.getElementById('jmbg').value = '';
-                document.getElementById('birth_date').value = '';
-
-                document.getElementById('address').value = '';
-                document.getElementById('phone_private').value = '';
-                document.getElementById('email').value = '';
-                document.getElementById('bank_account').value = '';
-
-                document.getElementById('organizational_unit_id').value = '';
-                document.getElementById('position').value = '';
-                document.getElementById('personal_id').value = '';
-                document.getElementById('hire_date').value = '';
-                document.getElementById('contract_type').value = '';
-                document.getElementById('contract_end').value = '';
-                document.getElementById('business_email').value = '';
-                document.getElementById('business_phone').value = '';
-
-                document.getElementById('is_manager').checked = false;
-
-                document.getElementById('has_account').checked = false;
-
-                document.getElementById('system_role').value = '';
-
-                // HEADER
-
-                document.getElementById('employeeDisplayName').innerText =
-                    'Novi zaposleni';
-
-                document.getElementById('employeeDisplayPid').innerText =
-                    '-';
-
-                document.getElementById('employeeDisplayOj').innerText =
-                    'Organizacija nije dodeljena';
-
-                document.getElementById('employeeDisplayPosition').innerText =
-                    'Pozicija nije definisana';
-
-                toggleContractEnd();
-
-            }
-
-            // EDIT MODE
-            if (button && button.classList.contains('edit-employee-btn')) {
-
-                /* const employee = JSON.parse(
-                    button.getAttribute('data-employee')
-                ); */
+                if (!button) {
+                    return;
+                }
 
                 let employee = {};
 
                 try {
 
                     employee = JSON.parse(
-                        button.getAttribute('data-employee')
+                        button.getAttribute(
+                            'data-employee'
+                        )
                     );
 
                     console.log(employee);
 
                 } catch (e) {
 
-                    console.error(e);
+                    console.error(
+                        'Greška pri parsiranju zaposlenog:',
+                        e
+                    );
 
+                    return;
                 }
 
-                console.log(
-                    document.getElementById('has_account')
+                //
+                // BASIC
+                //
+
+                setText(
+                    'employee_view_name',
+                    (
+                        (employee.first_name || '') +
+                        ' ' +
+                        (employee.last_name || '')
+                    ).trim()
                 );
 
-                console.log(
-                    document.getElementById('system_role')
+                setText(
+                    'employee_view_personal_number',
+                    employee.personal_id
                 );
 
-                console.log(employee);
+                setText(
+                    'employee_view_organization',
+                    employee.organizational_unit_name
+                );
 
-                document.getElementById('first_name').value =
-                    employee.first_name || '';
+                setText(
+                    'employee_view_position',
+                    employee.position
+                );
 
-                document.getElementById('last_name').value =
-                    employee.last_name || '';
+                setText(
+                    'employee_view_email',
+                    employee.business_email
+                );
 
-                document.getElementById('position').value =
-                    employee.position || '';
+                setText(
+                    'employee_view_phone',
+                    employee.business_phone
+                );
 
-                document.getElementById('email').value =
-                    employee.email || '';
+                //
+                // PHOTO
+                //
 
-                document.getElementById('is_manager').checked =
-                    employee.is_manager == 1;
+                const photo =
+                    document.getElementById(
+                        'employee_view_photo'
+                    );
 
-                document.getElementById('has_account').checked =
-                    employee.has_account == 1;
+                if (photo) {
 
-                document.getElementById('system_role').value =
-                    employee.system_role || '';
+                    photo.src =
+                        employee.photo ?
+                        employee.photo :
+                        '/anketa/assets/img/default-user.png';
+                }
 
-                toggleSystemRole();
+                //
+                // BADGE
+                //
 
+                const roleBadge =
+                    document.getElementById(
+                        'employee_view_role_badge'
+                    );
+
+                if (roleBadge) {
+
+                    if (employee.is_manager == 1) {
+
+                        roleBadge.innerHTML =
+                            'Rukovodilac';
+
+                        roleBadge.className =
+                            'badge bg-warning text-dark px-3 py-2';
+
+                    } else {
+
+                        roleBadge.innerHTML =
+                            'Zaposleni';
+
+                        roleBadge.className =
+                            'badge bg-secondary px-3 py-2';
+                    }
+                }
+
+                //
+                // PERSONAL
+                //
+
+                setText(
+                    'employee_view_jmbg',
+                    employee.jmbg
+                );
+
+                setText(
+                    'employee_view_birth_date',
+                    formatDate(
+                        employee.birth_date
+                    )
+                );
+
+                setText(
+                    'employee_view_private_phone',
+                    employee.phone_private
+                );
+
+                setText(
+                    'employee_view_private_email',
+                    employee.email
+                );
+
+                setText(
+                    'employee_view_address',
+                    employee.address
+                );
+
+                setText(
+                    'employee_view_bank_account',
+                    employee.bank_account
+                );
+
+                //
+                // BUSINESS
+                //
+
+                setText(
+                    'employee_view_org_unit',
+                    employee.organizational_unit_name
+                );
+
+                setText(
+                    'employee_view_job_position',
+                    employee.position
+                );
+
+                setText(
+                    'employee_view_employee_number',
+                    employee.personal_id
+                );
+
+                setText(
+                    'employee_view_employment_date',
+                    formatDate(
+                        employee.hire_date
+                    )
+                );
+
+                setText(
+                    'employee_view_contract_type',
+                    employee.contract_type
+                );
+
+                setText(
+                    'employee_view_contract_expiry',
+                    formatDate(
+                        employee.contract_end
+                    )
+                );
+
+                setText(
+                    'employee_view_business_email',
+                    employee.business_email
+                );
+
+                setText(
+                    'employee_view_business_phone',
+                    employee.business_phone
+                );
+
+                //
+                // STATUS
+                //
+
+                const statusBadge =
+                    document.getElementById(
+                        'employee_status_badge'
+                    );
+
+                if (statusBadge) {
+
+                    if (
+                        employee.status === 'inactive'
+                    ) {
+
+                        statusBadge.className =
+                            'badge bg-danger';
+
+                        statusBadge.innerHTML =
+                            'Neaktivan';
+
+                    } else {
+
+                        statusBadge.className =
+                            'badge bg-success';
+
+                        statusBadge.innerHTML =
+                            'Aktivan';
+                    }
+                }
+
+                //
+                // LAST ACTIVITY
+                //
+
+                setText(
+                    'employee_last_activity',
+                    employee.last_activity ||
+                    'Nema aktivnosti'
+                );
+
+                //
+                // LOAD ASSETS
+                //
+
+                await loadEmployeeAssets(
+                    employee.id
+                );
+
+                //
+                // HISTORY PLACEHOLDER
+                //
+
+                loadEmployeeHistory(
+                    employee.id
+                );
+
+                //
+                // TIMELINE PLACEHOLDER
+                //
+
+                loadEmployeeTimeline(
+                    employee.id
+                );
             }
+        );
 
-        });
+        //
+        // EDIT BUTTON
+        //
 
-        // CONTRACT TYPE
+        const editBtn =
+            document.getElementById(
+                'btn_edit_employee'
+            );
 
-        const contractType = document.getElementById('contract_type');
-        const contractEndWrapper = document.getElementById('contract_end_wrapper');
+        if (editBtn) {
 
-        function toggleContractEnd() {
+            editBtn.addEventListener(
+                'click',
+                function() {
 
-            if (contractType.value === 'Na neodređeno') {
+                    console.log(
+                        'Otvaranje edit modala'
+                    );
+                }
+            );
+        }
+    });
 
-                contractEndWrapper.style.display = 'none';
+    //
+    // HELPERS
+    //
 
-                document.getElementById('contract_end').value = '';
+    function setText(id, value) {
 
-            } else {
+        const element =
+            document.getElementById(id);
 
-                contractEndWrapper.style.display = 'block';
-
-            }
+        if (!element) {
+            return;
         }
 
-        contractType.addEventListener('change', toggleContractEnd);
+        element.innerText =
+            value && value !== 'null' ?
+            value :
+            '-';
+    }
 
-        toggleContractEnd();
-
-    });
+    //
+    // LOAD EMPLOYEE ASSETS
+    //
 
     async function loadEmployeeAssets(
         employeeId
     ) {
 
-        const container =
+        const tbody =
             document.getElementById(
-                'employeeAssetsContainer'
+                'employee_assets_table'
             );
 
-        if (!container) {
+        if (!tbody) {
             return;
         }
 
-        container.innerHTML = `
-        <div class="p-3 text-muted">
-            Učitavanje inventara...
-        </div>
-    `;
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center p-4 text-muted">
+                    Učitavanje inventara...
+                </td>
+            </tr>
+        `;
 
         try {
 
@@ -812,92 +978,169 @@
             const assets =
                 await response.json();
 
+            console.log(assets);
+
+            //
+            // COUNT
+            //
+
+            const countElement =
+                document.getElementById(
+                    'employee_assets_count'
+                );
+
+            if (countElement) {
+
+                countElement.innerText =
+                    assets.length;
+            }
+
+            //
+            // EMPTY
+            //
+
             if (!assets.length) {
 
-                container.innerHTML = `
-                <div class="p-3 text-muted">
-                    Zaposleni nema zadužen inventar.
-                </div>
-            `;
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center p-4 text-muted">
+                            Zaposleni nema zadužen inventar.
+                        </td>
+                    </tr>
+                `;
 
                 return;
             }
 
-            let html = `
-            <div class="table-responsive">
+            //
+            // TABLE
+            //
 
-                <table class="table table-sm mb-0">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Kategorija</th>
-
-                            <th>Uređaj</th>
-
-                            <th>Inventarski broj</th>
-
-                            <th>Zadužen od</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-        `;
+            let html = '';
 
             assets.forEach(asset => {
 
                 html += `
-                <tr>
+                    <tr>
 
-                    <td>
-                        ${asset.category_name ?? ''}
-                    </td>
+                        <td>
+                            ${asset.category_name ?? '-'}
+                        </td>
 
-                    <td>
-                        ${asset.manufacturer ?? ''}
-                        ${asset.model ?? ''}
-                    </td>
+                        <td>
+                            <div class="fw-semibold">
+                                ${asset.manufacturer ?? ''}
+                                ${asset.model ?? ''}
+                            </div>
+                        </td>
 
-                    <td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                ${asset.inventory_number ?? '-'}
+                            </span>
+                        </td>
 
-                        <span class="badge bg-secondary">
+                        <td>
 
-                            ${asset.inventory_number ?? ''}
+                            <span class="badge bg-success">
+                                Zadužen
+                            </span>
 
-                        </span>
+                        </td>
 
-                    </td>
+                        <td>
 
-                    <td>
-                        ${asset.assigned_at ?? ''}
-                    </td>
+                            <div class="d-flex gap-2">
 
-                </tr>
-            `;
+                                <button
+                                    class="btn btn-sm btn-outline-primary">
+
+                                    Pregled
+                                </button>
+
+                                <button
+                                    class="btn btn-sm btn-outline-danger">
+
+                                    Razduži
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                `;
             });
 
-            html += `
-                    </tbody>
-
-                </table>
-
-            </div>
-        `;
-
-            container.innerHTML = html;
+            tbody.innerHTML = html;
 
         } catch (error) {
 
             console.error(error);
 
-            container.innerHTML = `
-            <div class="p-3 text-danger">
-                Greška pri učitavanju inventara.
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center p-4 text-danger">
+                        Greška pri učitavanju inventara.
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    //
+    // HISTORY
+    //
+
+    function loadEmployeeHistory(
+        employeeId
+    ) {
+
+        const container =
+            document.getElementById(
+                'employee_history_container'
+            );
+
+        if (!container) {
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="text-muted">
+                Istorija će biti uskoro implementirana.
             </div>
         `;
+    }
+
+    //
+    // TIMELINE
+    //
+
+    function loadEmployeeTimeline(
+        employeeId
+    ) {
+
+        const container =
+            document.getElementById(
+                'employee_timeline'
+            );
+
+        if (!container) {
+            return;
         }
+
+        container.innerHTML = `
+            <div class="timeline-item border-start ps-3 mb-3">
+
+                <div class="small text-muted">
+                    ${new Date().toLocaleDateString()}
+                </div>
+
+                <div class="fw-semibold">
+                    Otvoren profil zaposlenog
+                </div>
+
+            </div>
+        `;
     }
 </script>

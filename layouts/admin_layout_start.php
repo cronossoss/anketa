@@ -41,6 +41,10 @@ require_admin();
         rel="stylesheet"
         href="<?= BASE_URL ?>assets/css/modules/organization.css">
 
+    <link
+        rel="stylesheet"
+        href="/anketa/assets/css/modules/employees/employee-view.css">
+
     <script>
         const APP = {
             baseUrl: <?= json_encode(BASE_URL) ?>,
