@@ -61,7 +61,7 @@ $repairAssets = $conn
             </h3>
 
             <a
-                href="<?= BASE_URL ?>modules/assets/assets/index.php"
+                href="<?= url('modules/assets/assets/index.php') ?>"
                 class="btn btn-primary">
 
                 IT Inventar

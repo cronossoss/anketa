@@ -65,7 +65,7 @@ $users = $conn->query("
 
             <form
                 method="POST"
-                action="<?= BASE_URL ?>admin/actions/users_create.php" class="row g-2">
+                action="<?= url('admin/actions/users_create.php') ?>" class="row g-2">
                 <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
 
                 <div class="col-md-9">
@@ -79,7 +79,7 @@ $users = $conn->query("
 
                                 (<?= e($e['position'] ?? '-') ?>)
 
-                                
+
 
                             </option>
                         <?php endwhile; ?>
@@ -196,7 +196,7 @@ $users = $conn->query("
 
                                     <form
                                         method="POST"
-                                        action="<?= BASE_URL ?>admin/actions/users_reset_password.php"
+                                        action="<?= url('admin/actions/users_reset_password.php') ?>"
                                         class="d-inline">
 
                                         <input type="hidden" name="reset_id" value="<?= $u['id'] ?>">
@@ -210,7 +210,7 @@ $users = $conn->query("
 
                                     <form
                                         method="POST"
-                                        action="<?= BASE_URL ?>admin/actions/users_delete.php"
+                                        action="<?= url('admin/actions/users_delete.php') ?>"
                                         class="d-inline"
                                         onsubmit="return confirm('Obrisati korisnika?');">
 
@@ -269,7 +269,7 @@ $users = $conn->query("
 
                                         <form
                                             method="POST"
-                                            action="<?= BASE_URL ?>admin/actions/users_reset_password.php">
+                                            action="<?= url('admin/actions/users_reset_password.php') ?>">
 
                                             <input type="hidden" name="reset_id" value="<?= $u['id'] ?>">
                                             <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
@@ -282,7 +282,7 @@ $users = $conn->query("
 
                                         <form
                                             method="POST"
-                                            action="<?= BASE_URL ?>admin/actions/users_delete.php"
+                                            action="<?= url('admin/actions/users_delete.php') ?>"
                                             onsubmit="return confirm('Obrisati korisnika?');">
 
                                             <input type="hidden" name="delete_id" value="<?= $u['id'] ?>">
@@ -311,4 +311,3 @@ $users = $conn->query("
 </main>
 
 <?php include "../layouts/footer.php"; ?>
-

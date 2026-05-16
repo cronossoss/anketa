@@ -53,5 +53,5 @@ $stmt->bind_param(
 
 $stmt->execute();
 
-header("Location: " . BASE_URL . "admin/organization.php");
+redirect('admin/organization.php');
 exit;

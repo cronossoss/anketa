@@ -111,10 +111,10 @@ function initCreateButton() {
         document.getElementById('employeeModalTitle').innerText = 'Dodavanje zaposlenog';
 
         document.getElementById('employeeForm').action =
-            APP.baseUrl + 'admin/actions/employees_create.php';
+            APP.baseUrl + '/admin/actions/employees_create.php';
 
         document.getElementById('employeePhotoPreview').src =
-            APP.baseUrl + 'assets/images/default-user.png';
+            APP.baseUrl + '/assets/images/default-user.png';
     });
 }
 
@@ -129,7 +129,7 @@ function initEditButtons() {
 
             const id = btn.dataset.id;
 
-            const response = await fetch(APP.baseUrl + 'admin/actions/employees_get.php?id=' + id);
+            const response = await fetch(APP.baseUrl + '/admin/actions/employees_get.php?id=' + id);
 
             const data = await response.json();
 
@@ -170,7 +170,7 @@ function initEditButtons() {
             document.getElementById('employeeModalTitle').innerText = 'Podaci o zaposlenom';
 
             document.getElementById('employeeForm').action =
-                APP.baseUrl + 'admin/actions/employees_update.php';
+                APP.baseUrl + '/admin/actions/employees_update.php';
 
             setValue('employee_id', e.id);
 
@@ -217,9 +217,9 @@ function initEditButtons() {
             const preview = document.getElementById('employeePhotoPreview');
 
             if (e.photo) {
-                preview.src = APP.baseUrl + 'uploads/employees/' + e.photo;
+                preview.src = APP.baseUrl + '/uploads/employees/' + e.photo;
             } else {
-                preview.src = APP.baseUrl + 'assets/images/default-user.png';
+                preview.src = APP.baseUrl + '/assets/images/default-user.png';
             }
 
             const modalElement = document.getElementById('employeeModal');
@@ -253,8 +253,8 @@ function initViewButtons() {
                     const response =
                         await fetch(
                             APP.baseUrl +
-                            'admin/actions/employees_get.php?id=' +
-                            id
+                                '/admin/actions/employees_get.php?id=' +
+                                id
                         );
 
                     const data =
@@ -396,14 +396,14 @@ function initViewButtons() {
 
                         photo.src =
                             APP.baseUrl +
-                            'uploads/employees/' +
+                            '/uploads/employees/' +
                             e.photo;
 
                     } else {
 
                         photo.src =
                             APP.baseUrl +
-                            'assets/images/default-user.png';
+                            '/assets/images/default-user.png';
                     }
 
                     const modal =
@@ -456,8 +456,8 @@ async function loadEmployeeAssets(
         const response =
             await fetch(
                 APP.baseUrl +
-                'modules/assets/api/get_employee_assets.php?employee_id=' +
-                employeeId
+                    '/modules/assets/api/get_employee_assets.php?employee_id=' +
+                    employeeId
             );
 
         const assets =

@@ -2,7 +2,6 @@
 
 $pageTitle = "Zaposleni";
 include "../layouts/admin_layout_start.php";
-require_once '../helpers/audit.php';
 
 require_login();
 require_role(['admin', 'hr']);
@@ -119,7 +118,7 @@ $employees = $conn->query("
 
                                 <form
                                     method="POST"
-                                    action="<?= BASE_URL ?>admin/actions/employees_delete.php"
+                                    action="<?= url('admin/actions/employees_delete.php') ?>"
                                     onsubmit="return confirm('Obrisati zaposlenog?');">
 
                                     <input

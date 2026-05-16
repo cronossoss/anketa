@@ -68,13 +68,7 @@ if (
     $_SESSION['error'] =
         'OC ne može biti parent drugom OC.';
 
-    header(
-        "Location: " .
-            BASE_URL .
-            "admin/organization.php"
-    );
-
-    exit;
+    redirect('admin/organization.php');
 }
 
 $relation_type =
@@ -103,5 +97,5 @@ $stmt->bind_param(
 
 $stmt->execute();
 
-header("Location: " . BASE_URL . "admin/organization.php");
+redirect('admin/organization.php');
 exit;

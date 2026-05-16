@@ -50,10 +50,10 @@ $stmt->bind_param(
     $name,
     $description,
     $id,
-    
+
 );
 
 $stmt->execute();
 
-header("Location: " . BASE_URL . "admin/organization.php");
+redirect('admin/organization.php');
 exit;

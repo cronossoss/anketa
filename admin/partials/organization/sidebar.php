@@ -48,7 +48,7 @@
 
         <form
             method="POST"
-            action="<?= BASE_URL ?>admin/actions/organization_relation_create.php">
+            action="<?= url('admin/actions/organization_relation_create.php') ?>">
 
             <input
                 type="hidden"

@@ -47,7 +47,4 @@ audit_log(
         $id
 );
 
-redirect(
-    BASE_URL .
-        'admin/employees.php'
-);
+redirect('admin/employees.php');

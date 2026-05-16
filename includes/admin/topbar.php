@@ -49,7 +49,10 @@ $hasPhoto =
         <?php if ($hasPhoto): ?>
 
             <img
-                src="<?= BASE_URL ?>uploads/employees/<?= e($_SESSION['photo']) ?>"
+                src="<?= url(
+                            'uploads/employees/' .
+                                $_SESSION['photo']
+                        ) ?>"
                 width="40"
                 height="40"
                 class="rounded-circle object-fit-cover">

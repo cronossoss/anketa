@@ -89,7 +89,7 @@ $responses =
                                 <td>
 
                                     <a
-                                        href="/anketa/modules/survey/admin/view_response.php?id=<?= $row['id'] ?>"
+                                        href="<?= url('modules/survey/admin/view_response.php?id=<?= $row["id"] ') ?>"
                                         class="btn btn-sm btn-primary">
                                         View
                                     </a>

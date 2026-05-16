@@ -42,7 +42,7 @@
                         <div class="col-md-2 text-center">
 
                             <img
-                                src="<?= BASE_URL ?>assets/images/default-user.png"
+                                src="<?= url('assets/images/default-user.png') ?>"
                                 id="viewEmployeePhoto"
                                 class="rounded-circle shadow-sm"
                                 style="

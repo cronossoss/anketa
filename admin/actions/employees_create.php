@@ -181,7 +181,4 @@ audit_log(
 );
 
 
-redirect(
-    BASE_URL .
-        'admin/employees.php'
-);
+redirect('admin/employees.php');

@@ -53,10 +53,10 @@ $stmt->bind_param(
     $od_code,
     $name,
     $description
-   
+
 );
 
 $stmt->execute();
 
-header("Location: " . BASE_URL . "admin/organization.php");
+redirect('admin/organization.php');
 exit;

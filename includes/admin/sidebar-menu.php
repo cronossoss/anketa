@@ -6,7 +6,7 @@ $menu = [
         'title' => 'Dashboard',
         'icon'  => 'bi bi-speedometer2',
         'page'  => 'dashboard.php',
-        'url'   => BASE_URL . 'admin/dashboard.php',
+        'url' => url('admin/dashboard.php'),
         'roles' => ['admin', 'hr', 'it', 'manager']
     ],
 
@@ -14,7 +14,7 @@ $menu = [
         'title' => 'Organizacija',
         'icon'  => 'bi bi-diagram-3',
         'page'  => 'organization.php',
-        'url'   => BASE_URL . 'admin/organization.php',
+        'url'   => url('admin/organization.php'),
         'roles' => ['admin', 'hr']
     ],
 
@@ -22,7 +22,7 @@ $menu = [
         'title' => 'Zaposleni',
         'icon'  => 'bi bi-people',
         'page'  => 'employees.php',
-        'url'   => BASE_URL . 'admin/employees.php',
+        'url'   => url('admin/employees.php'),
         'roles' => ['admin', 'hr']
     ],
 
@@ -30,7 +30,7 @@ $menu = [
         'title' => 'Korisnici',
         'icon'  => 'bi bi-person-badge',
         'page'  => 'users.php',
-        'url'   => BASE_URL . 'admin/users.php',
+        'url'   => url('admin/users.php'),
         'roles' => ['admin', 'it']
     ],
 
@@ -44,43 +44,43 @@ $menu = [
 
             [
                 'title' => 'Pregled inventara',
-                'url'   => BASE_URL . 'modules/assets/index.php',
+                'url' => url('modules/assets/index.php'),
                 'page'  => 'assets-dashboard'
             ],
 
             [
                 'title' => 'IT Inventar',
-                'url'   => BASE_URL . 'modules/assets/assets/index.php',
+                'url'   => url('modules/assets/assets/index.php'),
                 'page'  => 'asset-items'
             ],
 
             [
                 'title' => 'Zaduženja',
-                'url'   => BASE_URL . 'modules/assets/assignments/index.php',
+                'url'   => url('modules/assets/assignments/index.php'),
                 'page'  => 'asset-assignments'
             ],
 
             [
                 'title' => 'Servisi',
-                'url'   => BASE_URL . 'modules/assets/services/index.php',
+                'url'   => url('modules/assets/services/index.php'),
                 'page'  => 'asset-services'
             ],
 
             [
                 'title' => 'Tipovi inventara',
-                'url'   => BASE_URL . 'modules/assets/types/index.php',
+                'url'   => url('modules/assets/types/index.php'),
                 'page'  => 'asset-types'
             ],
 
             [
                 'title' => 'Kategorije inventara',
-                'url'   => BASE_URL . 'modules/assets/categories/index.php',
+                'url'   => url('modules/assets/categories/index.php'),
                 'page'  => 'asset-categories'
             ],
 
             [
                 'title' => 'Definicije atributa',
-                'url'   => BASE_URL . 'modules/assets/attributes/definitions.php',
+                'url'   => url('modules/assets/attributes/definitions.php'),
                 'page'  => 'asset-attributes'
             ]
 
@@ -91,7 +91,7 @@ $menu = [
         'title' => 'Audit log',
         'icon'  => 'bi bi-clock-history',
         'page'  => 'audit_logs.php',
-        'url'   => BASE_URL . 'admin/audit_logs.php',
+        'url'   => url('admin/audit_logs.php'),
         'roles' => ['admin', 'it']
     ],
 
@@ -99,7 +99,7 @@ $menu = [
         'title' => 'Ankete',
         'icon'  => 'bi bi-ui-checks',
         'page'  => 'surveys.php',
-        'url'   => BASE_URL . 'admin/surveys.php',
+        'url'   => url('admin/surveys.php'),
         'roles' => ['admin', 'manager']
     ],
 
@@ -107,7 +107,7 @@ $menu = [
         'title' => 'Izveštaji',
         'icon'  => 'bi bi-bar-chart',
         'page'  => 'reports.php',
-        'url'   => BASE_URL . 'admin/reports.php',
+        'url'   => url('admin/reports.php'),
         'roles' => ['admin', 'manager']
     ]
 
@@ -213,7 +213,7 @@ $menu = [
 
         <a
             class="nav-link text-white"
-            href="<?= BASE_URL ?>logout.php">
+            href="<?= url('logout.php') ?>"
 
             <i class="bi bi-box-arrow-right me-2"></i>
 

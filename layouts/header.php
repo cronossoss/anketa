@@ -11,17 +11,15 @@
 
     <title>Anketa sistem</title>
 
-    <base href="<?= BASE_URL ?>">
-
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet">
 
     <link
         rel="stylesheet"
-        href="<?= BASE_URL ?>assets/css/app.css">
+        href="<?= url('assets/css/app.css') ?>"
 
-    <link
+        <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
@@ -75,7 +73,7 @@
                 <?php
 
                 $userPhoto =
-                    BASE_URL . 'assets/images/default-user.png';
+                    url('assets/images/default-user.png');
 
                 $photoFile =
                     __DIR__ .
@@ -88,9 +86,10 @@
                 ) {
 
                     $userPhoto =
-                        BASE_URL .
-                        'uploads/employees/' .
-                        $_SESSION['photo'];
+                        url(
+                            'uploads/employees/' .
+                                $_SESSION['photo']
+                        );
                 }
 
                 ?>
@@ -121,7 +120,7 @@
             <!-- LOGOUT -->
 
             <a
-                href="<?= BASE_URL ?>logout.php"
+                href="<?= url('logout.php') ?>"
                 class="btn btn-outline-light btn-sm">
 
                 Logout

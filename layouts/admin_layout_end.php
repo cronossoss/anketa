@@ -9,9 +9,9 @@
             <script>
                     window.APP = {
 
-                            csrfToken: '<?= csrf_token() ?>',
+                            csrfToken: <?= json_encode(csrf_token()) ?>,
 
-                            baseUrl: '<?= BASE_URL ?>'
+                            baseUrl: <?= json_encode(BASE_URL) ?>
                     };
             </script>
 
@@ -21,10 +21,13 @@
 
             <script src="https://npmcdn.com/flatpickr/dist/l10n/sr.js"></script>
 
-            <script src="<?= BASE_URL ?>assets/js/modal.js"></script>
-            <script src="<?= BASE_URL ?>assets/js/ajax.js"></script>
-            <script src="<?= BASE_URL ?>assets/js/app.js"></script>
-            <script src="<?= BASE_URL ?>assets/js/modules/users.js"></script>
+            <script src="<?= url('assets/js/modal.js') ?>"></script>
+
+            <script src="<?= url('assets/js/ajax.js') ?>"></script>
+
+            <script src="<?= url('assets/js/app.js') ?>"></script>
+
+            <script src="<?= url('assets/js/modules/users.js') ?>"></script>
 
             </body>
 

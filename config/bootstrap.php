@@ -183,14 +183,18 @@ $basePath = trim($basePath, '/');
 
 define(
     'BASE_URL',
-    $protocol .
-        $host .
-        (
-            $basePath
-            ? '/' . $basePath
-            : '/'
-        )
+    rtrim(
+        $protocol .
+            $host .
+            (
+                $basePath
+                ? '/' . $basePath
+                : ''
+            ),
+        '/'
+    )
 );
+
 
 /*
 |--------------------------------------------------------------------------

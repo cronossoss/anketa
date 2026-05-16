@@ -167,6 +167,14 @@ $units = $conn->query("
 
 <?php include __DIR__ . "/partials/modals/employee_view_modal.php"; ?>
 
-<script src="<?= BASE_URL ?>assets/js/modules/organization.js?v=2"></script>
+<script
+    src="<?= url('assets/js/modules/employee-view.js') ?>?v=<?= time() ?>">
+</script>
+
+
+<script
+    src="<?= url('assets/js/modules/organization.js') ?>?v=<?= time() ?>">
+</script>
+
 
 <?php include "../layouts/admin_layout_end.php"; ?>

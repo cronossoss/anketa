@@ -13,7 +13,7 @@
             <form
                 method="POST"
                 id="employeeForm"
-                action="<?= BASE_URL ?>admin/actions/employees_create.php">
+                action="<?= url('admin/actions/employees_create.php') ?>">
 
                 <input
                     type="hidden"
@@ -62,7 +62,7 @@
                             <div class="col-md-2 text-center">
 
                                 <img
-                                    src="<?= BASE_URL ?>assets/images/default-user.png"
+                                    src="<?= url('assets/images/default-user.png') ?>"
                                     id="employeePhotoPreview"
                                     class="rounded-circle shadow-sm"
                                     style="

@@ -28,9 +28,8 @@ require_role(['admin', 'hr', 'it', 'manager']);
                 </p>
 
                 <a
-                    href="/anketa/modules/assets/items/index.php"
-                    class="btn btn-primary"
-                >
+                    href="<?= url('modules/assets/items/index.php"') ?>"
+                    class="btn btn-primary">
                     Otvori modul
                 </a>
 
@@ -38,7 +37,7 @@ require_role(['admin', 'hr', 'it', 'manager']);
 
         </div>
 
-        
+
 
     </div>
 
@@ -58,13 +57,13 @@ require_role(['admin', 'hr', 'it', 'manager']);
     <div></div>
 
 
-    
 
-    
 
-    
 
-    
+
+
+
+
 </div>
 
 <?php include "../layouts/footer.php"; ?>

@@ -34,16 +34,16 @@ require_admin();
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link
-        href="<?= BASE_URL ?>assets/css/admin.css"
+        href="<?= url('assets/css/admin.css') ?>"
         rel="stylesheet">
 
     <link
         rel="stylesheet"
-        href="<?= BASE_URL ?>assets/css/modules/organization.css">
+        href="<?= url('assets/css/modules/organization.css') ?>">
 
     <link
         rel="stylesheet"
-        href="/anketa/assets/css/modules/employees/employee-view.css">
+        href="<?= url('assets/css/modules/employees/employee-view.css') ?>">
 
     <script>
         const APP = {
