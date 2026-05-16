@@ -8,46 +8,46 @@ function isActive($identifier): string
     $map = [
 
         'dashboard.php' =>
-        '/admin/dashboard.php',
+        app_path('admin/dashboard.php'),
 
         'organization.php' =>
-        '/admin/organization.php',
+        app_path('admin/organization.php'),
 
         'employees.php' =>
-        '/admin/employees.php',
+        app_path('admin/employees.php'),
 
         'users.php' =>
-        '/admin/users.php',
+        app_path('admin/users.php'),
 
         'assets-dashboard' =>
-        '/modules/assets/index.php',
+        app_path('modules/assets/index.php'),
 
         'asset-types' =>
-        '/modules/assets/types/',
+        app_path('modules/assets/types/'),
 
         'asset-categories' =>
-        '/modules/assets/categories/',
+        app_path('modules/assets/categories/'),
 
         'asset-attributes' =>
-        '/modules/assets/attributes/',
+        app_path('modules/assets/attributes/'),
 
         'asset-items' =>
-        '/modules/assets/assets/',
+        app_path('modules/assets/assets/'),
 
         'asset-assignments' =>
-        '/modules/assets/assignments/',
+        app_path('modules/assets/assignments/'),
 
         'asset-services' =>
-        '/modules/assets/services/',
+        app_path('modules/assets/services/'),
 
         'audit_logs.php' =>
-        '/admin/audit_logs.php',
+        app_path('admin/audit_logs.php'),
 
         'surveys.php' =>
-        '/admin/surveys.php',
+        app_path('admin/surveys.php'),
 
         'reports.php' =>
-        '/admin/reports.php',
+        app_path('admin/reports.php'),
     ];
     if (
         isset($map[$identifier])

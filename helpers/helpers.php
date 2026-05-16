@@ -10,12 +10,6 @@ function e($string)
 }
 
 
-function redirect($url)
-{
-    header("Location: " . $url);
-    exit;
-}
-
 function pluralize(
     $number,
     $one,

@@ -1,16 +1,12 @@
 <?php
 
+require_once '../../config/init.php';
+
 $pageTitle = "Inventar";
 
 $currentPage = 'assets-dashboard';
 
-include "../../layouts/admin_layout_start.php";
-
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/config/init.php';
-
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/modules/assets/helpers/permissions.php';
+include ROOT_PATH . '/layouts/admin_layout_start.php';
 
 require_login();
 

@@ -259,15 +259,21 @@ require_once HELPERS_PATH . '/response.php';
 
 require_once HELPERS_PATH . '/redirect.php';
 
-require_once HELPERS_PATH . '/permissions.php';
+// require_once HELPERS_PATH . '/permissions.php';
 
-require_once HELPERS_PATH . '/validation.php';
+// require_once HELPERS_PATH . '/validation.php';
 
-require_once HELPERS_PATH . '/formatting.php';
+// require_once HELPERS_PATH . '/formatting.php';
 
 require_once HELPERS_PATH . '/audit.php';
 
-require_once HELPERS_PATH . '/request.php.php';
+require_once HELPERS_PATH . '/request.php';
+
+require_once HELPERS_PATH . '/url.php';
+
+require_once HELPERS_PATH . '/security.php';
+
+
 
 /*
 |--------------------------------------------------------------------------
