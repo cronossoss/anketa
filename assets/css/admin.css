@@ -481,3 +481,113 @@ body.modal-open {
         min-height: 38px !important;
     }
 }
+
+@media (max-width: 768px) {
+    .service-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 110px;
+    }
+
+    .service-actions .btn {
+        width: 100%;
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+
+    .services-table td {
+        vertical-align: top;
+    }
+}
+.service-card-mobile {
+    background: #fff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    padding: 14px;
+
+    margin-bottom: 14px;
+}
+
+.service-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: start;
+
+    gap: 10px;
+
+    margin-bottom: 12px;
+}
+
+.service-inventory {
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+.service-device {
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+.service-body {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    margin-bottom: 14px;
+
+    font-size: 14px;
+}
+
+.service-actions {
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.service-actions .btn {
+    width: auto;
+
+    min-width: 110px;
+}
+
+.service-toolbar {
+    display: flex;
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+
+    flex-wrap: wrap;
+}
+
+.service-toolbar input,
+.service-toolbar select {
+    min-width: 220px;
+}
+@media (max-width: 768px) {
+    .table thead {
+        display: none;
+    }
+
+    .service-row td {
+        padding: 0 !important;
+
+        border: none;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+}

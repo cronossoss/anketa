@@ -1,8 +1,8 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/config/init.php';
-
+require_once __DIR__
+    . '/../../../config/init.php';
+    
 require_login();
 
 // require_role(['admin', 'it', 'hr']);

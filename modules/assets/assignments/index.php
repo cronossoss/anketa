@@ -10,8 +10,32 @@ require_login();
 
 require_role(['admin', 'it']);
 
+$search = trim($_GET['search'] ?? '');
+
+$where = '';
+
+if ($search !== '') {
+
+    $safeSearch =
+        $conn->real_escape_string($search);
+
+    $where = "
+        AND (
+            e.first_name LIKE '%{$safeSearch}%'
+            OR e.last_name LIKE '%{$safeSearch}%'
+            OR e.personal_id LIKE '%{$safeSearch}%'
+            OR ou.name LIKE '%{$safeSearch}%'
+            OR a.inventory_number LIKE '%{$safeSearch}%'
+            OR a.manufacturer LIKE '%{$safeSearch}%'
+            OR a.model LIKE '%{$safeSearch}%'
+        )
+    ";
+}
+
 $result = $conn->query("
+
     SELECT
+
         aa.id,
 
         aa.asset_id,
@@ -50,10 +74,14 @@ $result = $conn->query("
 
     WHERE aa.returned_at IS NULL
 
+    {$where}
+
     ORDER BY
         e.first_name,
         e.last_name
+
 ");
+
 ?>
 
 <main class="main-content">
@@ -66,19 +94,44 @@ $result = $conn->query("
 
         </h4>
 
-        <div class="table-wrapper">
+        <!-- SEARCH -->
 
-            <?php if (!empty($_SESSION['success'])): ?>
+        <form
+            method="GET"
+            class="assignment-search mb-4">
 
-                <div class="alert alert-success">
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Pretraga zaposlenog, OJ, inventara..."
+                value="<?= e($search) ?>">
 
-                    <?= $_SESSION['success'] ?>
+            <button
+                type="submit"
+                class="btn btn-primary">
 
-                </div>
+                <i class="fa-solid fa-search"></i>
 
-                <?php unset($_SESSION['success']); ?>
+            </button>
 
-            <?php endif; ?>
+        </form>
+
+        <?php if (!empty($_SESSION['success'])): ?>
+
+            <div class="alert alert-success">
+
+                <?= $_SESSION['success'] ?>
+
+            </div>
+
+            <?php unset($_SESSION['success']); ?>
+
+        <?php endif; ?>
+
+        <!-- DESKTOP -->
+
+        <div class="table-wrapper d-none d-md-block">
 
             <table class="table table-hover align-middle">
 
@@ -110,10 +163,7 @@ $result = $conn->query("
 
                     <?php while ($row = $result->fetch_assoc()): ?>
 
-                        <tr
-                            data-bs-toggle="collapse"
-                            data-bs-target="#details-<?= $row['id'] ?>"
-                            style="cursor:pointer;">
+                        <tr>
 
                             <td>
 
@@ -125,8 +175,8 @@ $result = $conn->query("
 
                                 <?= e(
                                     $row['first_name']
-                                        . ' '
-                                        . $row['last_name']
+                                    . ' '
+                                    . $row['last_name']
                                 ) ?>
 
                             </td>
@@ -141,8 +191,8 @@ $result = $conn->query("
 
                                 <?= e(
                                     $row['manufacturer']
-                                        . ' '
-                                        . $row['model']
+                                    . ' '
+                                    . $row['model']
                                 ) ?>
 
                             </td>
@@ -153,7 +203,21 @@ $result = $conn->query("
 
                             </td>
 
-                            <td>
+                            <td class="text-nowrap">
+
+                                <div class="d-flex gap-1">
+                                <button
+                                    class="btn btn-sm btn-secondary"
+
+                                    type="button"
+
+                                    data-bs-toggle="collapse"
+
+                                    data-bs-target="#details-<?= $row['id'] ?>">
+
+                                    Detalji
+
+                                </button>
 
                                 <button
                                     type="button"
@@ -195,6 +259,7 @@ $result = $conn->query("
                                     </button>
 
                                 </form>
+                                </div>
 
                             </td>
 
@@ -202,95 +267,95 @@ $result = $conn->query("
 
                         <tr>
 
-                            <td colspan="6" class="p-0 border-0">
+    <td colspan="6" class="p-0 border-0">
 
-                                <div
-                                    class="collapse"
-                                    id="details-<?= $row['id'] ?>">
+        <div
+            class="collapse"
+            id="details-<?= $row['id'] ?>">
 
-                                    <div class="p-3 bg-light">
+            <div class="p-3 bg-light">
 
-                                        <h6>
+                <h6>
 
-                                            Istorija inventara
+                    Istorija inventara
 
-                                        </h6>
+                </h6>
 
-                                        <?php
+                <?php
 
-                                        $historyStmt =
-                                            $conn->prepare("
-                                                SELECT
-                                                    aa.assigned_at,
-                                                    aa.returned_at,
+                $historyStmt =
+                    $conn->prepare("
+                        SELECT
+                            aa.assigned_at,
+                            aa.returned_at,
 
-                                                    e.first_name,
-                                                    e.last_name
+                            e.first_name,
+                            e.last_name
 
-                                                FROM asset_assignments aa
+                        FROM asset_assignments aa
 
-                                                LEFT JOIN employees e
-                                                    ON e.id = aa.employee_id
+                        LEFT JOIN employees e
+                            ON e.id = aa.employee_id
 
-                                                WHERE aa.asset_id = ?
+                        WHERE aa.asset_id = ?
 
-                                                ORDER BY aa.assigned_at DESC
-                                            ");
+                        ORDER BY aa.assigned_at DESC
+                    ");
 
-                                        $historyStmt->bind_param(
-                                            "i",
-                                            $row['asset_id']
-                                        );
+                $historyStmt->bind_param(
+                    "i",
+                    $row['asset_id']
+                );
 
-                                        $historyStmt->execute();
+                $historyStmt->execute();
 
-                                        $history =
-                                            $historyStmt
-                                            ->get_result();
-                                        ?>
+                $history =
+                    $historyStmt
+                    ->get_result();
+                ?>
 
-                                        <ul class="list-group">
+                <ul class="list-group">
 
-                                            <?php while ($h = $history->fetch_assoc()): ?>
+                    <?php while ($h = $history->fetch_assoc()): ?>
 
-                                                <li class="list-group-item">
+                        <li class="list-group-item">
 
-                                                    <strong>
+                            <strong>
 
-                                                        <?= e(
-                                                            $h['first_name']
-                                                                . ' '
-                                                                . $h['last_name']
-                                                        ) ?>
+                                <?= e(
+                                    $h['first_name']
+                                    . ' '
+                                    . $h['last_name']
+                                ) ?>
 
-                                                    </strong>
+                            </strong>
 
-                                                    |
+                            |
 
-                                                    <?= e(
-                                                        $h['assigned_at']
-                                                    ) ?>
+                            <?= e(
+                                $h['assigned_at']
+                            ) ?>
 
-                                                    →
+                            →
 
-                                                    <?= e(
-                                                        $h['returned_at']
-                                                            ?? 'Aktivno'
-                                                    ) ?>
+                            <?= e(
+                                $h['returned_at']
+                                ?? 'Aktivno'
+                            ) ?>
 
-                                                </li>
+                        </li>
 
-                                            <?php endwhile; ?>
+                    <?php endwhile; ?>
 
-                                        </ul>
+                </ul>
 
-                                    </div>
+            </div>
 
-                                </div>
+        </div>
 
-                            </td>
+    </td>
 
-                        </tr>
+</tr>
 
                     <?php endwhile; ?>
 
@@ -300,9 +365,210 @@ $result = $conn->query("
 
         </div>
 
-    </div>
+        <!-- MOBILE -->
+
+<?php $result->data_seek(0); ?>
+
+<div class="d-block d-md-none">
+
+    <?php while ($row = $result->fetch_assoc()): ?>
+
+        <div class="assignment-mobile-card">
+
+            <div class="d-flex justify-content-between align-items-start mb-2">
+
+                <div>
+
+                    <div class="fw-bold">
+
+                        <?= e(
+                            $row['first_name']
+                            . ' '
+                            . $row['last_name']
+                        ) ?>
+
+                    </div>
+
+                    <div class="small text-muted">
+
+                        <?= e($row['personal_id']) ?>
+
+                    </div>
+
+                </div>
+
+                <span class="badge bg-primary">
+
+                    <?= e($row['org_unit_name']) ?>
+
+                </span>
+
+            </div>
+
+            <div class="small mb-2">
+
+                <strong>Inventar:</strong>
+
+                <?= e(
+                    $row['manufacturer']
+                    . ' '
+                    . $row['model']
+                ) ?>
+
+            </div>
+
+            <div class="small mb-3">
+
+                <strong>Inventarski broj:</strong>
+
+                <?= e($row['inventory_number']) ?>
+
+            </div>
+
+            <!-- DETALJI -->
+
+            <button
+                class="btn btn-sm btn-secondary w-100 mb-2"
+
+                type="button"
+
+                data-bs-toggle="collapse"
+
+                data-bs-target="#details-mobile-<?= $row['id'] ?>">
+
+                Detalji
+
+            </button>
+
+            <!-- ACTIONS -->
+
+            <div class="assignment-mobile-actions mb-3">
+
+                <button
+                    type="button"
+                    class="btn btn-sm btn-warning change-assignment-btn"
+
+                    data-id="<?= $row['id'] ?>"
+                    data-employee-id="<?= $row['employee_id'] ?>"
+                    data-asset-id="<?= $row['asset_id'] ?>"
+
+                    data-bs-toggle="modal"
+                    data-bs-target="#changeAssignmentModal">
+
+                    Promena
+
+                </button>
+
+                <form
+                    method="POST"
+                    action="../actions/assignment_return.php">
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="<?= csrf_token() ?>">
+
+                    <input
+                        type="hidden"
+                        name="assignment_id"
+                        value="<?= $row['id'] ?>">
+
+                    <button
+                        type="submit"
+                        class="btn btn-sm btn-danger w-100"
+                        onclick="return confirm('Razdužiti inventar?')">
+
+                        Razduži
+
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- COLLAPSE -->
+
+            <div
+                class="collapse"
+                id="details-mobile-<?= $row['id'] ?>">
+
+                <div class="card card-body small">
+
+                    <?php
+
+                    $historyStmt =
+                        $conn->prepare("
+                            SELECT
+                                aa.assigned_at,
+                                aa.returned_at,
+
+                                e.first_name,
+                                e.last_name
+
+                            FROM asset_assignments aa
+
+                            LEFT JOIN employees e
+                                ON e.id = aa.employee_id
+
+                            WHERE aa.asset_id = ?
+
+                            ORDER BY aa.assigned_at DESC
+                        ");
+
+                    $historyStmt->bind_param(
+                        "i",
+                        $row['asset_id']
+                    );
+
+                    $historyStmt->execute();
+
+                    $history =
+                        $historyStmt
+                        ->get_result();
+                    ?>
+
+                    <?php while ($h = $history->fetch_assoc()): ?>
+
+                        <div class="mb-3">
+
+                            <strong>
+
+                                <?= e(
+                                    $h['first_name']
+                                    . ' '
+                                    . $h['last_name']
+                                ) ?>
+
+                            </strong>
+
+                            <br>
+
+                            <?= e($h['assigned_at']) ?>
+
+                            →
+
+                            <?= e(
+                                $h['returned_at']
+                                ?? 'Aktivno'
+                            ) ?>
+
+                        </div>
+
+                    <?php endwhile; ?>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    <?php endwhile; ?>
+
+</div>
 
 </main>
+
+<!-- MODAL -->
 
 <div
     class="modal fade"
@@ -386,8 +652,8 @@ $result = $conn->query("
 
                                     <?= e(
                                         $emp['first_name']
-                                            . ' '
-                                            . $emp['last_name']
+                                        . ' '
+                                        . $emp['last_name']
                                     ) ?>
 
                                 </option>
@@ -435,24 +701,109 @@ $result = $conn->query("
 
 </div>
 
+<style>
+
+.assignment-search {
+
+    display: flex;
+
+    gap: 10px;
+}
+
+.assignment-search .btn {
+
+    min-width: 55px;
+}
+
+.assignment-mobile-card {
+
+    background: #fff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    padding: 14px;
+
+    margin-bottom: 12px;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.assignment-mobile-actions {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.assignment-mobile-card .badge {
+
+    font-size: 11px;
+}
+
+.assignment-mobile-actions .btn {
+
+    width: 100%;
+}
+
+.table td,
+.table th {
+
+    padding: 10px 8px;
+
+    vertical-align: middle;
+
+    font-size: 14px;
+}
+
+.table th {
+
+    white-space: nowrap;
+}
+
+.table td:last-child {
+
+    width: 170px;
+}
+
+@media (max-width: 768px) {
+
+    .assignment-search {
+
+        flex-direction: column;
+    }
+
+    .assignment-search .btn {
+
+        width: 100%;
+    }
+}
+
+</style>
+
 <script>
-    document
-        .querySelectorAll('.change-assignment-btn')
-        .forEach(button => {
 
-            button.addEventListener('click', () => {
+document
+    .querySelectorAll('.change-assignment-btn')
+    .forEach(button => {
 
-                document.getElementById(
-                        'change_assignment_id'
-                    ).value =
-                    button.dataset.id;
+        button.addEventListener('click', () => {
 
-                document.getElementById(
-                        'change_asset_id'
-                    ).value =
-                    button.dataset.assetId;
-            });
+            document.getElementById(
+                'change_assignment_id'
+            ).value =
+            button.dataset.id;
+
+            document.getElementById(
+                'change_asset_id'
+            ).value =
+            button.dataset.assetId;
         });
+    });
+
 </script>
 
 <?php include "../../../layouts/footer.php"; ?>

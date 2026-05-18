@@ -6,9 +6,6 @@ $currentPage = 'asset-items';
 
 include "../../../layouts/admin_layout_start.php";
 
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/config/init.php';
-
 require_login();
 
 require_role(['admin', 'it']);
@@ -179,21 +176,7 @@ $attributes =
 
                 </div>
 
-                <tr>
-
-                    <th width="240">
-
-                        Naziv:
-
-                    </th>
-
-                    <td>
-
-                        <strong><?= e($asset['name']) ?></strong>
-
-                    </td>
-
-                </tr>
+                
 
             </div>
 

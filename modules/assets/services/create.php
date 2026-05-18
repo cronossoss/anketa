@@ -6,9 +6,6 @@ $currentPage = 'asset-services';
 
 include "../../../layouts/admin_layout_start.php";
 
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/config/init.php';
-
 require_login();
 
 require_role(['admin', 'it']);
