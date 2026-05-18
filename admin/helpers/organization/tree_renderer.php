@@ -164,7 +164,8 @@ function renderTree(
     $relations,
     $employeeStats,
     $visibleIds,
-    $parentId = null
+    $parentId = null,
+    $level = 0
 ) {
 
     global $filter;
@@ -218,7 +219,13 @@ function renderTree(
 
         if ($show) {
 
-            echo '<li>';
+            echo '
+
+                <li class="tree-level-' . $level . '">
+
+                    <div class="tree-node-wrapper">
+
+                ';
 
             renderTreeNode(
                 $element,
@@ -235,8 +242,15 @@ function renderTree(
             $relations,
             $employeeStats,
             $visibleIds,
-            $element['id']
+            $element['id'],
+            $level + 1
         );
+
+        echo '
+
+            </div>
+
+        ';
 
         if ($show) {
 
@@ -245,3 +259,5 @@ function renderTree(
     }
     echo '</ul>';
 }
+
+
