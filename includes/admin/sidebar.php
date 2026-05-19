@@ -16,6 +16,12 @@ function isActive($identifier): string
         'employees.php' =>
         app_path('admin/employees.php'),
 
+        'attendance-dashboard' =>
+        app_path('modules/attendance/index.php'),
+
+        'attendance-present.php' =>
+        app_path('modules/attendance/present.php'),
+
         'users.php' =>
         app_path('admin/users.php'),
 

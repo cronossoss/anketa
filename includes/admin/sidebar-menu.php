@@ -27,6 +27,28 @@ $menu = [
     ],
 
     [
+        'title' => 'Prisustvo',
+        'icon'  => 'bi bi-list-check',
+        'page'  => 'present.php',
+        'roles' => ['admin', 'hr'],
+
+        'submenu' => [
+
+            [
+                'title' => 'Dashboard',
+                'url' => url('modules/attendance/dashboard.php'),
+                'page'  => 'assets-dashboard'
+            ],
+
+            [
+                'title' => 'Prisutnost',
+                'url'   => url('modules/attendance/present.php'),
+                'page'  => 'asset-present'
+            ]
+        ]
+    ],
+
+    [
         'title' => 'Korisnici',
         'icon'  => 'bi bi-person-badge',
         'page'  => 'users.php',
