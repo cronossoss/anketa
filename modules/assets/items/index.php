@@ -4,11 +4,6 @@ $pageTitle = "Inventar";
 
 include "../../../layouts/admin_layout_start.php";
 
-require_once $_SERVER['DOCUMENT_ROOT']
-    . '/anketa/config/init.php';
-require_once '../helpers/permissions.php';
-require_once '../helpers/audit.php';
-
 require_login();
 
 require_role(['admin', 'it']);
@@ -66,7 +61,7 @@ while ($row = $result->fetch_assoc()) {
 <?php endif; ?>
 
 <div class="page-header">
-    <h1>Assets</h1>
+    <h1>Inventar</h1>
 
     <a href="create.php" class="btn btn-primary">
         Novi uređaj
@@ -77,12 +72,13 @@ while ($row = $result->fetch_assoc()) {
     <thead>
         <tr>
             <th>Inventarski broj</th>
-            <th>Naziv</th>
-            <th>Tip</th>
+         
             <th>Kategorija</th>
-            <th>Status</th>
+
+            <th>Zaposleni</th>
+            
             <th>Lokacija</th>
-            <th></th>
+            
         </tr>
     </thead>
 
@@ -100,18 +96,7 @@ while ($row = $result->fetch_assoc()) {
                     ) ?>
                 </td>
 
-                <td>
-
-                    <a
-                        href="#"
-                        class="asset-view-btn"
-                        data-id="<?= $asset['id'] ?>">
-                        <?= htmlspecialchars(
-                            $asset['name']
-                        ) ?>
-                    </a>
-
-                </td>
+                
 
                 <td>
                     <?= htmlspecialchars(

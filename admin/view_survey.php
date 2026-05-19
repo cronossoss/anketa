@@ -1,12 +1,11 @@
 <?php
-require_once "../config/db.php";
+$pageTitle = "Pregled ankete";
 
-require_once "../helpers/auth.php";
-require_once "../helpers/csrf.php";
-require_once "../helpers/helpers.php";
+include "../layouts/admin_layout_start.php";
 
 require_login();
-require_admin();
+
+require_role(['admin', 'it', 'hr', 'manager']);
 
 $id = $_GET['id'];
 

@@ -1,15 +1,3 @@
-<?php if (!empty($_SESSION['success'])): ?>
-
-    <div class="alert alert-success">
-
-        <?= $_SESSION['success'] ?>
-
-    </div>
-
-    <?php unset($_SESSION['success']); ?>
-
-<?php endif; ?>
-
 <?php
 
 $pageTitle = "IT Inventar";

@@ -127,7 +127,7 @@ $visibleIds = getVisibleIds(
 
             <div class="page-card">
 
-                <<div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
 
                     <h4 class="mb-0">
 
