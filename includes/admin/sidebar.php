@@ -22,6 +22,9 @@ function isActive($identifier): string
         'attendance-present.php' =>
         app_path('modules/attendance/present.php'),
 
+        'attendance.php' =>
+        app_path('modules/attendance/schedules/index.php'),
+
         'users.php' =>
         app_path('admin/users.php'),
 

@@ -2,6 +2,8 @@
 
 require_once '../../config/init.php';
 
+$currentPage = 'attendance-dashboard';
+
 $pageTitle = "Attendance Dashboard";
 
 include "../../layouts/admin_layout_start.php";

@@ -2,6 +2,8 @@
 
 require_once '../../../config/init.php';
 
+$currentPage = 'attendance-schedules';
+
 $pageTitle = "Rasporedi rada";
 
 include "../../../layouts/admin_layout_start.php";

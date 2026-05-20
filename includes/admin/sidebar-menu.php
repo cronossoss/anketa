@@ -37,14 +37,40 @@ $menu = [
             [
                 'title' => 'Dashboard',
                 'url' => url('modules/attendance/dashboard.php'),
-                'page'  => 'assets-dashboard'
+                'page'  => 'attendance-dashboard'
             ],
 
             [
                 'title' => 'Prisutnost',
                 'url'   => url('modules/attendance/present.php'),
-                'page'  => 'asset-present'
-            ]
+                'page'  => 'attendance-present'
+            ],
+
+            
+            [
+                'title' => 'Dodela rasporeda',
+                'url'   => url('modules/attendance/assignments/index.php'),
+                'page'  => 'attendance-assignments'
+            ],
+
+            [
+                'title' => 'Odsustva',
+                'url'   => url('modules/attendance/absences/index.php'),
+                'page'  => 'attendance-absences'
+            ],
+
+            [
+                'title' => 'Vrste rada',
+                'url'   => url('modules/attendance/schedules/index.php'),
+                'page'  => 'attendance-schedules'
+            ],
+
+
+            [
+                'title' => 'Vrste odsustva',
+                'url'   => url('modules/attendance/absence-types/index.php'),
+                'page'  => 'attendance-absence-types'
+            ],
         ]
     ],
 
@@ -149,21 +175,26 @@ $menu = [
 
         <?php if (!has_role($item['roles'])) continue; ?>
 
-        <?php $isSubmenuActive = false;
+        <?php
 
-        if (isset($item['submenu'])) {
+            $isSubmenuActive = false;
 
-            foreach ($item['submenu'] as $sub) {
+            if (isset($item['submenu'])) {
 
-                if (isActive($sub['page'])) {
+                foreach ($item['submenu'] as $sub) {
 
-                    $isSubmenuActive = true;
+                    if (
+                        isset($currentPage)
+                        && $currentPage === $sub['page']
+                    ) {
 
-                    break;
+                        $isSubmenuActive = true;
+
+                        break;
+                    }
                 }
             }
-        }
-        ?>
+            ?>
 
         <li class="nav-item mb-2">
 
@@ -172,7 +203,8 @@ $menu = [
                 <a
                     class="nav-link text-white d-flex justify-content-between align-items-center"
                     data-bs-toggle="collapse"
-                    href="#submenu-<?= md5($item['title']) ?>"
+                    aria-expanded="<?= $isSubmenuActive ? 'true' : 'false' ?>"
+                    data-bs-target="#submenu-<?= md5($item['title']) ?>"
                     role="button">
 
                     <span>

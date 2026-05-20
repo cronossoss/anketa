@@ -77,6 +77,60 @@ while ($employee = $employees->fetch_assoc()) {
     $presenceStatus =
         $firstIn ? 'present' : 'absent';
 
+//
+// ODSUSTVA
+//
+
+$absenceQuery = $conn->prepare("
+
+    SELECT
+
+        aa.date_from,
+        aa.date_to,
+        aat.code
+
+    FROM attendance_absences aa
+
+    JOIN attendance_absence_types aat
+        ON aat.id = aa.absence_type_id
+
+    WHERE aa.employee_id = ?
+
+    AND DATE(aa.date_from) <= ?
+    AND DATE(aa.date_to) >= ?
+
+    LIMIT 1
+
+");
+
+$absenceQuery->bind_param(
+    'iss',
+    $employeeId,
+    $date,
+    $date
+);
+
+$absenceQuery->execute();
+
+$absenceResult =
+    $absenceQuery
+        ->get_result()
+        ->fetch_assoc();
+
+//
+// CELODNEVNO ODSUSTVO
+//
+
+if (
+    $absenceResult
+    &&
+    !$firstIn
+) {
+
+    $presenceStatus =
+        $absenceResult['code'];
+}
+
     // RADNI MINUTI
 
     $workedMinutes = 0;
@@ -85,19 +139,53 @@ while ($employee = $employees->fetch_assoc()) {
 
         if ($firstIn) {
 
+    $expectedStart =
+        strtotime($date . ' 07:00:00');
+
+    //
+    // AKO POSTOJI ODSUSTVO
+    //
+
+    if ($absenceResult) {
+
+        $absenceFrom =
+            strtotime(
+                $absenceResult['date_from']
+            );
+
+        $absenceTo =
+            strtotime(
+                $absenceResult['date_to']
+            );
+
+        //
+        // AKO ODSUSTVO POKRIVA
+        // POČETAK RADNOG VREMENA
+        //
+
+        if (
+            $absenceFrom <= $expectedStart
+            &&
+            $absenceTo >= $expectedStart
+        ) {
+
             $expectedStart =
-                strtotime($date . ' 07:00:00');
-
-            $actualStart =
-                strtotime($firstIn);
-
-            if ($actualStart > $expectedStart) {
-
-                $lateMinutes = round(
-                    ($actualStart - $expectedStart) / 60
-                );
-            }
+                $absenceTo;
         }
+    }
+
+    $actualStart =
+        strtotime($firstIn);
+
+    if ($actualStart > $expectedStart) {
+
+        $lateMinutes = round(
+            ($actualStart - $expectedStart) / 60
+        );
+
+        $presenceStatus = 'late';
+    }
+}
 
     if ($firstIn && $lastOut) {
 

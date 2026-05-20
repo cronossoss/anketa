@@ -2,6 +2,8 @@
 
 require_once '../../config/init.php';
 
+$currentPage = 'attendance-present';
+
 $pageTitle = "Trenutno prisutni";
 
 include "../../layouts/admin_layout_start.php";
@@ -16,10 +18,13 @@ $result = $conn->query("
         e.first_name,
         e.last_name,
 
-        ou.name AS organizational_unit,
+        ou.code AS organizational_unit,
 
         ads.first_in,
+        ads.last_out,
         ads.late_minutes,
+        ads.presence_status,
+
 
         (
             SELECT al.direction
@@ -92,6 +97,8 @@ $result = $conn->query("
 
                         <th>Prvi ulaz</th>
 
+                        <th>Izlaz</th>
+
                         <th>Kašnjenje</th>
 
                         <th>Status</th>
@@ -106,8 +113,7 @@ $result = $conn->query("
 
                         <?php
 
-                        $isPresent =
-                            $row['last_direction'] === 'IN';
+                        
 
                         ?>
 
@@ -155,6 +161,23 @@ $result = $conn->query("
 
                             <td>
 
+                                <?php if ($row['last_out']): ?>
+
+                                    <?= date(
+                                        'H:i',
+                                        strtotime($row['last_out'])
+                                    ) ?>
+
+                                <?php else: ?>
+
+                                    -
+
+                                <?php endif; ?>
+
+                            </td>
+
+                            <td>
+
                                 <?php if (
                                     $row['late_minutes'] > 0
                                 ): ?>
@@ -168,9 +191,9 @@ $result = $conn->query("
 
                                 <?php else: ?>
 
-                                    <span class="badge bg-success">
+                                    <span class="text-muted">
 
-                                        Na vreme
+                                        -
 
                                     </span>
 
@@ -180,7 +203,21 @@ $result = $conn->query("
 
                             <td>
 
-                                <?php if ($isPresent): ?>
+                                <?php
+
+                                $status =
+                                    $row['presence_status'];
+
+                                $lastDirection =
+                                    $row['last_direction'];
+
+                                ?>
+
+                                <?php if (
+                                    $status === 'present'
+                                    &&
+                                    $lastDirection === 'IN'
+                                ): ?>
 
                                     <span class="badge bg-success">
 
@@ -188,17 +225,70 @@ $result = $conn->query("
 
                                     </span>
 
+                                <?php elseif (
+
+                                    (
+                                        $status === 'present'
+                                        ||
+                                        $status === 'late'
+                                    )
+
+                                    &&
+
+                                    $lastDirection === 'OUT'
+
+                                ): ?>
+
+                                    <span class="badge bg-secondary">
+
+                                        Otišao
+
+                                    </span>
+
+                                <?php elseif (
+                                    $status === 'late'
+                                    &&
+                                    $lastDirection === 'IN'
+                                ): ?>
+
+                                    <span class="badge bg-warning text-dark">
+
+                                        Kasni
+
+                                    </span>
+
+                                <?php elseif (
+                                    $status === 'doctor'
+                                ): ?>
+
+                                    <span class="badge bg-info text-dark">
+
+                                        Lekar
+
+                                    </span>
+
+                                <?php elseif (
+                                    $status === 'vacation'
+                                ): ?>
+
+                                    <span class="badge bg-primary">
+
+                                        Godišnji
+
+                                    </span>
+
                                 <?php else: ?>
 
                                     <span class="badge bg-secondary">
 
-                                        Nije prisutan
+                                        Odsutan
 
                                     </span>
 
                                 <?php endif; ?>
 
                             </td>
+                        
 
                         </tr>
 
