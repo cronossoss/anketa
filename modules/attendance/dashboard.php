@@ -112,42 +112,79 @@ $units = $conn->query("
 
 ");
 
+$earlyLeaveToday = $conn->query("
+
+    SELECT COUNT(*) AS total
+
+    FROM attendance_daily_summary
+
+    WHERE work_date = CURDATE()
+
+    AND early_leave_minutes > 0
+
+")->fetch_assoc()['total'];
+
+$earlyLeaveEmployees = $conn->query("
+
+    SELECT
+
+        ads.*,
+
+        e.first_name,
+        e.last_name,
+        e.personal_id
+
+    FROM attendance_daily_summary ads
+
+    JOIN employees e
+        ON e.id = ads.employee_id
+
+    WHERE ads.work_date = CURDATE()
+
+    AND ads.early_leave_minutes > 0
+
+    ORDER BY ads.early_leave_minutes DESC
+
+");
+
 ?>
+
+
 
 <div class="container-fluid">
 
     <div class="d-flex gap-2 mb-4 flex-wrap">
 
         <a href="actions/generate_fake_logs.php"
-        class="btn btn-primary">
+            class="btn btn-primary">
 
             Generiši logove
 
         </a>
 
         <a href="actions/delete_fake_logs.php"
-        class="btn btn-danger">
+            class="btn btn-danger">
 
             Obriši logove
 
         </a>
 
         <a href="actions/generate_daily_summary.php"
-        class="btn btn-success">
+            class="btn btn-success">
 
             Generiši summary
 
         </a>
 
         <a href="actions/delete_daily_summary.php"
-        class="btn btn-outline-danger">
+            class="btn btn-outline-danger">
 
             Obriši summary
 
         </a>
 
         <a href="actions/reset_and_generate.php"
-        class="btn btn-dark">
+            class="btn btn-dark">
 
             Resetuj i generiši sve
 
@@ -245,6 +282,32 @@ $units = $conn->query("
 
         </div>
 
+        <!-- RANIJE IZLAZ DANAS -->
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted mb-2">
+
+                        Raniji izlazak
+
+                    </div>
+
+                    <div class="fs-1 fw-bold text-danger">
+
+                        <?= $earlyLeaveToday ?>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
         <!-- PROSEČNO RADNO VREME -->
 
         <div class="col-md-3 mb-4">
@@ -271,64 +334,66 @@ $units = $conn->query("
 
     <div class="row">
 
-    <div class="col-lg-6 mb-4">
+        <div class="col-lg-6 mb-4">
 
-        <div class="card border-0 shadow-sm h-100">
+            <div class="card border-0 shadow-sm h-100">
 
-            <div class="card-body">
+                <div class="card-body">
 
-                <h5 class="mb-4">
+                    <h5 class="mb-4">
 
-                    Prisustvo po organizacionim jedinicama
+                        Prisustvo po organizacionim jedinicama
 
-                </h5>
+                    </h5>
 
-                <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle">
 
-                    <thead>
-
-                        <tr>
-
-                            <th>Organizaciona jedinica</th>
-
-                            <th>Prisutni</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        <?php while ($unit = $units->fetch_assoc()): ?>
+                        <thead>
 
                             <tr>
 
-                                <td>
+                                <th>Organizaciona jedinica</th>
 
-                                    <?= htmlspecialchars(
-                                        $unit['organizational_unit']
-                                        ?? 'Nedefinisano'
-                                    ) ?>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="badge bg-primary">
-
-                                        <?= $unit['total_present'] ?>
-
-                                    </span>
-
-                                </td>
+                                <th>Prisutni</th>
 
                             </tr>
 
-                        <?php endwhile; ?>
+                        </thead>
 
-                    </tbody>
+                        <tbody>
 
-                </table>
+                            <?php while ($unit = $units->fetch_assoc()): ?>
+
+                                <tr>
+
+                                    <td>
+
+                                        <?= htmlspecialchars(
+                                            $unit['organizational_unit']
+                                                ?? 'Nedefinisano'
+                                        ) ?>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge bg-primary">
+
+                                            <?= $unit['total_present'] ?>
+
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                            <?php endwhile; ?>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
 
             </div>
 
@@ -336,11 +401,9 @@ $units = $conn->query("
 
     </div>
 
-</div>
-
     <?php
 
-$lateEmployees = $conn->query("
+    $lateEmployees = $conn->query("
     SELECT
         e.first_name,
         e.last_name,
@@ -358,69 +421,147 @@ $lateEmployees = $conn->query("
     ORDER BY ads.late_minutes DESC
 ");
 
-?>
+    ?>
 
-<div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm">
 
-    <div class="card-body">
+        <div class="card-body">
 
-        <h5 class="mb-4">
-            Zaposleni koji kasne
-        </h5>
+            <h5 class="mb-4">
+                Zaposleni koji kasne
+            </h5>
 
-        <table class="table table-hover">
+            <table class="table table-hover">
 
-            <thead>
-                <tr>
-                    <th>Zaposleni</th>
-                    <th>Dolazak</th>
-                    <th>Kašnjenje</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                <?php while ($row = $lateEmployees->fetch_assoc()): ?>
-
+                <thead>
                     <tr>
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $row['first_name']
-                                . ' ' .
-                                $row['last_name']
-                            ) ?>
-                        </td>
-
-                        <td>
-                            <?= date(
-                                'H:i',
-                                strtotime($row['first_in'])
-                            ) ?>
-                        </td>
-
-                        <td>
-
-                            <span class="badge bg-warning text-dark">
-
-                                <?= $row['late_minutes'] ?>
-                                min
-
-                            </span>
-
-                        </td>
-
+                        <th>Zaposleni</th>
+                        <th>Dolazak</th>
+                        <th>Kašnjenje</th>
                     </tr>
+                </thead>
 
-                <?php endwhile; ?>
+                <tbody>
 
-            </tbody>
+                    <?php while ($row = $lateEmployees->fetch_assoc()): ?>
 
-        </table>
+                        <tr>
+
+                            <td>
+                                <?= htmlspecialchars(
+                                    $row['first_name']
+                                        . ' ' .
+                                        $row['last_name']
+                                ) ?>
+                            </td>
+
+                            <td>
+                                <?= date(
+                                    'H:i',
+                                    strtotime($row['first_in'])
+                                ) ?>
+                            </td>
+
+                            <td>
+
+                                <span class="badge bg-warning text-dark">
+
+                                    <?= $row['late_minutes'] ?>
+                                    min
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endwhile; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
-</div>
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body">
+
+            <h5 class="mb-4">
+
+                Radnici sa ranijim izlazom
+
+            </h5>
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Zaposleni</th>
+
+                        <th>Izlaz</th>
+
+                        <th>Raniji izlazak</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <?php while ($row = $earlyLeaveEmployees->fetch_assoc()): ?>
+
+                        <tr>
+
+                            <td>
+
+                                <?= htmlspecialchars(
+
+                                    $row['personal_id']
+                                        . ' - '
+                                        . $row['last_name']
+                                        . ' '
+                                        . $row['first_name']
+
+                                ) ?>
+
+                            </td>
+
+                            <td>
+
+                                <?= date(
+                                    'H:i',
+                                    strtotime($row['last_out'])
+                                ) ?>
+
+                            </td>
+
+                            <td>
+
+                                <span class="badge bg-danger">
+
+                                    <?= $row['early_leave_minutes'] ?>
+                                    min
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endwhile; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 

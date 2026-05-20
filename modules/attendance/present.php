@@ -19,11 +19,16 @@ $result = $conn->query("
         e.last_name,
 
         ou.code AS organizational_unit,
+        ou.name AS organizational_unit_name,
 
         ads.first_in,
         ads.last_out,
         ads.late_minutes,
         ads.presence_status,
+        ads.reason_label,
+        ads.reason_type,
+        ads.is_justified,
+        ads.early_leave_minutes,
 
 
         (
@@ -49,6 +54,24 @@ $result = $conn->query("
 
 ");
 
+$groupedData = [];
+
+while ($row = $result->fetch_assoc()) {
+
+    $ouCode =
+        $row['organizational_unit']
+        ?: 'Bez OJ';
+
+    $ouName =
+        $row['organizational_unit_name']
+        ?: '';
+
+    $ou =
+        $ouCode . '|' . $ouName;
+
+    $groupedData[$ou][] = $row;
+}
+
 ?>
 
 <div class="container-fluid">
@@ -62,12 +85,12 @@ $result = $conn->query("
                 <div>
 
                     <h4 class="mb-1">
-                        Trenutno prisutni radnici
+                        Dnevni pregled prisustva
                     </h4>
 
                     <div class="text-muted">
 
-                        LIVE pregled radnika u fabrici
+                        Pregled dolazaka, izlazaka, kašnjenja i opravdanih odsustava
 
                     </div>
 
@@ -93,15 +116,47 @@ $result = $conn->query("
 
                         <th>Zaposleni</th>
 
-                        <th>Organizaciona jedinica</th>
+                        <th>OJ</th>
 
-                        <th>Prvi ulaz</th>
+                        <th>
 
-                        <th>Izlaz</th>
+                            <i class="bi bi-box-arrow-in-right text-success"></i>
 
-                        <th>Kašnjenje</th>
+                            Ulaz
 
-                        <th>Status</th>
+                        </th>
+
+                        <th>
+
+                            <i class="bi bi-box-arrow-left text-danger"></i>
+
+                            Izlaz
+
+                        </th>
+
+                        <th>
+
+                            <i class="bi bi-clock-history text-warning"></i>
+
+                            Kašnjenje
+
+                        </th>
+
+                        <th>
+
+                            <i class="bi bi-door-open text-primary"></i>
+
+                            Razlog izlaza
+
+                        </th>
+
+                        <th>
+
+                            <i class="bi bi-person-check"></i>
+
+                            Status
+
+                        </th>
 
                     </tr>
 
@@ -109,190 +164,360 @@ $result = $conn->query("
 
                 <tbody>
 
-                    <?php while ($row = $result->fetch_assoc()): ?>
-
+                    <?php foreach ($groupedData as $ou => $employees): ?>
                         <?php
 
-                        
+                        [$ouCode, $ouName] =
+                            explode('|', $ou);
 
                         ?>
 
-                        <tr>
+                        <?php
 
-                            <td>
+                        $collapseId =
+                            'ou_' . md5($ou);
 
-                                <strong>
+                        $presentCount = 0;
+                        $lateCount = 0;
+                        $justifiedCount = 0;
+                        $outCount = 0;
+                        $absentCount = 0;
 
-                                    <?= htmlspecialchars(
-                                        $row['first_name']
-                                        . ' ' .
-                                        $row['last_name']
-                                    ) ?>
+                        foreach ($employees as $emp) {
 
-                                </strong>
+                            $status =
+                                $emp['presence_status'];
+
+                            $lastDirection =
+                                $emp['last_direction'];
+
+                            if (
+                                $status === 'present'
+                                &&
+                                $lastDirection === 'IN'
+                            ) {
+
+                                $presentCount++;
+                            } elseif (
+                                $status === 'late'
+                                &&
+                                $lastDirection === 'IN'
+                            ) {
+
+                                $lateCount++;
+                            } elseif (
+                                $emp['is_justified']
+                            ) {
+
+                                $justifiedCount++;
+                            } elseif (
+                                $lastDirection === 'OUT'
+                            ) {
+
+                                $outCount++;
+                            } else {
+
+                                $absentCount++;
+                            }
+                        }
+
+                        ?>
+
+                        <!-- OJ HEADER -->
+
+                        <tr
+                            class="table-dark"
+                            data-bs-toggle="collapse"
+                            data-bs-target=".<?= $collapseId ?>"
+                            style="cursor:pointer;">
+
+                            <td colspan="7">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <strong>
+
+                                            <div class="d-flex align-items-center gap-3">
+
+                                                <span class="fw-bold">
+
+                                                    <?= htmlspecialchars($ouCode) ?>
+
+                                                </span>
+
+                                                <span class="text-light opacity-75">
+
+                                                    <?= htmlspecialchars($ouName) ?>
+
+                                                </span>
+
+                                            </div>
+
+                                        </strong>
+
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+
+                                        <span class="badge bg-success">
+
+                                            🟢 <?= $presentCount ?>
+
+                                        </span>
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            🟡 <?= $lateCount ?>
+
+                                        </span>
+
+                                        <span class="badge bg-info text-dark">
+
+                                            🔵 <?= $justifiedCount ?>
+
+                                        </span>
+
+                                        <span class="badge bg-secondary">
+
+                                            ⚪ <?= $outCount ?>
+
+                                        </span>
+
+                                        <span class="badge bg-danger">
+
+                                            🔴 <?= $absentCount ?>
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
 
                             </td>
-
-                            <td>
-
-                                <?= htmlspecialchars(
-                                    $row['organizational_unit']
-                                    ?? '-'
-                                ) ?>
-
-                            </td>
-
-                            <td>
-
-                                <?php if ($row['first_in']): ?>
-
-                                    <?= date(
-                                        'H:i',
-                                        strtotime($row['first_in'])
-                                    ) ?>
-
-                                <?php else: ?>
-
-                                    -
-
-                                <?php endif; ?>
-
-                            </td>
-
-                            <td>
-
-                                <?php if ($row['last_out']): ?>
-
-                                    <?= date(
-                                        'H:i',
-                                        strtotime($row['last_out'])
-                                    ) ?>
-
-                                <?php else: ?>
-
-                                    -
-
-                                <?php endif; ?>
-
-                            </td>
-
-                            <td>
-
-                                <?php if (
-                                    $row['late_minutes'] > 0
-                                ): ?>
-
-                                    <span class="badge bg-warning text-dark">
-
-                                        <?= $row['late_minutes'] ?>
-                                        min
-
-                                    </span>
-
-                                <?php else: ?>
-
-                                    <span class="text-muted">
-
-                                        -
-
-                                    </span>
-
-                                <?php endif; ?>
-
-                            </td>
-
-                            <td>
-
-                                <?php
-
-                                $status =
-                                    $row['presence_status'];
-
-                                $lastDirection =
-                                    $row['last_direction'];
-
-                                ?>
-
-                                <?php if (
-                                    $status === 'present'
-                                    &&
-                                    $lastDirection === 'IN'
-                                ): ?>
-
-                                    <span class="badge bg-success">
-
-                                        Prisutan
-
-                                    </span>
-
-                                <?php elseif (
-
-                                    (
-                                        $status === 'present'
-                                        ||
-                                        $status === 'late'
-                                    )
-
-                                    &&
-
-                                    $lastDirection === 'OUT'
-
-                                ): ?>
-
-                                    <span class="badge bg-secondary">
-
-                                        Otišao
-
-                                    </span>
-
-                                <?php elseif (
-                                    $status === 'late'
-                                    &&
-                                    $lastDirection === 'IN'
-                                ): ?>
-
-                                    <span class="badge bg-warning text-dark">
-
-                                        Kasni
-
-                                    </span>
-
-                                <?php elseif (
-                                    $status === 'doctor'
-                                ): ?>
-
-                                    <span class="badge bg-info text-dark">
-
-                                        Lekar
-
-                                    </span>
-
-                                <?php elseif (
-                                    $status === 'vacation'
-                                ): ?>
-
-                                    <span class="badge bg-primary">
-
-                                        Godišnji
-
-                                    </span>
-
-                                <?php else: ?>
-
-                                    <span class="badge bg-secondary">
-
-                                        Odsutan
-
-                                    </span>
-
-                                <?php endif; ?>
-
-                            </td>
-                        
 
                         </tr>
 
-                    <?php endwhile; ?>
+                        <!-- ZAPOSLENI -->
+
+                        <?php foreach ($employees as $row): ?>
+
+                            <tr class="collapse show <?= $collapseId ?>">
+
+                                <td>
+
+                                    <strong>
+
+                                        <?= htmlspecialchars(
+                                            $row['first_name']
+                                                . ' ' .
+                                                $row['last_name']
+                                        ) ?>
+
+                                    </strong>
+
+                                </td>
+
+                                <td>
+
+                                    <?= htmlspecialchars(
+                                        $row['organizational_unit']
+                                            ?? '-'
+                                    ) ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?= $row['first_in']
+                                        ? date(
+                                            'H:i',
+                                            strtotime($row['first_in'])
+                                        )
+                                        : '-' ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?= $row['last_out']
+                                        ? date(
+                                            'H:i',
+                                            strtotime($row['last_out'])
+                                        )
+                                        : '-' ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?php if (
+                                        $row['late_minutes'] > 0
+                                    ): ?>
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            <?= $row['late_minutes'] ?>
+                                            min
+
+                                        </span>
+
+                                    <?php else: ?>
+
+                                        <span class="text-muted">
+
+                                            -
+
+                                        </span>
+
+                                    <?php endif; ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?php if (
+                                        $row['reason_label']
+                                    ): ?>
+
+                                        <span class="badge bg-info text-dark">
+
+                                            <?= htmlspecialchars(
+                                                $row['reason_label']
+                                            ) ?>
+
+                                        </span>
+
+                                    <?php elseif (
+                                        $row['early_leave_minutes'] > 0
+                                    ): ?>
+
+                                        <span class="badge bg-danger">
+
+                                            Nedefinisano
+
+                                        </span>
+
+                                    <?php else: ?>
+
+                                        <span class="text-muted">
+
+                                            -
+
+                                        </span>
+
+                                    <?php endif; ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?php
+
+                                    $status =
+                                        $row['presence_status'];
+
+                                    $lastDirection =
+                                        $row['last_direction'];
+
+                                    ?>
+
+                                    <?php if (
+
+                                        $row['is_justified']
+                                        &&
+                                        $row['last_out']
+
+                                    ): ?>
+
+                                        <span class="badge bg-info text-dark">
+
+                                            Opravdano
+
+                                        </span>
+
+                                    <?php elseif (
+                                        $status === 'present'
+                                        &&
+                                        $lastDirection === 'IN'
+                                    ): ?>
+
+                                        <span class="badge bg-success">
+
+                                            Prisutan
+
+                                        </span>
+
+                                    <?php elseif (
+
+                                        (
+                                            $status === 'present'
+                                            ||
+                                            $status === 'late'
+                                        )
+
+                                        &&
+
+                                        $lastDirection === 'OUT'
+
+                                    ): ?>
+
+                                        <span class="badge bg-secondary">
+
+                                            Otišao
+
+                                        </span>
+
+                                    <?php elseif (
+                                        $status === 'late'
+                                        &&
+                                        $lastDirection === 'IN'
+                                    ): ?>
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            Kasni
+
+                                        </span>
+
+                                    <?php elseif (
+                                        $status === 'vacation'
+                                    ): ?>
+
+                                        <span class="badge bg-primary">
+
+                                            Godišnji
+
+                                        </span>
+
+                                    <?php elseif (
+                                        $status === 'doctor'
+                                    ): ?>
+
+                                        <span class="badge bg-info text-dark">
+
+                                            Lekar
+
+                                        </span>
+
+                                    <?php else: ?>
+
+                                        <span class="badge bg-danger">
+
+                                            Odsutan
+
+                                        </span>
+
+                                    <?php endif; ?>
+
+                                </td>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    <?php endforeach; ?>
 
                 </tbody>
 

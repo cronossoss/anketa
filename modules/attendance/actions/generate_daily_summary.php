@@ -38,8 +38,8 @@ while ($employee = $employees->fetch_assoc()) {
 
     $firstInResult =
         $firstInQuery
-            ->get_result()
-            ->fetch_assoc();
+        ->get_result()
+        ->fetch_assoc();
 
     // POSLEDNJI OUT
 
@@ -63,8 +63,8 @@ while ($employee = $employees->fetch_assoc()) {
 
     $lastOutResult =
         $lastOutQuery
-            ->get_result()
-            ->fetch_assoc();
+        ->get_result()
+        ->fetch_assoc();
 
     $firstIn =
         $firstInResult['access_datetime'] ?? null;
@@ -77,17 +77,19 @@ while ($employee = $employees->fetch_assoc()) {
     $presenceStatus =
         $firstIn ? 'present' : 'absent';
 
-//
-// ODSUSTVA
-//
+    //
+    // ODSUSTVA
+    //
 
-$absenceQuery = $conn->prepare("
+    $absenceQuery = $conn->prepare("
 
     SELECT
 
         aa.date_from,
         aa.date_to,
-        aat.code
+
+        aat.code,
+        aat.name
 
     FROM attendance_absences aa
 
@@ -103,33 +105,33 @@ $absenceQuery = $conn->prepare("
 
 ");
 
-$absenceQuery->bind_param(
-    'iss',
-    $employeeId,
-    $date,
-    $date
-);
+    $absenceQuery->bind_param(
+        'iss',
+        $employeeId,
+        $date,
+        $date
+    );
 
-$absenceQuery->execute();
+    $absenceQuery->execute();
 
-$absenceResult =
-    $absenceQuery
+    $absenceResult =
+        $absenceQuery
         ->get_result()
         ->fetch_assoc();
 
-//
-// CELODNEVNO ODSUSTVO
-//
+    //
+    // CELODNEVNO ODSUSTVO
+    //
 
-if (
-    $absenceResult
-    &&
-    !$firstIn
-) {
+    if (
+        $absenceResult
+        &&
+        !$firstIn
+    ) {
 
-    $presenceStatus =
-        $absenceResult['code'];
-}
+        $presenceStatus =
+            $absenceResult['code'];
+    }
 
     // RADNI MINUTI
 
@@ -137,55 +139,71 @@ if (
 
     $lateMinutes = 0;
 
-        if ($firstIn) {
+    $reasonLabel = null;
 
-    $expectedStart =
-        strtotime($date . ' 07:00:00');
+    $reasonType = null;
 
-    //
-    // AKO POSTOJI ODSUSTVO
-    //
+    $isJustified = 0;
 
-    if ($absenceResult) {
+    $earlyLeaveMinutes = 0;
 
-        $absenceFrom =
-            strtotime(
-                $absenceResult['date_from']
-            );
+    if ($firstIn) {
 
-        $absenceTo =
-            strtotime(
-                $absenceResult['date_to']
-            );
+        $expectedStart =
+            strtotime($date . ' 07:00:00');
 
         //
-        // AKO ODSUSTVO POKRIVA
-        // POČETAK RADNOG VREMENA
+        // AKO POSTOJI ODSUSTVO
         //
 
-        if (
-            $absenceFrom <= $expectedStart
-            &&
-            $absenceTo >= $expectedStart
-        ) {
+        if ($absenceResult) {
 
-            $expectedStart =
-                $absenceTo;
+            $absenceFrom =
+                strtotime(
+                    $absenceResult['date_from']
+                );
+
+            $absenceTo =
+                strtotime(
+                    $absenceResult['date_to']
+                );
+
+            $reasonLabel =
+                $absenceResult['name'];
+
+            $reasonType =
+                $absenceResult['code'];
+
+            $isJustified = 1;
+
+            //
+            // AKO ODSUSTVO POKRIVA
+            // POČETAK RADNOG VREMENA
+            //
+
+            if (
+                $absenceFrom <= $expectedStart
+                &&
+                $absenceTo >= $expectedStart
+            ) {
+
+                $expectedStart =
+                    $absenceTo;
+            }
+        }
+
+        $actualStart =
+            strtotime($firstIn);
+
+        if ($actualStart > $expectedStart) {
+
+            $lateMinutes = round(
+                ($actualStart - $expectedStart) / 60
+            );
+
+            $presenceStatus = 'late';
         }
     }
-
-    $actualStart =
-        strtotime($firstIn);
-
-    if ($actualStart > $expectedStart) {
-
-        $lateMinutes = round(
-            ($actualStart - $expectedStart) / 60
-        );
-
-        $presenceStatus = 'late';
-    }
-}
 
     if ($firstIn && $lastOut) {
 
@@ -196,6 +214,70 @@ if (
                     - strtotime($firstIn)
                 ) / 60
             );
+    }
+
+    //
+    // RANIJI IZLAZ
+    //
+
+    if ($lastOut) {
+
+        //
+        // PODRAZUMEVANI KRAJ
+        //
+
+        $expectedEnd =
+            strtotime($date . ' 15:00:00');
+
+        //
+        // AKO POSTOJI ODSUSTVO
+        //
+
+        if ($absenceResult) {
+
+            $absenceFrom =
+                strtotime(
+                    $absenceResult['date_from']
+                );
+
+            $absenceTo =
+                strtotime(
+                    $absenceResult['date_to']
+                );
+
+            //
+            // AKO ODSUSTVO POKRIVA
+            // KRAJ RADNOG VREMENA
+            //
+
+            if (
+                $absenceFrom <= $expectedEnd
+                &&
+                $absenceTo >= $expectedEnd
+            ) {
+
+                $expectedEnd =
+                    $absenceFrom;
+            }
+        }
+
+        //
+        // REALAN IZLAZ
+        //
+
+        $actualEnd =
+            strtotime($lastOut);
+
+        //
+        // RANIJI IZLAZ
+        //
+
+        if ($actualEnd < $expectedEnd) {
+
+            $earlyLeaveMinutes = round(
+                ($expectedEnd - $actualEnd) / 60
+            );
+        }
     }
 
     // INSERT / UPDATE
@@ -209,10 +291,14 @@ if (
             last_out,
             worked_minutes,
             late_minutes,
+            early_leave_minutes,
+            reason_label,
+            reason_type,
+            is_justified,
             presence_status
 
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
         ON DUPLICATE KEY UPDATE
 
@@ -220,17 +306,25 @@ if (
             last_out = VALUES(last_out),
             worked_minutes = VALUES(worked_minutes),
             late_minutes = VALUES(late_minutes),
+            early_leave_minutes = VALUES(early_leave_minutes),
+            reason_label = VALUES(reason_label),
+            reason_type = VALUES(reason_type),
+            is_justified = VALUES(is_justified),
             presence_status = VALUES(presence_status)
     ");
 
     $stmt->bind_param(
-        'isssiis',
+        'isssiiissss',
         $employeeId,
         $date,
         $firstIn,
         $lastOut,
         $workedMinutes,
         $lateMinutes,
+        $earlyLeaveMinutes,
+        $reasonLabel,
+        $reasonType,
+        $isJustified,
         $presenceStatus
     );
 
