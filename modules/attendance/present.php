@@ -108,6 +108,27 @@ while ($row = $result->fetch_assoc()) {
 
             </div>
 
+            <div class="d-flex align-items-center gap-3 mb-3">
+
+                <div class="form-check form-switch">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="showProblemsOnly">
+
+                    <label
+                        class="form-check-label"
+                        for="showProblemsOnly">
+
+                        Prikaži samo odstupanja
+
+                    </label>
+
+                </div>
+
+            </div>
+
             <table class="table table-hover align-middle">
 
                 <thead>
@@ -303,7 +324,34 @@ while ($row = $result->fetch_assoc()) {
 
                         <?php foreach ($employees as $row): ?>
 
-                            <tr class="collapse show <?= $collapseId ?>">
+                            <?php
+
+                            $isProblematic =
+
+                                $row['late_minutes'] > 0
+
+                                ||
+
+                                $row['early_leave_minutes'] > 0
+
+                                ||
+
+                                $row['is_justified']
+
+                                ||
+
+                                $row['presence_status'] === 'absent';
+
+                            ?>
+
+                            <tr
+                                class="
+                                    collapse
+                                    show
+                                    <?= $collapseId ?>
+                                    employee-row
+                                "
+                                data-problematic="<?= $isProblematic ? '1' : '0' ?>">
 
                                 <td>
 
@@ -528,5 +576,42 @@ while ($row = $result->fetch_assoc()) {
     </div>
 
 </div>
+
+<script>
+    document
+        .getElementById(
+            'showProblemsOnly'
+        )
+        .addEventListener(
+            'change',
+            function() {
+
+                const rows =
+                    document.querySelectorAll(
+                        '.employee-row'
+                    );
+
+                rows.forEach(row => {
+
+                    const isProblematic =
+                        row.dataset.problematic === '1';
+
+                    if (
+                        this.checked &&
+                        !isProblematic
+                    ) {
+
+                        row.style.display =
+                            'none';
+
+                    } else {
+
+                        row.style.display =
+                            '';
+                    }
+                });
+            }
+        );
+</script>
 
 <?php include "../../layouts/admin_layout_end.php"; ?>
