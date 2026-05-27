@@ -2,155 +2,297 @@
 
 require_once '../../../config/init.php';
 
-require_once '../helpers/fake_data_helper.php';
+//
+// OBRIŠI STARE LOGOVE
+//
 
-$date = date('Y-m-d');
+$conn->query("
+    DELETE FROM attendance_logs
+");
+
+//
+// ZAPOSLENI
+//
 
 $employees = $conn->query("
-    SELECT 
-        id,
-        first_name,
-        last_name
+    SELECT
+        id
     FROM employees
 ");
 
-if (!$employees) {
-    die('Greška pri učitavanju zaposlenih.');
+$employeeIds = [];
+
+while ($row = $employees->fetch_assoc()) {
+
+    $employeeIds[] = $row['id'];
 }
 
-while ($employee = $employees->fetch_assoc()) {
+//
+// POSLEDNJIH 30 DANA
+//
 
-    $employeeId = $employee['id'];
+for ($day = 0; $day < 30; $day++) {
 
-    $scenario = generateFakeScenario();
+    $date =
+        date(
+            'Y-m-d',
+            strtotime("-$day days")
+        );
 
-    // Odsutan radnik
-    if ($scenario === 'absent') {
+    //
+    // PRESKOČI VIKEND
+    //
+
+    $dayOfWeek =
+        date(
+            'N',
+            strtotime($date)
+        );
+
+    if ($dayOfWeek >= 6) {
+
         continue;
     }
 
-    $inTime = '07:00:00';
-    $outTime = '15:00:00';
+    //
+    // ZAPOSLENI
+    //
 
-    switch ($scenario) {
+    foreach ($employeeIds as $employeeId) {
 
-        case 'normal':
+        //
+        // FULL DAY ODSUSTVO
+        //
 
-            $inTime = generateRandomTime(
-                '07:00:00',
-                5
-            );
+        $absenceQuery = $conn->prepare("
 
-            // 50% radnika još nije izašlo
+            SELECT
 
-            if (rand(1, 100) <= 80) {
+                aa.date_from,
+                aa.date_to,
+                aat.name
 
-                $outTime = null;
+            FROM attendance_absences aa
 
-            } else {
+            JOIN attendance_absence_types aat
+                ON aat.id = aa.absence_type_id
 
-                $outTime = generateRandomTime(
-                    '15:00:00',
-                    5
+            WHERE aa.employee_id = ?
+
+            AND DATE(aa.date_from) <= ?
+            AND DATE(aa.date_to) >= ?
+
+            LIMIT 1
+
+        ");
+
+        $absenceQuery->bind_param(
+            'iss',
+            $employeeId,
+            $date,
+            $date
+        );
+
+        $absenceQuery->execute();
+
+        $absence =
+            $absenceQuery
+                ->get_result()
+                ->fetch_assoc();
+
+        //
+        // FULL DAY TYPES
+        //
+
+        $fullDayTypes = [
+
+            'Godišnji odmor',
+            'Plaćeno odsustvo',
+            'Neplaćeno odsustvo',
+            'Službeni put'
+
+        ];
+
+        if (
+            $absence
+            &&
+            in_array(
+                $absence['name'],
+                $fullDayTypes
+            )
+        ) {
+
+            continue;
+        }
+
+        //
+        // STANDARDNO VREME
+        //
+
+        $startHour = 7;
+        $endHour = 15;
+
+        //
+        // RANDOM KAŠNJENJE
+        //
+
+        $lateMinutes = 0;
+
+        if (rand(1, 100) <= 25) {
+
+            $lateMinutes =
+                rand(1, 30);
+        }
+
+        //
+        // RANDOM RANIJI IZLAZ
+        //
+
+        $earlyLeaveMinutes = 0;
+
+        if (rand(1, 100) <= 15) {
+
+            $earlyLeaveMinutes =
+                rand(5, 120);
+        }
+
+        //
+        // PARTIAL ABSENCE
+        //
+
+        if ($absence) {
+
+            $absenceFrom =
+                strtotime(
+                    $absence['date_from']
                 );
+
+            $absenceTo =
+                strtotime(
+                    $absence['date_to']
+                );
+
+            //
+            // AKO ODSUSTVO POKRIVA
+            // POČETAK RADA
+            //
+
+            if (
+                date('H:i', $absenceFrom)
+                <= '07:00'
+            ) {
+
+                $startHour =
+                    (int) date(
+                        'H',
+                        $absenceTo
+                    );
+
+                $lateMinutes =
+                    (int) date(
+                        'i',
+                        $absenceTo
+                    );
             }
 
-            break;
+            //
+            // AKO ODSUSTVO POKRIVA
+            // KRAJ RADA
+            //
 
-        case 'late':
+            if (
+                date('H:i', $absenceTo)
+                >= '15:00'
+            ) {
 
-            $inTime = generateRandomTime(
-                '07:20:00',
-                10
+                $endHour =
+                    (int) date(
+                        'H',
+                        $absenceFrom
+                    );
+
+                $earlyLeaveMinutes =
+                    0;
+            }
+        }
+
+        //
+        // IN
+        //
+
+        $inDateTime =
+            date(
+                'Y-m-d H:i:s',
+                strtotime(
+                    "$date $startHour:00:00 +$lateMinutes minutes"
+                )
             );
 
-            $outTime = generateRandomTime(
-                '15:00:00',
-                5
+        //
+        // OUT
+        //
+
+        $outDateTime =
+            date(
+                'Y-m-d H:i:s',
+                strtotime(
+                    "$date $endHour:00:00 -$earlyLeaveMinutes minutes"
+                )
             );
 
-            break;
+        //
+        // POVREMENI OVERTIME
+        //
 
-        case 'early_leave':
+        if (rand(1, 100) <= 10) {
 
-            $inTime = generateRandomTime(
-                '07:00:00',
-                5
-            );
+            $outDateTime =
+                date(
+                    'Y-m-d H:i:s',
+                    strtotime(
+                        $outDateTime . ' +'
+                        . rand(30, 180)
+                        . ' minutes'
+                    )
+                );
+        }
 
-            $outTime = generateRandomTime(
-                '14:30:00',
-                10
-            );
-
-            break;
-
-        case 'missing_out':
-
-            $inTime = generateRandomTime(
-                '07:00:00',
-                5
-            );
-
-            $outTime = null;
-
-            break;
-
-        case 'overtime':
-
-            $inTime = generateRandomTime(
-                '07:00:00',
-                5
-            );
-
-            $outTime = generateRandomTime(
-                '17:00:00',
-                20
-            );
-
-            break;
-    }
-
-    // IN log
-
-    $inDateTime = $date . ' ' . $inTime;
-
-    $stmt = $conn->prepare("
-        INSERT INTO attendance_logs (
-            employee_id,
-            access_datetime,
-            direction,
-            terminal_name,
-            source_system,
-            is_simulated
-        )
-        VALUES (?, ?, 'IN', 'SIMULATOR', 'simulator', 1)
-    ");
-
-    $stmt->bind_param(
-        'is',
-        $employeeId,
-        $inDateTime
-    );
-
-    $stmt->execute();
-
-    // OUT log
-
-    if ($outTime) {
-
-        $outDateTime = $date . ' ' . $outTime;
+        //
+        // IN LOG
+        //
 
         $stmt = $conn->prepare("
             INSERT INTO attendance_logs (
+
                 employee_id,
                 access_datetime,
-                direction,
-                terminal_name,
-                source_system,
-                is_simulated
+                direction
+
             )
-            VALUES (?, ?, 'OUT', 'SIMULATOR', 'simulator', 1)
+            VALUES (?, ?, 'IN')
+        ");
+
+        $stmt->bind_param(
+            'is',
+            $employeeId,
+            $inDateTime
+        );
+
+        $stmt->execute();
+
+        //
+        // OUT LOG
+        //
+
+        $stmt = $conn->prepare("
+            INSERT INTO attendance_logs (
+
+                employee_id,
+                access_datetime,
+                direction
+
+            )
+            VALUES (?, ?, 'OUT')
         ");
 
         $stmt->bind_param(
@@ -163,4 +305,11 @@ while ($employee = $employees->fetch_assoc()) {
     }
 }
 
-echo "Fake logovi uspešno generisani.";
+$_SESSION['success'] =
+    'Fake odsustva uspešno generisana.';
+
+header(
+    'Location: ../dashboard.php'
+);
+
+exit;

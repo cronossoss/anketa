@@ -149,46 +149,273 @@ $earlyLeaveEmployees = $conn->query("
 
 ?>
 
+<style>
+
+.table-sm td,
+.table-sm th {
+
+    padding:
+        0.45rem 0.55rem;
+
+    vertical-align:
+        middle;
+}
+
+</style>
+
 
 
 <div class="container-fluid">
 
-    <div class="d-flex gap-2 mb-4 flex-wrap">
+    <?php if (
+        isset($_SESSION['success'])
+    ): ?>
 
-        <a href="actions/generate_fake_logs.php"
-            class="btn btn-primary">
+        <div
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+        >
 
-            Generiši logove
+            <i class="bi bi-check-circle me-2"></i>
 
-        </a>
+            <?= $_SESSION['success'] ?>
 
-        <a href="actions/delete_fake_logs.php"
-            class="btn btn-danger">
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+            ></button>
 
-            Obriši logove
+        </div>
 
-        </a>
+        <?php unset($_SESSION['success']); ?>
 
-        <a href="actions/generate_daily_summary.php"
-            class="btn btn-success">
+    <?php endif; ?>
 
-            Generiši summary
+    <div class="card border-primary shadow-sm mb-4">
 
-        </a>
+        <div class="card-body">
 
-        <a href="actions/delete_daily_summary.php"
-            class="btn btn-outline-danger">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-            Obriši summary
+                <div>
 
-        </a>
+                    <h5 class="mb-1">
 
-        <a href="actions/reset_and_generate.php"
-            class="btn btn-dark">
+                        Simulation Tools
 
-            Resetuj i generiši sve
+                    </h5>
 
-        </a>
+                    <div class="text-muted small">
+
+                        Generisanje test attendance podataka za poslednjih 30 dana
+
+                    </div>
+
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+
+                    <a
+                        href="<?= url('modules/attendance/actions/generate_fake_absences.php') ?>"
+                        class="btn btn-outline-primary"
+                    >
+
+                        <i class="bi bi-calendar-x me-1"></i>
+
+                        Generiši odsustva
+
+                    </a>
+
+                    <a
+                        href="<?= url('modules/attendance/actions/generate_fake_logs.php') ?>"
+                        class="btn btn-outline-success"
+                    >
+
+                        <i class="bi bi-box-arrow-in-right me-1"></i>
+
+                        Generiši logove
+
+                    </a>
+
+                    <a
+                        href="<?= url('modules/attendance/actions/generate_daily_summary_all.php') ?>"
+                        class="btn btn-outline-warning"
+                    >
+
+                        <i class="bi bi-bar-chart me-1"></i>
+
+                        Generiši summary
+
+                    </a>
+
+                    <a
+                        href="<?= url('modules/attendance/actions/reset_fake_attendance.php') ?>"
+                        class="btn btn-outline-danger"
+                        onclick="return confirm(
+                            'Obrisati sve attendance podatke?'
+                        )"
+                    >
+
+                        <i class="bi bi-trash me-1"></i>
+
+                        Reset
+
+                    </a>
+
+                </div>
+
+                <div class="row mb-4">
+
+                    <div class="col-md-4">
+
+                        <div class="card border-0 shadow-sm h-100">
+
+                            <div class="card-body d-flex flex-column">
+
+                                <div class="mb-3">
+
+                                    <div class="fs-1 text-primary">
+
+                                        <i class="bi bi-calendar-day"></i>
+
+                                    </div>
+
+                                </div>
+
+                                <h5 class="mb-2">
+
+                                    Dnevni izveštaj
+
+                                </h5>
+
+                                <div class="text-muted mb-4">
+
+                                    Pregled prisustva, kašnjenja,
+                                    izlazaka i statusa po danu.
+
+                                </div>
+
+                                <div class="mt-auto">
+
+                                    <a
+                                        href="<?= url('modules/attendance/reports/daily.php') ?>"
+                                        class="btn btn-primary w-100"
+                                    >
+
+                                        Otvori izveštaj
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="card border-0 shadow-sm h-100">
+
+                            <div class="card-body d-flex flex-column">
+
+                                <div class="mb-3">
+
+                                    <div class="fs-1 text-success">
+
+                                        <i class="bi bi-calendar-week"></i>
+
+                                    </div>
+
+                                </div>
+
+                                <h5 class="mb-2">
+
+                                    Nedeljni izveštaj
+
+                                </h5>
+
+                                <div class="text-muted mb-4">
+
+                                    Agregirani pregled rada,
+                                    kašnjenja, overtime-a i odsustava.
+
+                                </div>
+
+                                <div class="mt-auto">
+
+                                    <a
+                                        href="<?= url('modules/attendance/reports/weekly.php') ?>"
+                                        class="btn btn-success w-100"
+                                    >
+
+                                        Otvori izveštaj
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="card border-0 shadow-sm h-100">
+
+                            <div class="card-body d-flex flex-column">
+
+                                <div class="mb-3">
+
+                                    <div class="fs-1 text-warning">
+
+                                        <i class="bi bi-calendar-month"></i>
+
+                                    </div>
+
+                                </div>
+
+                                <h5 class="mb-2">
+
+                                    Mesečni izveštaj
+
+                                </h5>
+
+                                <div class="text-muted mb-4">
+
+                                    KPI pregled attendance podataka
+                                    i statistike po mesecu.
+
+                                </div>
+
+                                <div class="mt-auto">
+
+                                    <a
+                                        href="<?= url('modules/attendance/reports/monthly.php') ?>"
+                                        class="btn btn-warning w-100"
+                                    >
+
+                                        Otvori izveštaj
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -495,7 +722,7 @@ $earlyLeaveEmployees = $conn->query("
 
             </h5>
 
-            <table class="table table-hover align-middle">
+            <table class="table table-sm table-hover align-middle">
 
                 <thead>
 

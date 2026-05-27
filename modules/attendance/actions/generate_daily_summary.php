@@ -2,6 +2,8 @@
 
 require_once '../../../config/init.php';
 
+require_once '../../helpers/attendance.php';
+
 $date = date('Y-m-d');
 
 $employees = $conn->query("
@@ -331,4 +333,11 @@ while ($employee = $employees->fetch_assoc()) {
     $stmt->execute();
 }
 
-echo "Daily summary uspešno generisan.";
+$_SESSION['success'] =
+    'Attendance summary uspešno generisan.';
+
+header(
+    'Location: ../dashboard.php'
+);
+
+exit;
