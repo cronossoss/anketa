@@ -15,17 +15,15 @@ include "../../../layouts/admin_layout_start.php";
 
 ?>
 <style>
+    .table-sm td,
+    .table-sm th {
 
-.table-sm td,
-.table-sm th {
+        padding:
+            0.45rem 0.55rem;
 
-    padding:
-        0.45rem 0.55rem;
-
-    vertical-align:
-        middle;
-}
-
+        vertical-align:
+            middle;
+    }
 </style>
 <?php
 
@@ -108,13 +106,15 @@ $query = "
 
         ou.code AS organizational_unit,
 
-        COUNT(
-            CASE
-                WHEN ads.presence_status
-                IN ('present', 'late')
-                THEN 1
-            END
-        ) AS work_days,
+        ROUND(
+
+            SUM(
+                ads.regular_minutes
+            ) / 60,
+
+            1
+
+        ) AS regular_work_hours,
 
         SUM(
             ads.late_minutes
@@ -124,13 +124,78 @@ $query = "
             ads.overtime_minutes
         ) AS total_overtime_minutes,
 
-        SUM(
-            ads.justified_early_leave_minutes
-        ) AS justified_early_leave_minutes,
+        ROUND(
+
+            SUM(
+
+                CASE
+
+                    WHEN ads.reason_type
+                    IN (15, 69, 47)
+
+                    THEN ads.paid_leave_minutes
+
+                    ELSE 0
+
+                END
+
+            ) / 60,
+
+            1
+
+        ) AS justified_leave_hours,
 
         SUM(
             ads.unjustified_early_leave_minutes
         ) AS unjustified_early_leave_minutes,
+
+        SUM(
+            ads.meal_allowance
+        ) AS meal_days,
+
+        SUM(
+            ads.transport_allowance
+        ) AS transport_days,
+
+        ROUND(
+
+            SUM(
+
+                CASE
+
+                    WHEN ads.reason_type = 9
+
+                    THEN ads.paid_leave_minutes
+
+                    ELSE 0
+
+                END
+
+            ) / 60,
+
+            1
+
+        ) AS vacation_hours,
+
+        ROUND(
+
+            SUM(
+
+                CASE
+
+                    WHEN ads.reason_type = 13
+
+                    THEN ads.unpaid_leave_minutes
+
+                    ELSE 0
+
+                END
+
+            ) / 60,
+
+            1
+
+        ) AS sick_leave_hours,
 
         ROUND(
             SUM(
@@ -180,7 +245,7 @@ $totalOvertime = 0;
 
 $totalAbsences = 0;
 
-$totalWorkedDays = 0;
+$totalWorkedHours = 0;
 
 $data = [];
 
@@ -199,15 +264,15 @@ while ($row = $result->fetch_assoc()) {
     $totalAbsences +=
         $row['unpaid_leave_hours'];
 
-    $totalWorkedDays +=
-        $row['work_days'];
+    $totalWorkedHours +=
+        $row['regular_work_hours'];
 }
 
 //
 // PROCENAT PRISUSTVA
 //
 
-$workingDaysInMonth = 22;
+/* $workingDaysInMonth = 22;
 
 $attendancePercent =
     $totalEmployees > 0
@@ -221,7 +286,7 @@ $attendancePercent =
             )
         ) * 100
     )
-    : 0;
+    : 0; */
 
 ?>
 
@@ -272,8 +337,7 @@ $attendancePercent =
                             type="month"
                             name="month"
                             class="form-control"
-                            value="<?= $month ?>"
-                        >
+                            value="<?= $month ?>">
 
                     </div>
 
@@ -287,8 +351,7 @@ $attendancePercent =
 
                         <select
                             name="organizational_unit"
-                            class="form-select"
-                        >
+                            class="form-select">
 
                             <option value="">
 
@@ -302,13 +365,12 @@ $attendancePercent =
                                     value="<?= $ou['id'] ?>"
                                     <?= $organizationalUnit == $ou['id']
                                         ? 'selected'
-                                        : '' ?>
-                                >
+                                        : '' ?>>
 
                                     <?= htmlspecialchars(
                                         $ou['code']
-                                        . ' - '
-                                        . $ou['name']
+                                            . ' - '
+                                            . $ou['name']
                                     ) ?>
 
                                 </option>
@@ -323,8 +385,7 @@ $attendancePercent =
 
                         <button
                             type="submit"
-                            class="btn btn-primary w-100"
-                        >
+                            class="btn btn-primary w-100">
 
                             <i class="bi bi-search me-1"></i>
 
@@ -354,13 +415,16 @@ $attendancePercent =
 
                     <div class="text-muted">
 
-                        Prisustvo
+                        Regularan rad
 
                     </div>
 
                     <div class="fs-2 fw-bold text-success">
 
-                        <?= $attendancePercent ?>%
+                        <?= round(
+                            $totalWorkedHours,
+                            1
+                        ) ?>h
 
                     </div>
 
@@ -465,12 +529,16 @@ $attendancePercent =
 
                         <tr>
 
-                            <th>Zaposleni</th>
+                            <th>(OJ) Zaposleni</th>
                             <th>Rad</th>
                             <th>Kašnjenje</th>
-                            <th>OT</th>
-                            <th>Opravdan izlaz</th>
-                            <th>Neopravdan</th>
+                            <th>Prekovremeni<br>rad</th>
+                            <th>Topli obrok</th>
+                            <th>Prevoz</th>
+                            <th>Opravdano</th>
+                            <th>GO</th>
+                            <th>Bolovanje</th>
+                            <th>Neopravdano</th>
                             <th>Plaćeno</th>
                             <th>Neplaćeno</th>
 
@@ -489,13 +557,13 @@ $attendancePercent =
                                     <strong>
 
                                         (<?= htmlspecialchars(
-                                            $row['organizational_unit']
-                                        ) ?>)
+                                                $row['organizational_unit']
+                                            ) ?>)
 
                                         <?= htmlspecialchars(
                                             $row['last_name']
-                                            . ' '
-                                            . $row['first_name']
+                                                . ' '
+                                                . $row['first_name']
                                         ) ?>
 
                                     </strong>
@@ -504,7 +572,7 @@ $attendancePercent =
 
                                 <td>
 
-                                    <?= $row['work_days'] ?>
+                                    <?= $row['regular_work_hours'] ?? 0 ?>h
 
                                 </td>
 
@@ -525,10 +593,38 @@ $attendancePercent =
 
                                 <td>
 
+                                    <?= $row['meal_days'] ?? 0 ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?= $row['transport_days'] ?? 0 ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?= $row['justified_leave_hours'] ?? 0 ?>h
+
+                                </td>
+
+                                <td>
+
+                                    <?= $row['vacation_hours'] ?? 0 ?>h
+
+                                </td>
+
+                                <td>
+
+                                    <?= $row['sick_leave_hours'] ?? 0 ?>h
+
+                                </td>
+
+                                <td>
+
                                     <?= round(
-                                        $row[
-                                            'justified_early_leave_minutes'
-                                        ] / 60,
+                                        $row['unjustified_early_leave_minutes'] / 60,
                                         1
                                     ) ?>h
 
@@ -536,24 +632,18 @@ $attendancePercent =
 
                                 <td>
 
-                                    <?= round(
-                                        $row[
-                                            'unjustified_early_leave_minutes'
-                                        ] / 60,
+                                    <?= number_format(
+                                        $row['paid_leave_hours'] ?? 0,
                                         1
                                     ) ?>h
-
                                 </td>
 
                                 <td>
 
-                                    <?= $row['paid_leave_hours'] ?>
-
-                                </td>
-
-                                <td>
-
-                                    <?= $row['unpaid_leave_hours'] ?>h
+                                    <?= number_format(
+                                        $row['unpaid_leave_hours'] ?? 0,
+                                        1
+                                    ) ?>h
 
                                 </td>
 

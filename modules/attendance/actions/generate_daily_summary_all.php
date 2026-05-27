@@ -46,11 +46,11 @@ for ($day = 0; $day < 30; $day++) {
 
     foreach ($employeeIds as $employeeId) {
 
-    //
-    // SMENA
-    //
+        //
+        // SMENA
+        //
 
-    $shiftQuery = $conn->prepare("
+        $shiftQuery = $conn->prepare("
 
         SELECT
 
@@ -79,27 +79,27 @@ for ($day = 0; $day < 30; $day++) {
 
     ");
 
-    $shiftQuery->bind_param(
-        'is',
-        $employeeId,
-        $date
-    );
+        $shiftQuery->bind_param(
+            'is',
+            $employeeId,
+            $date
+        );
 
-    $shiftQuery->execute();
+        $shiftQuery->execute();
 
-    $shift =
-        $shiftQuery
+        $shift =
+            $shiftQuery
             ->get_result()
             ->fetch_assoc();
 
-    //
-    // AKO NEMA SMENE
-    //
+        //
+        // AKO NEMA SMENE
+        //
 
-    if (!$shift) {
+        if (!$shift) {
 
-        continue;
-    }
+            continue;
+        }
 
         //
         // PRVI IN
@@ -133,8 +133,8 @@ for ($day = 0; $day < 30; $day++) {
 
         $firstInResult =
             $firstInQuery
-                ->get_result()
-                ->fetch_assoc();
+            ->get_result()
+            ->fetch_assoc();
 
         //
         // POSLEDNJI OUT
@@ -168,8 +168,8 @@ for ($day = 0; $day < 30; $day++) {
 
         $lastOutResult =
             $lastOutQuery
-                ->get_result()
-                ->fetch_assoc();
+            ->get_result()
+            ->fetch_assoc();
 
         $firstIn =
             $firstInResult['access_datetime']
@@ -193,6 +193,10 @@ for ($day = 0; $day < 30; $day++) {
                 aat.name,
                 aat.code,
 
+                aat.category,
+
+                aat.id AS absence_type_id,
+
                 aat.is_paid
 
             FROM attendance_absences aa
@@ -205,10 +209,12 @@ for ($day = 0; $day < 30; $day++) {
             AND DATE(aa.date_from) <= ?
             AND DATE(aa.date_to) >= ?
 
+            AND aa.status = 'approved'
+
             LIMIT 1
 
         ");
-     
+
         $absenceQuery->bind_param(
             'iss',
             $employeeId,
@@ -220,8 +226,8 @@ for ($day = 0; $day < 30; $day++) {
 
         $absence =
             $absenceQuery
-                ->get_result()
-                ->fetch_assoc();
+            ->get_result()
+            ->fetch_assoc();
 
         $isJustified = 1;
 
@@ -233,11 +239,38 @@ for ($day = 0; $day < 30; $day++) {
 
             if ($absence['is_paid']) {
 
-                $paidLeaveMinutes = 480;
+                $paidLeaveMinutes = min(
 
+                    round(
+
+                        (
+                            strtotime($absence['date_to'])
+                            -
+                            strtotime($absence['date_from'])
+                        ) / 60
+
+                    ),
+
+                    480
+
+                );
             } else {
 
-                $unpaidLeaveMinutes = 480;
+                $unpaidLeaveMinutes = min(
+
+                    round(
+
+                        (
+                            strtotime($absence['date_to'])
+                            -
+                            strtotime($absence['date_from'])
+                        ) / 60
+
+                    ),
+
+                    480
+
+                );
             }
         }
 
@@ -265,6 +298,14 @@ for ($day = 0; $day < 30; $day++) {
 
             $reasonType =
                 $absence['code'];
+
+            $absenceTypeId =
+                $absence['absence_type_id']
+                ?? null;
+
+            $absenceCategory =
+                $absence['category']
+                ?? null;
 
             $isJustified = 1;
         }
@@ -294,13 +335,13 @@ for ($day = 0; $day < 30; $day++) {
         $expectedStart =
             strtotime(
                 $date . ' ' .
-                $shift['start_time']
+                    $shift['start_time']
             );
 
         $expectedEnd =
             strtotime(
                 $date . ' ' .
-                $shift['end_time']
+                    $shift['end_time']
             );
 
         //
@@ -396,13 +437,11 @@ for ($day = 0; $day < 30; $day++) {
                     $expectedStart
                     +
                     (
-                        $shift[
-                            'allowed_late_minutes'
-                        ] * 60
+                        $shift['allowed_late_minutes'] * 60
                     )
                 )
 
-            ){
+            ) {
 
                 $lateMinutes = round(
 
@@ -441,9 +480,7 @@ for ($day = 0; $day < 30; $day++) {
                     $expectedEnd
                     -
                     (
-                        $shift[
-                            'allowed_early_leave_minutes'
-                        ] * 60
+                        $shift['allowed_early_leave_minutes'] * 60
                     )
                 )
 
@@ -467,7 +504,6 @@ for ($day = 0; $day < 30; $day++) {
 
                     $justifiedEarlyLeaveMinutes =
                         $earlyLeaveMinutes;
-
                 } else {
 
                     $unjustifiedEarlyLeaveMinutes =
@@ -488,11 +524,9 @@ for ($day = 0; $day < 30; $day++) {
 
         $weekendMinutes = 0;
 
-        $paidLeaveMinutes = 0;
-
-        $unpaidLeaveMinutes = 0;
-
         $mealAllowance = 0;
+
+        $transportAllowance = 0;
 
 
         if ($lastOut) {
@@ -533,9 +567,9 @@ for ($day = 0; $day < 30; $day++) {
                     ) / 60
                 )
 
-                -
+                    -
 
-                $shift['break_minutes']
+                    $shift['break_minutes']
             );
         }
 
@@ -616,6 +650,7 @@ for ($day = 0; $day < 30; $day++) {
 
                 reason_label,
                 reason_type,
+                absence_type_id,
                 is_justified
 
             )
@@ -633,7 +668,7 @@ for ($day = 0; $day < 30; $day++) {
                 ?, ?,
 
 
-                ?, ?, ?, ?
+                ?, ?, ?, ?, ?
 
             )
 
@@ -641,7 +676,7 @@ for ($day = 0; $day < 30; $day++) {
 
         $stmt->bind_param(
 
-            'isssiiiiiiiiiiiiisssi',
+            'isssiiiiiiiiiiiiisssii',
 
             $employeeId,
             $date,
@@ -672,6 +707,7 @@ for ($day = 0; $day < 30; $day++) {
 
             $reasonLabel,
             $reasonType,
+            $absenceTypeId,
             $isJustified
 
         );
