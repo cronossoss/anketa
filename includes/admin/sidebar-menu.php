@@ -54,6 +54,20 @@ $menu = [
             ],
 
             [
+                'title' => 'Izlaznice',
+                'url' => url('modules/attendance/exit_passes/index.php'),
+                'page'  => 'Izlaznice',
+                'icon' => 'bi bi-door-open'
+            ],
+
+            [
+                'title' => 'Moja odsustva',
+                'url' => url('modules/attendance/employee_exit_passes/index.php'),
+                'page'  => 'Moje izlaznice',
+                'icon' => 'bi bi-door-open'
+            ],
+
+            [
                 'title' => 'Odsustva',
                 'url'   => url('modules/attendance/absences/index.php'),
                 'page'  => 'attendance-absences'
@@ -163,11 +177,6 @@ $menu = [
 
 ];
 ?>
-
-
-
-
-
 
 <ul class="nav flex-column">
 

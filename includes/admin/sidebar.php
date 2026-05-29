@@ -25,6 +25,10 @@ function isActive($identifier): string
         'attendance.php' =>
         app_path('modules/attendance/schedules/index.php'),
 
+        'index.php' =>
+        app_path('modules/attendance/exit_passes/index.php'),
+
+
         'users.php' =>
         app_path('admin/users.php'),
 

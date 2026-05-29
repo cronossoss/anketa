@@ -2,57 +2,92 @@
 
 require_once '../../../config/init.php';
 
-$currentPage = 'attendance-absences';
+require_login();
 
-$pageTitle = "Odsustva";
+$pageTitle = 'Administracija odsustava';
 
 include "../../../layouts/admin_layout_start.php";
 
-$absences = $conn->query("
+$month =
+    $_GET['month']
+    ?? date('Y-m');
+
+$status =
+    $_GET['status']
+    ?? '';
+
+$type =
+    $_GET['type']
+    ?? '';
+
+$where = "1=1";
+
+if ($status) {
+
+    $where .= "
+        AND aa.status = '"
+        . $conn->real_escape_string($status)
+        . "'";
+}
+
+if ($type) {
+
+    $where .= "
+        AND aa.absence_type_id = "
+        . (int)$type;
+}
+
+$result = $conn->query("
 
     SELECT
 
-        aa.*,
+        aa.id,
 
-        CONCAT(
-            e.personal_id,
-            ' - ',
-            e.last_name,
-            ' ',
-            e.first_name
-        ) AS employee_name,
+        aa.date_from,
+        aa.date_to,
 
-        aat.name AS absence_type_name
+        aa.status,
+
+        aa.source,
+
+        aa.note,
+
+        e.first_name,
+        e.last_name,
+
+        ou.code AS organizational_unit,
+
+        aat.name AS absence_type
 
     FROM attendance_absences aa
 
     JOIN employees e
         ON e.id = aa.employee_id
 
+    LEFT JOIN organizational_units ou
+        ON ou.id = e.organizational_unit_id
+
     JOIN attendance_absence_types aat
         ON aat.id = aa.absence_type_id
+
+    WHERE $where
 
     ORDER BY aa.date_from DESC
 
 ");
 
-$employees = $conn->query("
+$types = $conn->query("
+
     SELECT
+
         id,
-        personal_id,
-        first_name,
-        last_name
-    FROM employees
-    ORDER BY last_name ASC
-");
+        name
 
-$absenceTypes = $conn->query("
-    SELECT *
     FROM attendance_absence_types
-    WHERE active = 1
-    ORDER BY name ASC
-");
 
+    ORDER BY name ASC
+
+");
 ?>
 
 <div class="container-fluid">
@@ -62,26 +97,147 @@ $absenceTypes = $conn->query("
         <div>
 
             <h3 class="mb-1">
-                Odsustva
+
+                Administracija odsustava
+
             </h3>
 
             <div class="text-muted">
 
-                Evidencija odobrenih odsustava i izlaza
+                Pregled svih odsustava i izlaznica
 
             </div>
 
         </div>
 
-        <button
+        <a
+            href="create.php"
             class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#absenceModal"
         >
+
+            <i class="bi bi-plus-lg me-1"></i>
 
             Novo odsustvo
 
-        </button>
+        </a>
+
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form method="GET">
+
+                <div class="row g-3">
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+
+                            Status
+
+                        </label>
+
+                        <select
+                            name="status"
+                            class="form-select"
+                        >
+
+                            <option value="">
+
+                                Svi
+
+                            </option>
+
+                            <option
+                                value="pending"
+                                <?= $status == 'pending' ? 'selected' : '' ?>
+                            >
+
+                                Na čekanju
+
+                            </option>
+
+                            <option
+                                value="approved"
+                                <?= $status == 'approved' ? 'selected' : '' ?>
+                            >
+
+                                Odobreno
+
+                            </option>
+
+                            <option
+                                value="rejected"
+                                <?= $status == 'rejected' ? 'selected' : '' ?>
+                            >
+
+                                Odbijeno
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+
+                            Tip odsustva
+
+                        </label>
+
+                        <select
+                            name="type"
+                            class="form-select"
+                        >
+
+                            <option value="">
+
+                                Svi tipovi
+
+                            </option>
+
+                            <?php while ($t = $types->fetch_assoc()): ?>
+
+                                <option
+                                    value="<?= $t['id'] ?>"
+                                    <?= $type == $t['id']
+                                        ? 'selected'
+                                        : '' ?>
+                                >
+
+                                    <?= htmlspecialchars(
+                                        $t['name']
+                                    ) ?>
+
+                                </option>
+
+                            <?php endwhile; ?>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+
+                        <button
+                            class="btn btn-primary w-100"
+                        >
+
+                            Prikaži
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
 
     </div>
 
@@ -89,271 +245,177 @@ $absenceTypes = $conn->query("
 
         <div class="card-body">
 
-            <table class="table table-hover align-middle">
+            <div class="table-responsive">
 
-                <thead>
+                <table class="table table-sm table-hover align-middle">
 
-                    <tr>
-
-                        <th>Radnik</th>
-
-                        <th>Vrsta</th>
-
-                        <th>Od</th>
-
-                        <th>Do</th>
-
-                        <th>Napomena</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    <?php while ($row = $absences->fetch_assoc()): ?>
+                    <thead>
 
                         <tr>
 
-                            <td>
+                            <th>Zaposleni</th>
 
-                                <?= htmlspecialchars(
-                                    $row['employee_name']
-                                ) ?>
+                            <th>Tip</th>
 
-                            </td>
+                            <th>Period</th>
 
-                            <td>
+                            <th>Trajanje</th>
 
-                                <span class="badge bg-info text-dark">
+                            <th>Status</th>
 
-                                    <?= htmlspecialchars(
-                                        $row['absence_type_name']
-                                    ) ?>
+                            <th>Kreirao</th>
 
-                                </span>
-
-                            </td>
-
-                            <td>
-
-                                <?= $row['date_from'] ?>
-
-                            </td>
-
-                            <td>
-
-                                <?= $row['date_to'] ?>
-
-                            </td>
-
-                            <td>
-
-                                <?= htmlspecialchars(
-                                    $row['note'] ?? ''
-                                ) ?>
-
-                            </td>
+                            <th>Akcije</th>
 
                         </tr>
 
-                    <?php endwhile; ?>
+                    </thead>
 
-                </tbody>
+                    <tbody>
 
-            </table>
+                        <?php while ($row = $result->fetch_assoc()): ?>
 
-        </div>
+                            <?php
 
-    </div>
+                            $durationMinutes = round(
 
-</div>
+                                (
+                                    strtotime($row['date_to'])
+                                    -
+                                    strtotime($row['date_from'])
+                                ) / 60
 
-<!-- MODAL -->
+                            );
 
-<div
-    class="modal fade"
-    id="absenceModal"
-    tabindex="-1"
->
+                            ?>
 
-    <div class="modal-dialog">
+                            <tr>
 
-        <div class="modal-content">
+                                <td>
 
-            <form
-                method="POST"
-                action="../actions/create_absence.php"
-            >
+                                    <strong>
 
-                <div class="modal-header">
+                                        (<?= htmlspecialchars(
+                                            $row['organizational_unit']
+                                        ) ?>)
 
-                    <h5 class="modal-title">
+                                        <?= htmlspecialchars(
+                                            $row['last_name']
+                                            . ' ' .
+                                            $row['first_name']
+                                        ) ?>
 
-                        Novo odsustvo
+                                    </strong>
 
-                    </h5>
+                                </td>
 
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                    ></button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Radnik
-
-                        </label>
-
-                        <select
-                            name="employee_id"
-                            class="form-select"
-                            required
-                        >
-
-                            <option value="">
-                                Izaberi
-                            </option>
-
-                            <?php while ($employee = $employees->fetch_assoc()): ?>
-
-                                <option value="<?= $employee['id'] ?>">
+                                <td>
 
                                     <?= htmlspecialchars(
-
-                                        $employee['personal_id']
-                                        . ' - '
-                                        . $employee['last_name']
-                                        . ' '
-                                        . $employee['first_name']
-
+                                        $row['absence_type']
                                     ) ?>
 
-                                </option>
+                                </td>
 
-                            <?php endwhile; ?>
+                                <td>
 
-                        </select>
+                                    <?= date(
+                                        'd.m.Y H:i',
+                                        strtotime(
+                                            $row['date_from']
+                                        )
+                                    ) ?>
 
-                    </div>
+                                    <br>
 
-                    <div class="mb-3">
+                                    <small class="text-muted">
 
-                        <label class="form-label">
+                                        do
 
-                            Vrsta odsustva
+                                        <?= date(
+                                            'd.m.Y H:i',
+                                            strtotime(
+                                                $row['date_to']
+                                            )
+                                        ) ?>
 
-                        </label>
+                                    </small>
 
-                        <select
-                            name="absence_type_id"
-                            class="form-select"
-                            required
-                        >
+                                </td>
 
-                            <option value="">
-                                Izaberi
-                            </option>
+                                <td>
 
-                            <?php while ($type = $absenceTypes->fetch_assoc()): ?>
+                                    <?= round(
+                                        $durationMinutes / 60,
+                                        1
+                                    ) ?>h
 
-                                <option value="<?= $type['id'] ?>">
+                                </td>
+
+                                <td>
+
+                                    <?php if ($row['status'] == 'approved'): ?>
+
+                                        <span class="badge bg-success">
+
+                                            Odobreno
+
+                                        </span>
+
+                                    <?php elseif ($row['status'] == 'rejected'): ?>
+
+                                        <span class="badge bg-danger">
+
+                                            Odbijeno
+
+                                        </span>
+
+                                    <?php else: ?>
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            Na čekanju
+
+                                        </span>
+
+                                    <?php endif; ?>
+
+                                </td>
+
+                                <td>
 
                                     <?= htmlspecialchars(
-                                        $type['name']
+                                        $row['source']
                                     ) ?>
 
-                                </option>
+                                </td>
 
-                            <?php endwhile; ?>
+                                <td>
 
-                        </select>
+                                    <div class="btn-group btn-group-sm">
 
-                    </div>
+                                        <a
+                                            href="edit.php?id=<?= $row['id'] ?>"
+                                            class="btn btn-outline-primary"
+                                        >
 
-                    <div class="mb-3">
+                                            <i class="bi bi-pencil"></i>
 
-                        <label class="form-label">
+                                        </a>
 
-                            Od
+                                    </div>
 
-                        </label>
+                                </td>
 
-                        <input
-                            type="datetime-local"
-                            name="date_from"
-                            class="form-control"
-                            required
-                        >
+                            </tr>
 
-                    </div>
+                        <?php endwhile; ?>
 
-                    <div class="mb-3">
+                    </tbody>
 
-                        <label class="form-label">
+                </table>
 
-                            Do
-
-                        </label>
-
-                        <input
-                            type="datetime-local"
-                            name="date_to"
-                            class="form-control"
-                            required
-                        >
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Napomena
-
-                        </label>
-
-                        <textarea
-                            name="note"
-                            class="form-control"
-                            rows="3"
-                        ></textarea>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button
-                        type="button"
-                        class="btn btn-light"
-                        data-bs-dismiss="modal"
-                    >
-
-                        Otkaži
-
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-
-                        Sačuvaj
-
-                    </button>
-
-                </div>
-
-            </form>
+            </div>
 
         </div>
 
