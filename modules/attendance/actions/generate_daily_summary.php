@@ -2,9 +2,19 @@
 
 require_once '../../../config/init.php';
 
-require_once '../../helpers/attendance.php';
+require_once '../../../helpers/attendance.php';
 
-$date = date('Y-m-d');
+$date = $_GET['date']
+    ?? date('Y-m-d');
+
+if (
+    !preg_match(
+        '/^\d{4}-\d{2}-\d{2}$/',
+        $date
+    )
+) {
+    die('Neispravan datum.');
+}
 
 $employees = $conn->query("
     SELECT 
@@ -120,6 +130,43 @@ while ($employee = $employees->fetch_assoc()) {
         $absenceQuery
         ->get_result()
         ->fetch_assoc();
+    
+    
+$exitPassQuery = $conn->prepare("
+
+    SELECT
+
+        date_from,
+        date_to
+
+    FROM attendance_exit_passes
+
+    WHERE employee_id = ?
+
+    AND status = 'approved'
+
+    AND DATE(date_from) = ?
+
+");
+
+$exitPassQuery->bind_param(
+    'is',
+    $employeeId,
+    $date
+);
+
+$exitPassQuery->execute();
+
+$exitPassResult =
+    $exitPassQuery
+        ->get_result();
+
+$exitPasses = [];
+
+while ($row = $exitPassResult->fetch_assoc()) {
+
+    $exitPasses[] = $row;
+}
 
     //
     // CELODNEVNO ODSUSTVO
@@ -207,16 +254,71 @@ while ($employee = $employees->fetch_assoc()) {
         }
     }
 
-    if ($firstIn && $lastOut) {
+    $workedMinutes = 0;
 
-        $workedMinutes =
-            round(
-                (
-                    strtotime($lastOut)
-                    - strtotime($firstIn)
-                ) / 60
+$logsQuery = $conn->prepare("
+
+    SELECT
+
+        access_datetime,
+        direction
+
+    FROM attendance_logs
+
+    WHERE employee_id = ?
+
+    AND DATE(access_datetime) = ?
+
+    ORDER BY access_datetime ASC
+
+");
+
+$logsQuery->bind_param(
+    'is',
+    $employeeId,
+    $date
+);
+
+$logsQuery->execute();
+
+$logs =
+    $logsQuery
+        ->get_result();
+
+$lastIn = null;
+
+while ($log = $logs->fetch_assoc()) {
+
+    if ($log['direction'] === 'IN') {
+
+        $lastIn =
+            strtotime(
+                $log['access_datetime']
             );
+
+    } elseif (
+
+        $log['direction'] === 'OUT'
+        &&
+        $lastIn
+
+    ) {
+
+        $workedMinutes += round(
+
+            (
+                strtotime(
+                    $log['access_datetime']
+                )
+                -
+                $lastIn
+            ) / 60
+
+        );
+
+        $lastIn = null;
     }
+}
 
     //
     // RANIJI IZLAZ
@@ -274,12 +376,91 @@ while ($employee = $employees->fetch_assoc()) {
         // RANIJI IZLAZ
         //
 
+        foreach ($exitPasses as $exitPass) {
+
+    $passFrom =
+        strtotime($exitPass['date_from']);
+
+    $passTo =
+        strtotime($exitPass['date_to']);
+
+    if (
+
+        $passFrom <= $expectedEnd
+
+        &&
+
+        $passTo >= $expectedEnd
+
+    ) {
+
+        $expectedEnd =
+            $passFrom;
+
+        $reasonLabel =
+            'Odobrena izlaznica';
+
+        $reasonType =
+            'EXIT_PASS';
+
+        $isJustified = 1;
+    }
+}
+
+if ($reasonType === 'EXIT_PASS') {
+
+    $presenceStatus =
+        'approved_exit';
+}
+
+
         if ($actualEnd < $expectedEnd) {
 
-            $earlyLeaveMinutes = round(
-                ($expectedEnd - $actualEnd) / 60
+    $justifiedExit = false;
+
+    foreach ($exitPasses as $exitPass) {
+
+        $passFrom =
+            strtotime(
+                $exitPass['date_from']
             );
+
+        $passTo =
+            strtotime(
+                $exitPass['date_to']
+            );
+
+        if (
+
+            $passFrom <= $expectedEnd
+
+            &&
+
+            $passTo >= $expectedEnd
+
+        ) {
+
+            $justifiedExit = true;
+
+            $reasonLabel =
+    'Odobrena izlaznica';
+
+$reasonType =
+    'EXIT_PASS';
+
+$isJustified = 1;
+
+
         }
+    }
+
+    if (!$justifiedExit) {
+
+        $earlyLeaveMinutes = round(
+            ($expectedEnd - $actualEnd) / 60
+        );
+    }
+}
     }
 
     // INSERT / UPDATE
@@ -316,7 +497,7 @@ while ($employee = $employees->fetch_assoc()) {
     ");
 
     $stmt->bind_param(
-        'isssiiissss',
+        'isssiiissis',
         $employeeId,
         $date,
         $firstIn,

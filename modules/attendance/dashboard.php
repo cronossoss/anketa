@@ -38,7 +38,17 @@ $presentToday = $conn->query("
     FROM attendance_daily_summary
 
     WHERE work_date = '$date'
-    AND presence_status = 'present'
+    AND presence_status IN (
+
+    'present',
+
+    'approved_exit',
+
+    'business_trip',
+
+    'remote_work'
+
+)
 ")->fetch_assoc()['total'];
 
 //
@@ -146,6 +156,69 @@ $earlyLeaveEmployees = $conn->query("
     ORDER BY ads.early_leave_minutes DESC
 
 ");
+
+//
+// OPRAVDANI IZLAZI
+//
+
+$approvedExitToday = $conn->query("
+
+    SELECT COUNT(*) AS total
+
+    FROM attendance_daily_summary
+
+    WHERE work_date = '$date'
+
+    AND presence_status = 'approved_exit'
+
+")->fetch_assoc()['total'];
+
+//
+// ČEKA ODOBRENJE
+//
+
+$pendingAbsences = $conn->query("
+
+    SELECT COUNT(*) AS total
+
+    FROM attendance_absences
+
+    WHERE status = 'pending'
+
+")->fetch_assoc()['total'];
+
+$pendingExits = $conn->query("
+
+    SELECT COUNT(*) AS total
+
+    FROM attendance_exit_passes
+
+    WHERE status = 'pending'
+
+")->fetch_assoc()['total'];
+
+$pendingRequests =
+    $pendingAbsences
+    +
+    $pendingExits;
+
+//
+// TRENUTNO NA IZLAZNICI
+//
+
+$onExitPass = $conn->query("
+
+    SELECT COUNT(*) AS total
+
+    FROM attendance_exit_passes
+
+    WHERE status = 'approved'
+
+    AND NOW()
+        BETWEEN date_from
+        AND date_to
+
+")->fetch_assoc()['total'];
 
 ?>
 
@@ -549,6 +622,73 @@ $earlyLeaveEmployees = $conn->query("
 
                     <h2>
                         <?= $avgWorkedHours ?> h
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="text-muted mb-2">
+                        Opravdani izlazi
+                    </div>
+
+                    <h2 class="text-info">
+
+                        <?= $approvedExitToday ?>
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="text-muted mb-2">
+                        Čeka odobrenje
+                    </div>
+
+                    <h2 class="text-warning">
+
+                        <?= $pendingRequests ?>
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="text-muted mb-2">
+                        Na izlaznici sada
+                    </div>
+
+                    <h2 class="text-primary">
+
+                        <?= $onExitPass ?>
+
                     </h2>
 
                 </div>

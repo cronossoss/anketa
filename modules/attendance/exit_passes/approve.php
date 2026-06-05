@@ -3,6 +3,11 @@
 require_once '../../../config/init.php';
 
 require_login();
+require_role([
+    'admin',
+    'hr',
+    'manager'
+]);
 
 $id =
     (int)($_GET['id'] ?? 0);
@@ -16,9 +21,46 @@ if (!$id) {
     exit;
 }
 
+
+
 $userId =
     $_SESSION['user_id']
     ?? null;
+
+    $stmt = $conn->prepare("
+    SELECT
+        id,
+        status
+    FROM attendance_exit_passes
+    WHERE id = ?
+    LIMIT 1
+");
+
+$stmt->bind_param('i', $id);
+$stmt->execute();
+
+$pass =
+    $stmt
+        ->get_result()
+        ->fetch_assoc();
+
+if (!$pass) {
+
+    $_SESSION['error'] =
+        'Izlaznica nije pronađena.';
+
+    header('Location: index.php');
+    exit;
+}
+
+if ($pass['status'] !== 'pending') {
+
+    $_SESSION['error'] =
+        'Izlaznica je već obrađena.';
+
+    header('Location: index.php');
+    exit;
+}
 
 $stmt = $conn->prepare("
 
@@ -49,6 +91,13 @@ $stmt->execute();
 
 $_SESSION['success'] =
     'Izlaznica odobrena.';
+
+audit_log(
+    'attendance_exit_passes',
+    'approve',
+    $id,
+    'Odobrena izlaznica'
+);
 
 header(
     'Location: index.php'
