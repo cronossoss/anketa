@@ -113,6 +113,8 @@ function initEditButtons() {
 
             document.getElementById('org_description').value = btn.dataset.description;
 
+            document.getElementById('org_manager_employee_id').value = btn.dataset.manager_employee_id || '';
+
             const modal = new bootstrap.Modal(document.getElementById('organizationModal'));
 
             modal.show();

@@ -31,6 +31,11 @@ $description =
 $od_code =
     trim($_POST['od_code']);
 
+$managerEmployeeId =
+    !empty($_POST['manager_employee_id'])
+    ? (int)$_POST['manager_employee_id']
+    : null;
+
 $stmt = $conn->prepare("
     UPDATE organizational_units
         SET
@@ -38,19 +43,20 @@ $stmt = $conn->prepare("
             code = ?,
             od_code = ?,
             name = ?,
-            description = ?
+            description = ?,
+            manager_employee_id = ?
         WHERE id = ?
 ");
 
 $stmt->bind_param(
-    "sssssi",
+    "sssssii",
     $type,
     $code,
     $od_code,
     $name,
     $description,
-    $id,
-
+    $managerEmployeeId,
+    $id
 );
 
 $stmt->execute();

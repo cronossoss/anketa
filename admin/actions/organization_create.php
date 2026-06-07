@@ -28,33 +28,42 @@ $description =
 $od_code =
     trim($_POST['od_code']);
 
+$managerEmployeeId =
+    !empty($_POST['manager_employee_id'])
+    ? (int)$_POST['manager_employee_id']
+    : null;
+
 
 /* =========================
    INSERT UNIT
 ========================= */
 
 $stmt = $conn->prepare("
-    INSERT INTO organizational_units
-        (
-            type,
-            code,
-            od_code,
-            name,
-            description
-        )
+    INSERT INTO organizational_units (
+
+    type,
+    code,
+    od_code,
+    name,
+    description,
+    manager_employee_id
+
+)
         VALUES
-        (?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?)
 ");
 
 $stmt->bind_param(
-    "sssss",
+    "sssssi",
     $type,
     $code,
     $od_code,
     $name,
-    $description
-
+    $description,
+    $manager_employee_id
 );
+
+
 
 $stmt->execute();
 

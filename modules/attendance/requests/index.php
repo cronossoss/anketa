@@ -1,111 +1,184 @@
 <?php
 
 require_once '../../../config/init.php';
-
-require_once
-    '../../../helpers/attendance_balances.php';
+require_once '../../../helpers/format.php';
 
 require_login();
 
-$pageTitle =
-    'Zahtevi za odsustvo';
+$pageTitle = 'Moji zahtevi';
 
-include "../../../layouts/admin_layout_start.php";
+$currentPage = 'attendance-requests';
+
+include "../../../layouts/layout_start.php";
+
+$userId = $_SESSION['user_id'];
+
+$stmt = $conn->prepare("
+    SELECT employee_id
+    FROM users
+    WHERE id = ?
+    LIMIT 1
+");
+
+$stmt->bind_param('i', $userId);
+$stmt->execute();
+
+$user = $stmt
+    ->get_result()
+    ->fetch_assoc();
+
+$employeeId = (int)$user['employee_id'];
+
+$requests = [];
 
 $result = $conn->query("
 
     SELECT
 
         aa.id,
-        aa.employee_id,
-        aa.absence_type_id,
+        aa.created_at,
+
+        'absence' AS request_type,
+
+        aat.name AS request_name,
 
         aa.date_from,
         aa.date_to,
 
-        aa.note,
-
         aa.status,
-
-        e.first_name,
-        e.last_name,
-
-        ou.code AS organizational_unit,
-
-        aat.name AS absence_type
+        aa.rejection_reason
 
     FROM attendance_absences aa
-
-    JOIN employees e
-        ON e.id = aa.employee_id
-
-    LEFT JOIN organizational_units ou
-        ON ou.id = e.organizational_unit_id
 
     JOIN attendance_absence_types aat
         ON aat.id = aa.absence_type_id
 
-    WHERE aa.status = 'pending'
-
-    ORDER BY aa.created_at DESC
+    WHERE aa.employee_id = {$employeeId}
 
 ");
+
+while ($row = $result->fetch_assoc()) {
+
+    $requests[] = $row;
+}
+
+$result = $conn->query("
+
+    SELECT
+
+        ep.id,
+        ep.created_at,
+
+        'exit' AS request_type,
+
+        et.name AS request_name,
+
+        ep.date_from,
+        ep.date_to,
+
+        ep.status,
+        ep.rejection_reason
+
+    FROM attendance_exit_passes ep
+
+    JOIN attendance_exit_types et
+        ON et.id = ep.exit_type_id
+
+    WHERE ep.employee_id = {$employeeId}
+
+");
+
+while ($row = $result->fetch_assoc()) {
+
+    $requests[] = $row;
+}
+
+usort(
+    $requests,
+    function ($a, $b) {
+
+        return strtotime($b['created_at'])
+            <=> strtotime($a['created_at']);
+    }
+);
 
 ?>
 
 <div class="container-fluid">
 
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h3 class="mb-1">
+                Moji zahtevi
+            </h3>
+
+            <div class="text-muted">
+                Pregled svih zahteva
+            </div>
+
+        </div>
+
+        <a
+            href="create.php"
+            class="btn btn-primary">
+
+            <i class="bi bi-plus-lg me-1"></i>
+
+            Novi zahtev
+
+        </a>
+
+    </div>
+
+    <?php if (!empty($_SESSION['success'])): ?>
+
+        <div class="alert alert-success">
+
+            <?= htmlspecialchars($_SESSION['success']) ?>
+
+        </div>
+
+        <?php unset($_SESSION['success']); ?>
+
+    <?php endif; ?>
+
+    <?php if (!empty($_SESSION['error'])): ?>
+
+        <div class="alert alert-danger">
+
+            <?= htmlspecialchars($_SESSION['error']) ?>
+
+        </div>
+
+        <?php unset($_SESSION['error']); ?>
+
+    <?php endif; ?>
+
     <div class="card border-0 shadow-sm">
 
         <div class="card-body">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-
-                <div>
-
-                    <h4 class="mb-1">
-
-                        Zahtevi za odsustvo
-
-                    </h4>
-
-                    <div class="text-muted">
-
-                        Pending approval workflow
-
-                    </div>
-
-                </div>
-
-            </div>
-
             <div class="table-responsive">
 
-                <table class="table table-sm table-hover align-middle">
+                <table class="table table-hover align-middle">
 
                     <thead>
 
                         <tr>
 
-                            <th>Zaposleni</th>
+                            <th>Vrsta</th>
 
                             <th>Tip</th>
 
                             <th>Period</th>
 
-                            <th>Trajanje</th>
-
-                            <th>Preostalo</th>
-
-                            <th>Napomena</th>
-
                             <th>Status</th>
 
-                            <th class="text-end">
+                            <th>Razlog</th>
 
-                                Akcije
-
-                            </th>
+                            <th>Kreirano</th>
 
                         </tr>
 
@@ -113,139 +186,27 @@ $result = $conn->query("
 
                     <tbody>
 
-                        <?php while ($row = $result->fetch_assoc()): ?>
+                        <?php foreach ($requests as $row): ?>
 
                             <tr>
 
                                 <td>
 
-                                    <strong>
+                                    <?php if ($row['request_type'] === 'absence'): ?>
 
-                                        (<?= htmlspecialchars(
-                                                $row['organizational_unit']
-                                            ) ?>)
+                                        <span class="badge bg-primary">
 
-                                        <?= htmlspecialchars(
-                                            $row['last_name']
-                                                . ' ' .
-                                                $row['first_name']
-                                        ) ?>
-
-                                    </strong>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="badge bg-info text-dark">
-
-                                        <?= htmlspecialchars(
-                                            $row['absence_type']
-                                        ) ?>
-
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div>
-
-                                        <?= date(
-                                            'd.m.Y H:i',
-                                            strtotime(
-                                                $row['date_from']
-                                            )
-                                        ) ?>
-
-                                    </div>
-
-                                    <div class="text-muted small">
-
-                                        do
-
-                                        <?= date(
-                                            'd.m.Y H:i',
-                                            strtotime(
-                                                $row['date_to']
-                                            )
-                                        ) ?>
-
-                                    </div>
-
-                                </td>
-
-                                <?php
-
-                                $durationMinutes = round(
-
-                                    (
-                                        strtotime($row['date_to'])
-                                        -
-                                        strtotime($row['date_from'])
-                                    ) / 60
-
-                                );
-
-                                ?>
-
-                                <td>
-
-                                    <?php if ($durationMinutes >= 480): ?>
-
-                                        <?= round(
-                                            $durationMinutes / 480,
-                                            1
-                                        ) ?> dana
-
-                                    <?php else: ?>
-
-                                        <?= round(
-                                            $durationMinutes / 60,
-                                            1
-                                        ) ?>h
-
-                                    <?php endif; ?>
-
-                                </td>
-
-                                <?php
-
-                                $balance =
-
-                                    get_employee_absence_balance(
-
-                                        $conn,
-
-                                        $row['employee_id'],
-
-                                        $row['absence_type_id'],
-
-                                        $row['date_from']
-
-                                    );
-
-                                ?>
-
-                                <td>
-
-                                    <?php if (
-                                        $balance['monthly_remaining']
-                                        !== null
-                                    ): ?>
-
-                                        <span class="badge bg-light text-dark border">
-
-                                            <?= round(
-                                                $balance['monthly_remaining'] / 60,
-                                                1
-                                            ) ?>h
+                                            Odsustvo
 
                                         </span>
 
                                     <?php else: ?>
 
-                                        -
+                                        <span class="badge bg-info text-dark">
+
+                                            Izlaznica
+
+                                        </span>
 
                                     <?php endif; ?>
 
@@ -253,11 +214,29 @@ $result = $conn->query("
 
                                 <td>
 
-                                    <?= nl2br(
-                                        htmlspecialchars(
-                                            $row['note'] ?? ''
-                                        )
+                                    <?= htmlspecialchars(
+                                        $row['request_name']
                                     ) ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?= sr_datetime(
+                                        $row['date_from']
+                                    ) ?>
+
+                                    <br>
+
+                                    <small class="text-muted">
+
+                                        do
+
+                                        <?= sr_datetime(
+                                            $row['date_to']
+                                        ) ?>
+
+                                    </small>
 
                                 </td>
 
@@ -265,66 +244,70 @@ $result = $conn->query("
 
                                     <?php
 
-                                    $typeClass = 'bg-secondary';
+                                    $class = 'bg-secondary';
+                                    $label = $row['status'];
 
-                                    switch ((int)$row['absence_type_id']) {
+                                    if ($row['status'] === 'pending') {
+                                        $class = 'bg-warning text-dark';
+                                        $label = 'Na čekanju';
+                                    }
 
-                                        case 1:
-                                            $typeClass = 'bg-info';
-                                            break;
+                                    if ($row['status'] === 'approved') {
+                                        $class = 'bg-success';
+                                        $label = 'Odobreno';
+                                    }
 
-                                        case 2:
-                                            $typeClass = 'bg-primary';
-                                            break;
-
-                                        case 8:
-                                            $typeClass = 'bg-success';
-                                            break;
-
-                                        case 10:
-                                            $typeClass = 'bg-danger';
-                                            break;
+                                    if ($row['status'] === 'rejected') {
+                                        $class = 'bg-danger';
+                                        $label = 'Odbijeno';
                                     }
 
                                     ?>
 
-                                    <span class="badge <?= $typeClass ?>">
+                                    <span class="badge <?= $class ?>">
 
-                                        <?= htmlspecialchars(
-                                            $row['absence_type']
-                                        ) ?>
+                                        <?= $label ?>
 
                                     </span>
 
                                 </td>
 
-                                <td class="text-end">
+                                <td>
 
-                                    <div class="btn-group btn-group-sm">
+                                    <?php if (
+                                        $row['status'] === 'rejected'
+                                        &&
+                                        !empty($row['rejection_reason'])
+                                    ): ?>
 
-                                        <a
-                                            href="approve.php?id=<?= $row['id'] ?>"
-                                            class="btn btn-success">
+                                        <button
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="tooltip"
+                                            title="<?= htmlspecialchars($row['rejection_reason']) ?>">
 
-                                            <i class="bi bi-check-lg"></i>
+                                            Razlog
 
-                                        </a>
+                                        </button>
 
-                                        <a
-                                            href="reject.php?id=<?= $row['id'] ?>"
-                                            class="btn btn-danger">
+                                    <?php else: ?>
 
-                                            <i class="bi bi-x-lg"></i>
+                                        -
 
-                                        </a>
+                                    <?php endif; ?>
 
-                                    </div>
+                                </td>
+
+                                <td>
+
+                                    <?= sr_datetime(
+                                        $row['created_at']
+                                    ) ?>
 
                                 </td>
 
                             </tr>
 
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
 
                     </tbody>
 
@@ -338,4 +321,4 @@ $result = $conn->query("
 
 </div>
 
-<?php include "../../../layouts/admin_layout_end.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

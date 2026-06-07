@@ -2,6 +2,8 @@
 
 require_once '../../../config/init.php';
 
+require_once '../../../helpers/audit.php';
+
 require_login();
 require_role([
     'admin',
@@ -27,7 +29,7 @@ $userId =
     $_SESSION['user_id']
     ?? null;
 
-    $stmt = $conn->prepare("
+$stmt = $conn->prepare("
     SELECT
         id,
         status
@@ -41,8 +43,8 @@ $stmt->execute();
 
 $pass =
     $stmt
-        ->get_result()
-        ->fetch_assoc();
+    ->get_result()
+    ->fetch_assoc();
 
 if (!$pass) {
 
@@ -75,6 +77,8 @@ $stmt = $conn->prepare("
         approved_at = NOW()
 
     WHERE id = ?
+
+    AND status = 'pending'
 
 ");
 

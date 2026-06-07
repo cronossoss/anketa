@@ -45,8 +45,8 @@ $stmt->execute();
 
 $pass =
     $stmt
-        ->get_result()
-        ->fetch_assoc();
+    ->get_result()
+    ->fetch_assoc();
 
 if (!$pass) {
 

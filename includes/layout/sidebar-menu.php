@@ -30,7 +30,12 @@ $menu = [
         'title' => 'Prisustvo',
         'icon'  => 'bi bi-list-check',
         'page'  => 'present.php',
-        'roles' => ['admin', 'hr'],
+        'roles' => [
+            'admin',
+            'hr',
+            'manager',
+            'user'
+        ],
 
         'submenu' => [
 
@@ -46,25 +51,32 @@ $menu = [
                 'page'  => 'attendance-present'
             ],
 
-            
+            [
+                'title' => 'Trenutno stanje',
+                'url'   => url('modules/attendance/current_status.php'),
+                'page'  => 'attendance-current-status'
+            ],
+
+
             [
                 'title' => 'Dodela rasporeda',
                 'url'   => url('modules/attendance/assignments/index.php'),
                 'page'  => 'attendance-assignments'
             ],
 
+
+
             [
                 'title' => 'Izlaznice',
                 'url' => url('modules/attendance/exit_passes/index.php'),
-                'page'  => 'Izlaznice',
+                'page' => 'attendance-exit-passes',
                 'icon' => 'bi bi-door-open'
             ],
 
             [
-                'title' => 'Moja odsustva',
-                'url' => url('modules/attendance/employee_exit_passes/index.php'),
-                'page'  => 'Moje izlaznice',
-                'icon' => 'bi bi-door-open'
+                'title' => 'Moje prisustvo',
+                'url' => url('modules/attendance/my_attendance/index.php'),
+                'page' => 'my-attendance'
             ],
 
             [
@@ -85,6 +97,25 @@ $menu = [
                 'url'   => url('modules/attendance/absence-types/index.php'),
                 'page'  => 'attendance-absence-types'
             ],
+        ]
+    ],
+
+    [
+        'title' => 'Moja OJ',
+        'icon'  => 'bi bi-diagram-2',
+        'page'  => 'my-ou',
+        'roles' => ['admin', 'manager'],
+
+        'submenu' => [
+
+            [
+                'title' => 'Dashboard',
+                'url' => url('modules/attendance/my_ou/index.php'),
+                'page' => 'my-ou-dashboard'
+            ],
+
+
+
         ]
     ],
 
@@ -186,24 +217,24 @@ $menu = [
 
         <?php
 
-            $isSubmenuActive = false;
+        $isSubmenuActive = false;
 
-            if (isset($item['submenu'])) {
+        if (isset($item['submenu'])) {
 
-                foreach ($item['submenu'] as $sub) {
+            foreach ($item['submenu'] as $sub) {
 
-                    if (
-                        isset($currentPage)
-                        && $currentPage === $sub['page']
-                    ) {
+                if (
+                    isset($currentPage)
+                    && $currentPage === $sub['page']
+                ) {
 
-                        $isSubmenuActive = true;
+                    $isSubmenuActive = true;
 
-                        break;
-                    }
+                    break;
                 }
             }
-            ?>
+        }
+        ?>
 
         <li class="nav-item mb-2">
 

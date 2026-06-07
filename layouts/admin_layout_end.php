@@ -2,33 +2,80 @@
             </div>
             </div>
 
-            <footer class="footer text-center py-3 text-muted">
-                    © <?= date('Y') ?> Anketa sistem
-            </footer>
+            <<footer class="footer py-3 text-muted">
 
-            <script>
-                    window.APP = {
+                    <div class="container">
 
-                            csrfToken: <?= json_encode(csrf_token()) ?>,
+                            <!-- DESKTOP -->
 
-                            baseUrl: <?= json_encode(BASE_URL) ?>
-                    };
-            </script>
+                            <div class="d-none d-md-flex justify-content-between align-items-center">
 
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+                                    <img
+                                            src="<?= url('assets/images/logo.png') ?>"
+                                            alt="Logo"
+                                            style="height: 64px;">
 
-            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                                    <div class="text-end">
 
-            <script src="https://npmcdn.com/flatpickr/dist/l10n/sr.js"></script>
+                                            <div class="fw-semibold">
+                                                    Poslovni sistem HK "Krušik" © <?= date('Y') ?>
+                                            </div>
 
-            <script src="<?= url('assets/js/modal.js') ?>"></script>
 
-            <script src="<?= url('assets/js/ajax.js') ?>"></script>
+                                    </div>
 
-            <script src="<?= url('assets/js/app.js') ?>"></script>
+                            </div>
 
-            <script src="<?= url('assets/js/modules/users.js') ?>"></script>
+                            <!-- MOBILE -->
 
-            </body>
+                            <div class="d-flex d-md-none flex-column align-items-center text-center gap-2">
 
-            </html>
+                                    <img
+                                            src="<?= url('assets/images/logo.png') ?>"
+                                            alt="Logo"
+                                            style="height: 50px;">
+
+                                    <div class="fw-semibold">
+                                            Poslovni sistem HK "Krušik"
+                                    </div>
+
+                                    <small>
+                                            © <?= date('Y') ?>
+                                    </small>
+
+                            </div>
+
+                    </div>
+
+                    </footer>
+
+                    <script>
+                            window.APP = {
+
+                                    csrfToken: <?= json_encode(csrf_token()) ?>,
+
+                                    baseUrl: <?= json_encode(BASE_URL) ?>
+                            };
+                    </script>
+
+                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+                    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+                    <script src="https://npmcdn.com/flatpickr/dist/l10n/sr.js"></script>
+
+                    <script src="<?= url('assets/js/modal.js') ?>"></script>
+
+                    <script src="<?= url('assets/js/ajax.js') ?>"></script>
+
+                    <script src="<?= url('assets/js/app.js') ?>"></script>
+
+                    <script src="<?= url('assets/js/modules/users.js') ?>"></script>
+
+                    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+                    <script src="<?= url('assets/js/datepickers.js') ?>"></script>
+
+                    </body>
+
+                    </html>

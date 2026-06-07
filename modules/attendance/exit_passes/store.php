@@ -50,8 +50,8 @@ $typeQuery->execute();
 
 $exitType =
     $typeQuery
-        ->get_result()
-        ->fetch_assoc();
+    ->get_result()
+    ->fetch_assoc();
 
 //
 // VALIDACIJA
@@ -69,6 +69,68 @@ if (
 
     $_SESSION['error'] =
         'Datum završetka mora biti veći od datuma početka.';
+
+    header(
+        'Location: create.php'
+    );
+
+    exit;
+}
+
+//
+// PROVERA PREKLAPANJA
+//
+
+$overlapQuery = $conn->prepare("
+
+    SELECT id
+
+    FROM attendance_exit_passes
+
+    WHERE employee_id = ?
+
+    AND status IN ('pending','approved')
+
+    AND (
+
+           (? BETWEEN date_from AND date_to)
+
+        OR (? BETWEEN date_from AND date_to)
+
+        OR (date_from BETWEEN ? AND ?)
+
+    )
+
+    LIMIT 1
+
+");
+
+$overlapQuery->bind_param(
+
+    'issss',
+
+    $employeeId,
+
+    $dateFrom,
+    $dateTo,
+
+    $dateFrom,
+    $dateTo
+
+);
+
+$overlapQuery->execute();
+
+if (
+
+    $overlapQuery
+    ->get_result()
+    ->num_rows > 0
+
+) {
+
+    $_SESSION['error'] =
+        'Za ovaj period već postoji izlaznica.';
 
     header(
         'Location: create.php'
@@ -102,7 +164,7 @@ if (
     &&
     $exitType['requires_balance']
 
-){
+) {
 
     //
     // POČETAK NEDELJE
@@ -247,13 +309,13 @@ if (
 
     if (
 
-    ($weeklyUsed + $requestMinutes)
+        ($weeklyUsed + $requestMinutes)
 
-    >
+        >
 
-    (int)$exitType['weekly_limit_minutes']
+        (int)$exitType['weekly_limit_minutes']
 
-) {
+    ) {
 
         $_SESSION['error'] =
 
@@ -268,13 +330,13 @@ if (
 
     if (
 
-    ($monthlyUsed + $requestMinutes)
+        ($monthlyUsed + $requestMinutes)
 
-    >
+        >
 
-    (int)$exitType['monthly_limit_minutes']
+        (int)$exitType['monthly_limit_minutes']
 
-) {
+    ) {
 
         $_SESSION['error'] =
 
@@ -376,18 +438,14 @@ $stmt->bind_param(
 
 if (!$stmt) {
 
-    die(
-        'Prepare error: '
-        . $conn->error
-    );
+    die('Prepare error: '
+        . $conn->error);
 }
 
 if (!$stmt->execute()) {
 
-    die(
-        'Execute error: '
-        . $stmt->error
-    );
+    die('Execute error: '
+        . $stmt->error);
 }
 
 $_SESSION['success'] =

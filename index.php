@@ -3,14 +3,7 @@ require_once __DIR__ . '/config/init.php';
 
 if (isset($_SESSION['user_id'])) {
 
-    if (is_admin_panel_role()) {
-
-        redirect('admin/dashboard.php');
-    } else {
-
-        redirect('user/dashboard.php');
-    }
-
+    redirect('modules/dashboard/index.php');
     exit;
 }
 
@@ -70,13 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         WHERE id=" . $user['id']
                 );
 
-                if (strtolower($user['role']) === 'admin') {
-
-                    redirect('admin/dashboard.php');
-                } else {
-
-                    redirect('user/dashboard.php');
-                }
+                redirect('modules/dashboard/index.php');
 
                 exit;
             } else {

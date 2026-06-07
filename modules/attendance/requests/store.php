@@ -1,197 +1,362 @@
 <?php
 
 require_once '../../../config/init.php';
-
-require_once
-    '../../../helpers/attendance_balances.php';
+require_once '../../../helpers/format.php';
+require_once '../helpers/approval.php';
 
 require_login();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
+    header('Location: index.php');
     exit;
 }
 
-$userId =
-    $_SESSION['user_id'];
+if (!verify_csrf($_POST['csrf_token'] ?? '')) {
 
-//
-// EMPLOYEE
-//
+    $_SESSION['error'] = 'Neispravan CSRF token.';
 
-$employeeQuery = $conn->prepare("
+    header('Location: create.php');
+    exit;
+}
 
+$userId = $_SESSION['user_id'] ?? 0;
+
+$stmt = $conn->prepare("
     SELECT employee_id
-
     FROM users
-
     WHERE id = ?
-
     LIMIT 1
-
 ");
 
-$employeeQuery->bind_param(
-    'i',
-    $userId
-);
+$stmt->bind_param('i', $userId);
+$stmt->execute();
 
-$employeeQuery->execute();
+if (!$stmt->execute()) {
 
-$employeeResult =
-    $employeeQuery
+    $_SESSION['error'] =
+        'Greška pri snimanju zahteva: ' . $stmt->error;
+
+    header('Location: create.php');
+    exit;
+}
+
+$user = $stmt
     ->get_result()
     ->fetch_assoc();
 
+if (!$user || !$user['employee_id']) {
+
+    $_SESSION['error'] =
+        'Korisnik nije povezan sa zaposlenim.';
+
+    header('Location: create.php');
+    exit;
+}
+
 $employeeId =
-    $employeeResult['employee_id']
-    ?? null;
+    (int)$user['employee_id'];
 
-if (!$employeeId) {
-
-    die('Korisnik nije povezan sa zaposlenim.');
-}
-
-$absenceTypeId =
-    (int) $_POST['absence_type_id'];
-
-$dateFrom =
-    $_POST['date_from'];
-
-$dateTo =
-    $_POST['date_to'];
-
-$balance =
-
-    get_employee_absence_balance(
-
+$approverEmployeeId =
+    getApproverEmployeeId(
         $conn,
-
-        $employeeId,
-
-        $absenceTypeId,
-
-        $dateFrom
-
+        $employeeId
     );
 
-$requestMinutes = round(
-
-    (
-        strtotime($dateTo)
-        -
-        strtotime($dateFrom)
-    ) / 60
-
-);
-
-if (
-
-    $balance['weekly_remaining']
-    !== null
-
-    &&
-
-    $requestMinutes
-    >
-    $balance['weekly_remaining']
-
-) {
+if (!$approverEmployeeId) {
 
     $_SESSION['error'] =
+        'Nije pronađen nadređeni za odobravanje zahteva.';
 
-        'Prekoračen nedeljni limit izlaznica.';
-
-    header(
-        'Location: ../create.php'
-    );
-
+    header('Location: create.php');
     exit;
 }
 
-if (
-
-    $balance['monthly_remaining']
-    !== null
-
-    &&
-
-    $requestMinutes
-    >
-    $balance['monthly_remaining']
-
-) {
-
-    $_SESSION['error'] =
-
-        'Prekoračen mesečni limit izlaznica.';
-
-    header(
-        'Location: ../create.php'
-    );
-
-    exit;
-}
-
-$dateFrom =
-    $_POST['date_from'];
-
-$dateTo =
-    $_POST['date_to'];
+$requestKind =
+    $_POST['request_kind'] ?? '';
 
 $note =
-    trim($_POST['note']);
+    trim($_POST['note'] ?? '');
 
-$stmt = $conn->prepare("
+if ($requestKind === 'exit') {
 
-    INSERT INTO attendance_absences (
+    $exitTypeId =
+        (int)($_POST['exit_type_id'] ?? 0);
 
-        employee_id,
-        absence_type_id,
+    $dateFrom =
+        db_datetime(
+            $_POST['exit_from'] ?? ''
+        );
 
-        date_from,
-        date_to,
+    $dateTo =
+        db_datetime(
+            $_POST['exit_to'] ?? ''
+        );
 
-        note,
+    if (
+        !$exitTypeId ||
+        !$dateFrom ||
+        !$dateTo
+    ) {
 
-        status,
+        $_SESSION['error'] =
+            'Popunite sva polja.';
 
-        requested_by
+        header('Location: create.php');
+        exit;
+    }
 
-    )
-
-    VALUES (
-
-        ?, ?, ?, ?,
-        ?, 'pending', ?
-
-    )
-
+    $stmt = $conn->prepare("
+    SELECT id
+    FROM attendance_exit_passes
+    WHERE employee_id = ?
+      AND status IN ('pending','approved')
+      AND (
+            date_from < ?
+        AND date_to   > ?
+      )
+    LIMIT 1
 ");
 
-$stmt->bind_param(
+    $stmt->bind_param(
+        'iss',
+        $employeeId,
+        $dateTo,
+        $dateFrom
+    );
 
-    'iisssi',
+    $stmt->execute();
 
-    $employeeId,
-    $absenceTypeId,
+    if (!$stmt->execute()) {
 
-    $dateFrom,
-    $dateTo,
+        $_SESSION['error'] =
+            'Greška pri snimanju zahteva: ' . $stmt->error;
 
-    $note,
+        header('Location: create.php');
+        exit;
+    }
 
-    $employeeId
+    if ($stmt->get_result()->num_rows > 0) {
 
-);
+        $_SESSION['error'] =
+            'Već postoji izlaznica u izabranom periodu.';
 
-$stmt->execute();
+        header('Location: create.php');
+        exit;
+    }
 
-$_SESSION['success'] =
-    'Zahtev uspešno poslat.';
+    $status = 'pending';
+    $source = 'employee_request';
 
-header(
-    'Location: create.php'
-);
+    $stmt = $conn->prepare("
 
-exit;
+        INSERT INTO attendance_exit_passes
+        (
+            employee_id,
+            exit_type_id,
+            date_from,
+            date_to,
+            note,
+            status,
+            source,
+            requested_by,
+            approver_employee_id
+        )
+        VALUES
+        (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+
+    ");
+
+    $stmt->bind_param(
+        'iisssssii',
+        $employeeId,
+        $exitTypeId,
+        $dateFrom,
+        $dateTo,
+        $note,
+        $status,
+        $source,
+        $userId,
+        $approverEmployeeId
+    );
+
+    $stmt->execute();
+
+    if (!$stmt->execute()) {
+
+        $_SESSION['error'] =
+            'Greška pri snimanju zahteva: ' . $stmt->error;
+
+        header('Location: create.php');
+        exit;
+    }
+
+    $_SESSION['success'] =
+        'Zahtev za izlaznicu je poslat.';
+
+    header('Location: index.php');
+    exit;
+}
+
+if ($requestKind === 'absence') {
+
+    $absenceTypeId =
+        (int)($_POST['absence_type_id'] ?? 0);
+
+    $dateFrom =
+        db_date(
+            $_POST['absence_from'] ?? ''
+        );
+
+    $dateTo =
+        db_date(
+            $_POST['absence_to'] ?? ''
+        );
+
+    if (
+        !$absenceTypeId ||
+        !$dateFrom ||
+        !$dateTo
+    ) {
+
+        $_SESSION['error'] =
+            'Popunite sva polja.';
+
+        header('Location: create.php');
+        exit;
+    }
+
+    if ($absenceTypeId == 6) {
+
+        $reason =
+            trim(
+                $_POST['paid_leave_reason']
+                    ?? ''
+            );
+
+        $other =
+            trim(
+                $_POST['other_reason']
+                    ?? ''
+            );
+
+        if ($reason === 'Drugo') {
+
+            $reason = $other;
+        }
+
+        if (!empty($reason)) {
+
+            $note =
+                'Plaćeno odsustvo - '
+                . $reason
+                . PHP_EOL
+                . PHP_EOL
+                . $note;
+        }
+    }
+
+    $dateFrom .= ' 00:00:00';
+    $dateTo   .= ' 23:59:59';
+
+    /*
+|--------------------------------------------------------------------------
+| Provera preklapanja odsustava
+|--------------------------------------------------------------------------
+*/
+
+    $stmt = $conn->prepare("
+    SELECT id
+    FROM attendance_absences
+    WHERE employee_id = ?
+      AND status IN ('pending','approved')
+      AND (
+            date_from <= ?
+        AND date_to   >= ?
+      )
+    LIMIT 1
+");
+
+    $stmt->bind_param(
+        'iss',
+        $employeeId,
+        $dateTo,
+        $dateFrom
+    );
+
+    $stmt->execute();
+
+    if (!$stmt->execute()) {
+
+        $_SESSION['error'] =
+            'Greška pri snimanju zahteva: ' . $stmt->error;
+
+        header('Location: create.php');
+        exit;
+    }
+
+    if ($stmt->get_result()->num_rows > 0) {
+
+        $_SESSION['error'] =
+            'Već postoji zahtev za odsustvo u izabranom periodu.';
+
+        header('Location: create.php');
+        exit;
+    }
+
+    $status = 'pending';
+    $source = 'employee_request';
+
+    $stmt = $conn->prepare("
+
+        INSERT INTO attendance_absences
+        (
+            employee_id,
+            absence_type_id,
+            date_from,
+            date_to,
+            note,
+            status,
+            source,
+            requested_by,
+            approver_employee_id
+        )
+        VALUES
+        (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+
+    ");
+
+    $stmt->bind_param(
+        'iisssssii',
+        $employeeId,
+        $absenceTypeId,
+        $dateFrom,
+        $dateTo,
+        $note,
+        $status,
+        $source,
+        $userId,
+        $approverEmployeeId
+    );
+
+    $stmt->execute();
+
+    if (!$stmt->execute()) {
+
+        $_SESSION['error'] =
+            'Greška pri snimanju zahteva: ' . $stmt->error;
+
+        header('Location: create.php');
+        exit;
+    }
+
+    $_SESSION['success'] =
+        'Zahtev za odsustvo je poslat.';
+
+    header('Location: index.php');
+    exit;
+}

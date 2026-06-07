@@ -560,16 +560,11 @@ for ($day = 0; $day < 30; $day++) {
                 $workedMinutes,
 
                 (
-                    (
-                        $expectedEnd
-                        -
-                        $expectedStart
-                    ) / 60
-                )
-
+                    $expectedEnd
                     -
+                    $expectedStart
+                ) / 60
 
-                    $shift['break_minutes']
             );
         }
 

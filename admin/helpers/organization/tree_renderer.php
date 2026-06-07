@@ -62,7 +62,9 @@ function renderTreeNode(
 
             data-name="' . e($element['name']) . '"
 
-            data-description="' . e($element['description']) . '">
+            data-description="' . e($element['description']) . '"
+
+            data-manager_employee_id="' . (int)($element['manager_employee_id'] ?? 0) . '">
 
             ✏️
 
@@ -259,5 +261,3 @@ function renderTree(
     }
     echo '</ul>';
 }
-
-

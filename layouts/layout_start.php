@@ -65,10 +65,10 @@ if (
 
     <div class="wrapper">
 
-        <?php include __DIR__ . "/../includes/admin/sidebar.php"; ?>
+        <?php include __DIR__ . "/../includes/layout/sidebar.php"; ?>
 
         <div class="main">
 
-            <?php include __DIR__ . "/../includes/admin/topbar.php"; ?>
+            <?php include __DIR__ . "/../includes/layout/topbar.php"; ?>
 
-            <div class="content p-4">
+            <div class="content p-4"></div>

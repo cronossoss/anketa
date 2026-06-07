@@ -147,26 +147,6 @@ if ($stmt->get_result()->num_rows > 0) {
     exit;
 }
 
-$stmt->bind_param(
-    'issss',
-    $employeeId,
-    $dateFromSql,
-    $dateToSql,
-    $dateFromSql,
-    $dateToSql
-);
-
-$stmt->execute();
-
-if ($stmt->get_result()->num_rows > 0) {
-
-    $_SESSION['error'] =
-        'Već postoji izlaznica u tom periodu.';
-
-    header('Location: create.php');
-    exit;
-}
-
 /*
 |--------------------------------------------------------------------------
 | Upis zahteva

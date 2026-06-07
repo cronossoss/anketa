@@ -69,21 +69,21 @@
                             id="org_code"
                             class="form-control">
 
-                            <div
-                                class="mb-3"
-                                id="odCodeWrapper">
+                        <div
+                            class="mb-3"
+                            id="odCodeWrapper">
 
-                                <label class="form-label">
-                                    OD šifra
-                                </label>
+                            <label class="form-label">
+                                OD šifra
+                            </label>
 
-                                <input
-                                    type="text"
-                                    name="od_code"
-                                    id="org_od_code"
-                                    class="form-control">
+                            <input
+                                type="text"
+                                name="od_code"
+                                id="org_od_code"
+                                class="form-control">
 
-                            </div>
+                        </div>
 
                     </div>
 
@@ -98,6 +98,46 @@
                             name="name"
                             id="org_name"
                             class="form-control">
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Rukovodilac
+
+                        </label>
+
+                        <select
+                            name="manager_employee_id"
+                            id="org_manager_employee_id"
+                            class="form-select">
+
+                            <option value="">
+
+                                Nije definisan
+
+                            </option>
+
+                            <?php while ($manager = $managers->fetch_assoc()): ?>
+
+                                <option
+                                    value="<?= $manager['id'] ?>">
+
+                                    <?= htmlspecialchars(
+
+                                        $manager['last_name']
+                                            . ' '
+                                            . $manager['first_name']
+
+                                    ) ?>
+
+                                </option>
+
+                            <?php endwhile; ?>
+
+                        </select>
 
                     </div>
 

@@ -22,11 +22,23 @@ function isActive($identifier): string
         'attendance-present.php' =>
         app_path('modules/attendance/present.php'),
 
+        'attendance-current-status' =>
+        app_path('modules/attendance/current_status.php'),
+
         'attendance.php' =>
         app_path('modules/attendance/schedules/index.php'),
 
-        'index.php' =>
+        'attendance-exit-passes' =>
         app_path('modules/attendance/exit_passes/index.php'),
+
+        'my-ou-dashboard' =>
+        app_path('modules/attendance/my_ou/index.php'),
+
+        'my-ou-absence-requests' =>
+        app_path('modules/attendance/my_ou/absence_requests.php'),
+
+        'my-ou-exit-pass-requests' =>
+        app_path('modules/attendance/my_ou/exit_pass_requests.php'),
 
 
         'users.php' =>
