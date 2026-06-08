@@ -1,7 +1,10 @@
 <?php
 
-function getChildOrganizationUnits(mysqli $conn, int $parentId): array
-{
+function getChildOrganizationUnits(
+    mysqli $conn,
+    int $parentId
+): array {
+
     $units = [$parentId];
 
     $stmt = $conn->prepare("
@@ -22,15 +25,21 @@ function getChildOrganizationUnits(mysqli $conn, int $parentId): array
 
         $units = array_merge(
             $units,
-            getChildOrganizationUnits($conn, $childId)
+            getChildOrganizationUnits(
+                $conn,
+                $childId
+            )
         );
     }
 
     return $units;
 }
 
-function getManagedOrganizationUnits(mysqli $conn, int $managerEmployeeId): array
-{
+function getManagedOrganizationUnits(
+    mysqli $conn,
+    int $managerEmployeeId
+): array {
+
     $stmt = $conn->prepare("
         SELECT id
         FROM organizational_units
@@ -38,7 +47,11 @@ function getManagedOrganizationUnits(mysqli $conn, int $managerEmployeeId): arra
           AND active = 1
     ");
 
-    $stmt->bind_param('i', $managerEmployeeId);
+    $stmt->bind_param(
+        'i',
+        $managerEmployeeId
+    );
+
     $stmt->execute();
 
     $result = $stmt->get_result();
@@ -59,29 +72,6 @@ function getManagedOrganizationUnits(mysqli $conn, int $managerEmployeeId): arra
     return array_unique($allUnits);
 }
 
-function getManagerEmployeeId(mysqli $conn, int $userId): ?int
-{
-    $stmt = $conn->prepare("
-        SELECT employee_id
-        FROM users
-        WHERE id = ?
-        LIMIT 1
-    ");
-
-    $stmt->bind_param('i', $userId);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    $row = $result->fetch_assoc();
-
-    if (!$row || empty($row['employee_id'])) {
-        return null;
-    }
-
-    return (int)$row['employee_id'];
-}
-
 function getManagedEmployeesCount(
     mysqli $conn,
     int $managerEmployeeId
@@ -98,10 +88,20 @@ function getManagedEmployeesCount(
     }
 
     $placeholders =
-        implode(',', array_fill(0, count($unitIds), '?'));
+        implode(
+            ',',
+            array_fill(
+                0,
+                count($unitIds),
+                '?'
+            )
+        );
 
     $types =
-        str_repeat('i', count($unitIds));
+        str_repeat(
+            'i',
+            count($unitIds)
+        );
 
     $stmt = $conn->prepare("
         SELECT COUNT(*) total
@@ -139,10 +139,20 @@ function getManagedEmployees(
     }
 
     $placeholders =
-        implode(',', array_fill(0, count($unitIds), '?'));
+        implode(
+            ',',
+            array_fill(
+                0,
+                count($unitIds),
+                '?'
+            )
+        );
 
     $types =
-        str_repeat('i', count($unitIds));
+        str_repeat(
+            'i',
+            count($unitIds)
+        );
 
     $stmt = $conn->prepare("
         SELECT *
@@ -161,8 +171,7 @@ function getManagedEmployees(
 
     $stmt->execute();
 
-    return
-        $stmt
+    return $stmt
         ->get_result()
         ->fetch_all(MYSQLI_ASSOC);
 }

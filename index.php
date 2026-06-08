@@ -43,6 +43,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['role'] = $user['role'];
 
+                $_SESSION['employee_id'] =
+                    $user['employee_id'];
+
+                $_SESSION['email'] =
+                    $user['email'];
+
+                $_SESSION['employee_name'] =
+                    trim(
+                        $user['first_name'] . ' ' .
+                            $user['last_name']
+                    );
+
                 $_SESSION['name'] =
                     trim(
                         ($user['first_name'] ?? '') . ' ' .

@@ -1,5 +1,37 @@
 <?php
 
+$announcements = [];
+
+$result = $conn->query("
+    SELECT title, message, priority
+    FROM announcements
+    WHERE active = 1
+      AND (
+            start_date IS NULL
+            OR start_date <= NOW()
+      )
+      AND (
+            end_date IS NULL
+            OR end_date >= NOW()
+      )
+    ORDER BY
+        created_at DESC
+");
+
+while ($row = $result->fetch_assoc()) {
+
+    $announcements[] =
+        $row['title'] . ' - ' . $row['message'];
+}
+
+$announcementText =
+    !empty($announcements)
+    ? implode(
+        '  ✦  ',
+        $announcements
+    )
+    : 'Dobrodošli u Integrisani informacioni sistem.';
+
 $userName =
     $_SESSION['name'] ?? 'Korisnik';
 
@@ -46,8 +78,8 @@ $userPhoto =
 $announcementText =
     $announcementText ?? '';
 
-$announcementText =
-    'Kolektivni godišnji odmor od 01.08.2026. do 15.08.2026.';
+/* $announcementText =
+    'Kolektivni godišnji odmor od 01.08.2026. do 15.08.2026.'; */
 
 ?>
 <div class="topbar-left">
@@ -61,12 +93,6 @@ $announcementText =
 
     </button>
 
-    <h4 class="page-title mb-0">
-
-        <?= e($pageTitle ?? '') ?>
-
-    </h4>
-
 </div>
 
 <div class="topbar">
@@ -77,19 +103,15 @@ $announcementText =
             <?= e($pageTitle) ?>
         </h4>
 
-        <?php if (!empty($announcementText)): ?>
+        <div class="topbar-announcements">
 
-            <div class="topbar-announcements">
+            <div class="announcement-track">
 
-                <div class="announcement-track">
-
-                    <?= e($announcementText) ?>
-
-                </div>
+                <?= e($announcementText) ?>
 
             </div>
 
-        <?php endif; ?>
+        </div>
 
     </div>
 
@@ -136,15 +158,13 @@ $announcementText =
 <style>
     @keyframes ticker {
 
-    from {
-        transform: translateX(100%);
+        from {
+            transform: translateX(100%);
+        }
+
+        to {
+            transform: translateX(-100%);
+        }
+
     }
-
-    to {
-        transform: translateX(-100%);
-    }
-
-}
-
 </style>
-

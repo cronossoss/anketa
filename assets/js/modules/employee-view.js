@@ -231,6 +231,11 @@ async function openEmployeeModal(employeeId) {
         ).innerText =
             employee.business_phone ?? '-';
 
+        document.getElementById(
+            'viewEmployeeAnnualLeave'
+        ).innerText =
+            (e.annual_leave_days ?? 0) + ' dana';
+
         const roleBadge =
             document.getElementById(
                 'viewEmployeeRoleBadge'

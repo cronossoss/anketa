@@ -63,6 +63,20 @@
 
             <?php endforeach; ?>
 
+            <li class="nav-item mt-3">
+
+                <a
+                    class="nav-link text-white"
+                    href="<?= url('logout.php') ?>">
+
+                    <i class="bi bi-box-arrow-right me-2"></i>
+
+                    Logout
+
+                </a>
+
+            </li>
+
         </ul>
 
     </div>

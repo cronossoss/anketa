@@ -2,6 +2,11 @@
 
 require_once "../../config/init.php";
 
+mysqli_report(
+    MYSQLI_REPORT_ERROR |
+        MYSQLI_REPORT_STRICT
+);
+
 require_login();
 require_role(['admin', 'hr']);
 
@@ -13,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 if (!verify_csrf($_POST['csrf'] ?? '')) {
     exit('CSRF');
 }
-
 
 /* =========================
    DATA
@@ -75,6 +79,9 @@ $business_email =
 
 $business_phone =
     trim($_POST['business_phone'] ?? '');
+
+$annual_leave_days =
+    (int)($_POST['annual_leave_days'] ?? 20);
 
 $is_manager =
     isset($_POST['is_manager'])
@@ -139,13 +146,14 @@ $stmt = $conn->prepare("
         bank_account=?,
         business_email=?,
         business_phone=?,
+        annual_leave_days=?,
         has_account=?,
         system_role=?
     WHERE id=?
 ");
 
 $stmt->bind_param(
-    "ssisssisssssssssssisi",
+    "ssisssisssssssssssisii",
     $first_name,
     $last_name,
     $organizational_unit_id,
@@ -164,12 +172,15 @@ $stmt->bind_param(
     $bank_account,
     $business_email,
     $business_phone,
+    $annual_leave_days,
     $has_account,
     $system_role,
     $id
 );
 
 $stmt->execute();
+
+
 
 audit_log(
     'employees',

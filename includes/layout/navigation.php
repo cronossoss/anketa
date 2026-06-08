@@ -234,6 +234,13 @@ if (canAccessAudit()) {
         ],
 
         [
+            'title' => 'Obaveštenja',
+            'icon'  => 'bi bi-megaphone',
+            'url'   => url('admin/announcements.php'),
+            'page'  => 'announcements.php'
+        ],
+
+        [
             'title' => 'Audit log',
             'icon'  => 'bi bi-clock-history',
             'url'   => url('admin/audit_logs.php'),

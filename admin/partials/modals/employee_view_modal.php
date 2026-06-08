@@ -333,6 +333,21 @@
 
                             </div>
 
+
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Godišnji odmor
+                                </small>
+
+                                <div id="viewEmployeeAnnualLeave">
+                                    -
+                                </div>
+
+                            </div>
+
+
+
                         </div>
 
                     </div>

@@ -196,6 +196,8 @@ function initEditButtons() {
 
             setValue('business_phone', e.business_phone);
 
+            setValue('annual_leave_days', e.annual_leave_days);
+
             setValue('contract_type', e.contract_type);
 
             setValue('organizational_unit_id', e.organizational_unit_id);
@@ -364,6 +366,13 @@ function initViewButtons() {
                         'viewEmployeeBusinessPhone'
                     ).innerText =
                         e.business_phone ?? '-';
+
+                    document.getElementById(
+                        'viewEmployeeAnnualLeave'
+                    ).innerText =
+                        e.annual_leave_days
+                            ? e.annual_leave_days + ' dana'
+                            : '-';
 
                     const roleBadge =
                         document.getElementById(

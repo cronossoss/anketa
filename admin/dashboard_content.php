@@ -18,31 +18,32 @@
 
         <div class="col-md-6 col-xl-3">
 
-            	<div class="dashboard-card">
+            <div class="dashboard-card">
 
-                        <div class="dashboard-card-header">
+                <div class="dashboard-card-header">
 
-                            <div class="dashboard-card-title">
+                    <div class="dashboard-card-title">
 
-                                <i class="bi bi-diagram-3"></i>
+                        <i class="bi bi-diagram-3"></i>
 
-                                <span>Organizacija</span>
-
-                            </div>
-
-                            <a href="#" class="btn btn-sm btn-primary">
-                                Otvori
-                            </a>
-
-                        </div>
-
-                        <div class="dashboard-card-description">
-
-                            Organizacione jedinice i hijerarhija
-
-                        </div>
+                        <span>Organizacija</span>
 
                     </div>
+
+                    <a href="<?= url('admin/organization.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
+
+                </div>
+
+                <div class="dashboard-card-description">
+
+                    Organizacione jedinice i hijerarhija
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -60,7 +61,8 @@
 
                     </div>
 
-                    <a href="#" class="btn btn-sm btn-primary">
+                    <a href="<?= url('admin/employees.php') ?>"
+                        class="btn btn-sm btn-primary">
                         Otvori
                     </a>
 
@@ -88,91 +90,94 @@
 
         <div class="col-md-6 col-xl-3">
 
-            	<div class="dashboard-card">
+            <div class="dashboard-card">
 
-                    <div class="dashboard-card-header">
+                <div class="dashboard-card-header">
 
-                        <div class="dashboard-card-title">
+                    <div class="dashboard-card-title">
 
-                            <i class="bi bi-calendar-check"></i>
+                        <i class="bi bi-calendar-check"></i>
 
-                            <span>Prisustvo</span>
-
-                        </div>
-
-                        <a href="#" class="btn btn-sm btn-primary">
-                            Otvori
-                        </a>
+                        <span>Prisustvo</span>
 
                     </div>
 
-                    <div class="dashboard-card-description">
-
-                        Trenutno stanje zaposlenih
-
-                    </div>
+                    <a href="<?= url('modules/attendance/present.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
 
                 </div>
+
+                <div class="dashboard-card-description">
+
+                    Trenutno stanje zaposlenih
+
+                </div>
+
+            </div>
 
         </div>
 
         <div class="col-md-6 col-xl-3">
 
-            	<div class="dashboard-card">
+            <div class="dashboard-card">
 
-                    <div class="dashboard-card-header">
+                <div class="dashboard-card-header">
 
-                        <div class="dashboard-card-title">
+                    <div class="dashboard-card-title">
 
-                            <i class="bi bi-calendar-x"></i>
+                        <i class="bi bi-calendar-x"></i>
 
-                            <span>Odsustva</span>
-
-                        </div>
-
-                        <a href="#" class="btn btn-sm btn-primary">
-                            Otvori
-                        </a>
+                        <span>Odsustva</span>
 
                     </div>
 
-                    <div class="dashboard-card-description">
-
-                        Upravljanje odsustvima
-
-                    </div>
+                    <a href="<?= url('modules/attendance/absences/index.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
 
                 </div>
+
+                <div class="dashboard-card-description">
+
+                    Upravljanje odsustvima
+
+                </div>
+
+            </div>
 
         </div>
 
         <div class="col-md-6 col-xl-3">
 
-            	<div class="dashboard-card">
+            <div class="dashboard-card">
 
-                    <div class="dashboard-card-header">
+                <div class="dashboard-card-header">
 
-                        <div class="dashboard-card-title">
+                    <div class="dashboard-card-title">
 
-                            <i class="bi bi-door-open"></i>
+                        <i class="bi bi-door-open"></i>
 
-                            <span>Izlaznice</span>
-
-                        </div>
-
-                        <a href="#" class="btn btn-sm btn-primary">
-                            Otvori
-                        </a>
+                        <span>Izlaznice</span>
 
                     </div>
 
-                    <div class="dashboard-card-description">
-
-                        Evidencija izlaznica
-
-                    </div>
+                    <a href="<?= url('modules/attendance/exit_passes/index.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
 
                 </div>
+
+                <div class="dashboard-card-description">
+
+                    Evidencija izlaznica
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -188,61 +193,63 @@
 
         <div class="col-md-6 col-xl-3">
 
-            	<div class="dashboard-card">
+            <div class="dashboard-card">
 
-                    <div class="dashboard-card-header">
+                <div class="dashboard-card-header">
 
-                        <div class="dashboard-card-title">
+                    <div class="dashboard-card-title">
 
-                            <i class="bi bi-pc-display"></i>
+                        <i class="bi bi-pc-display"></i>
 
-                            <span>Inventar</span>
-
-                        </div>
-
-                        <a href="#" class="btn btn-sm btn-primary">
-                            Otvori
-                        </a>
+                        <span>Inventar</span>
 
                     </div>
 
-                    <div class="dashboard-card-description">
-
-                        Pregled IT opreme
-
-                    </div>
+                    <a href="<?= url('modules/assets/assets/index.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
 
                 </div>
+
+                <div class="dashboard-card-description">
+
+                    Pregled IT opreme
+
+                </div>
+
+            </div>
 
         </div>
 
         <div class="col-md-6 col-xl-3">
 
-            	<div class="dashboard-card">
+            <div class="dashboard-card">
 
-                    <div class="dashboard-card-header">
+                <div class="dashboard-card-header">
 
-                        <div class="dashboard-card-title">
+                    <div class="dashboard-card-title">
 
-                            <i class="bi bi-person-workspace"></i>
+                        <i class="bi bi-person-workspace"></i>
 
-                            <span>Zaduženja</span>
-
-                        </div>
-
-                        <a href="#" class="btn btn-sm btn-primary">
-                            Otvori
-                        </a>
+                        <span>Zaduženja</span>
 
                     </div>
 
-                    <div class="dashboard-card-description">
-
-                        Pregled zaduženja opreme
-
-                    </div>
+                    <a href="<?= url('modules/assets/assignments/index.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
 
                 </div>
+
+                <div class="dashboard-card-description">
+
+                    Pregled zaduženja opreme
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -258,31 +265,31 @@
 
         <div class="col-md-6 col-xl-3">
 
-            	<div class="dashboard-card">
+            <div class="dashboard-card">
 
-                    <div class="dashboard-card-header">
+                <div class="dashboard-card-header">
 
-                        <div class="dashboard-card-title">
+                    <div class="dashboard-card-title">
 
-                            <i class="bi bi-person-badge"></i>
+                        <i class="bi bi-person-badge"></i>
 
-                            <span>Korisnici</span>
-
-                        </div>
-
-                        <a href="#" class="btn btn-sm btn-primary">
-                            Otvori
-                        </a>
+                        <span>Korisnici</span>
 
                     </div>
 
-                    <div class="dashboard-card-description">
+                    <a href="<?= url('admin/users.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
+                </div>
 
-                        Upravljanje korisničkim nalozima
+                <div class="dashboard-card-description">
 
-                    </div>
+                    Upravljanje korisničkim nalozima
 
                 </div>
+
+            </div>
 
         </div>
 
@@ -300,7 +307,8 @@
 
                     </div>
 
-                    <a href="#" class="btn btn-sm btn-primary">
+                    <a href="<?= url('admin/audit_logs.php') ?>"
+                        class="btn btn-sm btn-primary">
                         Otvori
                     </a>
 
@@ -314,6 +322,6 @@
 
             </div>
 
-    </div>
+        </div>
 
-</div>
+    </div>

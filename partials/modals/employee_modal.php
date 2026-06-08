@@ -445,6 +445,23 @@
 
                                 </div>
 
+                                <div class="col-md-3">
+
+                                    <label class="form-label">
+                                        Godišnji odmor
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="annual_leave_days"
+                                        name="annual_leave_days"
+                                        min="0"
+                                        max="60"
+                                        value="20">
+
+                                </div>
+
                                 <div class="card mt-4">
 
                                     <div class="card-header">
