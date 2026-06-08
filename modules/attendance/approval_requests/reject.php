@@ -16,7 +16,7 @@ if (!$id || !in_array($type, ['absence', 'exit'])) {
 
 $pageTitle = 'Odbijanje zahteva';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 ?>
 
 <div class="container-fluid">
@@ -100,4 +100,4 @@ include "../../../layouts/admin_layout_start.php";
 
 </div>
 
-<?php include "../../../layouts/admin_layout_end.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

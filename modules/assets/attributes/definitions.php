@@ -4,7 +4,7 @@ $pageTitle = "Definicije atributa";
 
 $currentPage = 'asset-attributes';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 require_login();
 

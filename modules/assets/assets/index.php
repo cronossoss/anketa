@@ -4,11 +4,15 @@ $pageTitle = "IT Inventar";
 
 $currentPage = 'asset-items';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 require_login();
 
-require_role(['admin', 'it']);
+if (!canAccessInventory()) {
+
+    http_response_code(403);
+    exit('403 Forbidden');
+}
 
 $search = trim($_GET['search'] ?? '');
 
@@ -102,12 +106,7 @@ while ($row = $employeesResult->fetch_assoc()) {
 
         <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
 
-            <h4>
-
-                IT Inventar
-
-            </h4>
-
+ 
             <button
                 class="btn btn-primary"
                 data-bs-toggle="modal"
@@ -612,4 +611,4 @@ document
 
 <script src="../js/assets.js"></script>
 
-<?php include "../../../layouts/footer.php"; ?>
+<<?php include "../../../layouts/layout_end.php"; ?>

@@ -5,7 +5,7 @@ require_once '../../../config/init.php';
 $currentPage = 'attendance-weekly-report';
 $pageTitle = 'Nedeljni izveštaj prisustva';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 //
 // FILTERI

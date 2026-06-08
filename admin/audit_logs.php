@@ -2,7 +2,7 @@
 
 $pageTitle = "Audit log";
 
-include "../layouts/admin_layout_start.php";
+include "../layouts/layout_start.php";
 
 require_login();
 
@@ -36,7 +36,7 @@ $result = $conn->query("
 
         <div class="d-flex justify-content-between mb-3">
 
-            <h3>Audit log</h3>
+  
 
         </div>
 
@@ -209,4 +209,4 @@ $result = $conn->query("
 
 </main>
 
-<?php include "../layouts/footer.php"; ?>
+<?php include "../layouts/layout_end.php"; ?>

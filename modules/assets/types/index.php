@@ -4,11 +4,15 @@ $pageTitle = "Tipovi inventara";
 
 $currentPage = 'asset-types';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 require_login();
 
-require_role(['admin', 'it']);
+if (!canAccessInventory()) {
+
+    http_response_code(403);
+    exit('403 Forbidden');
+}
 
 $search = trim($_GET['search'] ?? '');
 
@@ -47,11 +51,6 @@ $result = $conn->query("
                     gap-2
                     mb-4">
 
-            <h4 class="mb-0">
-
-                Tipovi inventara
-
-            </h4>
 
             <button
                 class="btn btn-primary"
@@ -340,4 +339,4 @@ $result = $conn->query("
 
 <script src="../js/types.js"></script>
 
-<?php include "../../../layouts/footer.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

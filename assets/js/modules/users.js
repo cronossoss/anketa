@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const response = await fetch(
-                    APP.baseUrl + 'admin/actions/users_update_role.php',
+                    APP.baseUrl + '/admin/actions/users_update_role.php',
 
                     {
                         method: 'POST',

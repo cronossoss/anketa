@@ -8,7 +8,7 @@ $pageTitle = 'Moje prisustvo';
 
 $currentPage = 'my-attendance';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $userId =
     $_SESSION['user_id'];
@@ -170,12 +170,6 @@ $statusClass = [
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-
-            <h3 class="mb-1">
-
-                Moje prisustvo
-
-            </h3>
 
             <div class="text-muted">
 
@@ -458,4 +452,4 @@ $statusClass = [
 
 </div>
 
-<?php include "../../../layouts/admin_layout_end.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

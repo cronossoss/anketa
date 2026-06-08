@@ -6,7 +6,7 @@ $currentPage = 'attendance-present';
 
 $pageTitle = "Trenutno prisutni";
 
-include "../../layouts/admin_layout_start.php";
+include "../../layouts/layout_start.php";
 
 $date = date('Y-m-d');
 
@@ -83,10 +83,6 @@ while ($row = $result->fetch_assoc()) {
             <div class="d-flex justify-content-between align-items-center mb-4">
 
                 <div>
-
-                    <h4 class="mb-1">
-                        Dnevni pregled prisustva
-                    </h4>
 
                     <div class="text-muted">
 
@@ -614,4 +610,4 @@ while ($row = $result->fetch_assoc()) {
         );
 </script>
 
-<?php include "../../layouts/admin_layout_end.php"; ?>
+<?php include "../../layouts/layout_end.php"; ?>

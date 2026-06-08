@@ -8,7 +8,7 @@ $pageTitle = 'Zahtevi za odsustva';
 
 $currentPage = 'my-ou-absence-requests';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $userId =
     $_SESSION['user_id'];

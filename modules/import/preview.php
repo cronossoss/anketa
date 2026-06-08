@@ -4,7 +4,7 @@ $pageTitle = "Pregled importa";
 
 $currentPage = 'asset-import';
 
-include "../../layouts/admin_layout_start.php";
+include "../../layouts/layout_start.php";
 
 require_login();
 

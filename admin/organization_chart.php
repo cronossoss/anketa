@@ -2,7 +2,7 @@
 
 $pageTitle = "Organizaciona šema";
 
-include "../layouts/admin_layout_start.php";
+include "../layouts/layout_start.php";
 
 require_login();
 
@@ -282,4 +282,4 @@ new Treant(chart_config);
 
 </script>
 
-<?php include "../layouts/admin_layout_end.php"; ?>
+<?php include "../layouts/layout_end.php"; ?>

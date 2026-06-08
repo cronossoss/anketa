@@ -6,7 +6,7 @@ require_login();
 
 $pageTitle = 'Izlaznice';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $pendingRequests = $conn->query("
 
@@ -239,12 +239,6 @@ $approvedToday = $conn->query("
         <div class="d-flex justify-content-between align-items-center mb-4">
 
             <div>
-
-                <h3 class="mb-1">
-
-                    Upravljanje izlaznicama
-
-                </h3>
 
                 <div class="text-muted">
 
@@ -744,4 +738,4 @@ $approvedToday = $conn->query("
 
 </div>
 
-<?php include "../../../layouts/admin_layout_end.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

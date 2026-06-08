@@ -1,7 +1,5 @@
 <?php
 
-
-
 $userName =
     $_SESSION['name'] ?? 'Korisnik';
 
@@ -39,15 +37,59 @@ $userRole =
         $_SESSION['role'] ?? ''
     );
 
+$userName =
+    $_SESSION['name'] ?? 'Korisnik';
+
+$userPhoto =
+    $_SESSION['photo'] ?? null;
+
+$announcementText =
+    $announcementText ?? '';
+
+$announcementText =
+    'Kolektivni godišnji odmor od 01.08.2026. do 15.08.2026.';
+
 ?>
+<div class="topbar-left">
+
+    <button
+        class="btn d-lg-none me-3"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#mobileMenu">
+
+        <i class="bi bi-list fs-4"></i>
+
+    </button>
+
+    <h4 class="page-title mb-0">
+
+        <?= e($pageTitle ?? '') ?>
+
+    </h4>
+
+</div>
 
 <div class="topbar">
 
     <div class="topbar-left">
 
-        <h4 class="mb-0">
-            <?= e($pageTitle ?? '') ?>
+        <h4 class="page-title">
+            <?= e($pageTitle) ?>
         </h4>
+
+        <?php if (!empty($announcementText)): ?>
+
+            <div class="topbar-announcements">
+
+                <div class="announcement-track">
+
+                    <?= e($announcementText) ?>
+
+                </div>
+
+            </div>
+
+        <?php endif; ?>
 
     </div>
 
@@ -90,3 +132,19 @@ $userRole =
     </div>
 
 </div>
+
+<style>
+    @keyframes ticker {
+
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(-100%);
+    }
+
+}
+
+</style>
+

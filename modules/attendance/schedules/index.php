@@ -6,7 +6,7 @@ $currentPage = 'attendance-schedules';
 
 $pageTitle = "Rasporedi rada";
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $schedules = $conn->query("
     SELECT *
@@ -21,10 +21,6 @@ $schedules = $conn->query("
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-
-            <h3 class="mb-1">
-                Rasporedi rada
-            </h3>
 
             <div class="text-muted">
 
@@ -299,4 +295,4 @@ $schedules = $conn->query("
 
 </div>
 
-<?php include "../../../layouts/admin_layout_end.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

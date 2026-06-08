@@ -2,11 +2,15 @@
 
 $pageTitle = "Kategorije inventara";
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 require_login();
 
-require_role(['admin', 'it']);
+if (!canAccessInventory()) {
+
+    http_response_code(403);
+    exit('403 Forbidden');
+}
 
 $search = trim($_GET['search'] ?? '');
 
@@ -62,11 +66,6 @@ $types = $conn->query("
                     gap-2
                     mb-4">
 
-            <h4 class="mb-0">
-
-                Kategorije inventara
-
-            </h4>
 
             <button
                 class="btn btn-primary"
@@ -375,4 +374,4 @@ $types = $conn->query("
 
 <script src="../js/categories.js"></script>
 
-<?php include "../../../layouts/footer.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

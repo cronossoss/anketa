@@ -9,7 +9,7 @@ require_once '../helpers/organization.php';
 
 $pageTitle = 'Novo odsustvo';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $employees = [];
 

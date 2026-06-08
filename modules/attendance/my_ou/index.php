@@ -8,7 +8,7 @@ $pageTitle = 'Moja OJ';
 
 $currentPage = 'my-ou-dashboard';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $userId =
     $_SESSION['user_id'];
@@ -268,12 +268,6 @@ $pendingRequests =
 
         <div>
 
-            <h3 class="mb-1">
-
-                Moja OJ
-
-            </h3>
-
             <div class="text-muted">
 
                 <?= htmlspecialchars($unit['code']) ?>
@@ -372,29 +366,7 @@ $pendingRequests =
 
     </div>
 
-    <div class="col-md-4">
-
-        <div class="card shadow-sm border-0">
-
-            <div class="card-body">
-
-                <div class="text-muted">
-
-                    Broj zaposlenih
-
-                </div>
-
-                <div class="fs-2 fw-bold text-primary">
-
-                    <?= $totalEmployees ?>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
+    
 
 </div>
 
@@ -410,7 +382,7 @@ $pendingRequests =
 
                     <tr>
 
-                        <th>LN</th>
+                        <th>Matični broj</th>
 
                         <th>Zaposleni</th>
 
@@ -529,4 +501,4 @@ $pendingRequests =
 
 </div>
 
-<?php include "../../../layouts/admin_layout_end.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

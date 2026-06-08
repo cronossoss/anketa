@@ -9,9 +9,17 @@ require_once __DIR__ . '/navigation.php';
 
 <div class="sidebar bg-primary text-white p-3 d-none d-lg-block">
 
-    <h4 class="mb-3">
-        Anketa
-    </h4>
+    <div class="app-brand">
+
+        <div class="app-brand-short">
+            IIS
+        </div>
+
+        <div class="app-brand-full">
+            Integrisani informacioni sistem
+        </div>
+
+    </div>
 
     <ul class="nav flex-column">
 

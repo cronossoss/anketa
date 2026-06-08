@@ -6,7 +6,7 @@ $currentPage = 'attendance-assignments';
 
 $pageTitle = "Dodela rasporeda";
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $assignments = $conn->query("
 

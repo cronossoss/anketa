@@ -2,7 +2,7 @@
 
 $pageTitle = "Zaposleni";
 
-include "../layouts/admin_layout_start.php";
+include "../layouts/layout_start.php";
 
 require_login();
 
@@ -58,12 +58,6 @@ $employees = $conn->query("
                     flex-wrap
                     gap-2
                     mb-4">
-
-            <h3 class="mb-0">
-
-                Zaposleni
-
-            </h3>
 
             <button
                 type="button"
@@ -418,4 +412,4 @@ $units->data_seek(0);
 
 <?php include 'partials/modals/employee_view_modal.php'; ?>
 
-<?php include "../layouts/footer.php"; ?>
+<?php include "../layouts/layout_end.php"; ?>

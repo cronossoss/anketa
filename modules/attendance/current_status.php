@@ -8,7 +8,7 @@ $pageTitle = 'Trenutno stanje';
 
 $currentPage = 'attendance-current-status';
 
-include "../../layouts/admin_layout_start.php";
+include "../../layouts/layout_start.php";
 
 $referenceDate =
 
@@ -500,4 +500,4 @@ while ($employee = $employees->fetch_assoc()) {
     </script>
 <?php endif; ?>
 
-<?php include "../../layouts/admin_layout_end.php"; ?>
+<?php include "../../layouts/layout_end.php"; ?>

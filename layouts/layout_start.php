@@ -22,7 +22,7 @@ if (
     <meta name="viewport"
         content="width=device-width, initial-scale=1">
 
-    <title>Admin Panel</title>
+    <title><?= $pageTitle ?> | IIS</title>
 
     <link
         rel="stylesheet"
@@ -66,6 +66,8 @@ if (
     <div class="wrapper">
 
         <?php include __DIR__ . "/../includes/layout/sidebar.php"; ?>
+
+        <?php include __DIR__ . "/../includes/layout/mobile_sidebar.php"; ?>
 
         <div class="main">
 

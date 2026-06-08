@@ -6,7 +6,7 @@ require_once '../../../helpers/attendance.php';
 $currentPage = 'attendance-monthly-report';
 $pageTitle = 'Mesečni izveštaj prisustva';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 //
 // FILTERI

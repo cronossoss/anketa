@@ -6,7 +6,7 @@ $currentPage = 'attendance-dashboard';
 
 $pageTitle = "Attendance Dashboard";
 
-include "../../layouts/admin_layout_start.php";
+include "../../layouts/layout_start.php";
 
 $date = date('Y-m-d');
 
@@ -932,4 +932,4 @@ $onExitPass = $conn->query("
 
 </div>
 
-<?php include "../../layouts/admin_layout_end.php"; ?>
+<?php include "../../layouts/layout_end.php"; ?>

@@ -7,7 +7,7 @@ require_login();
 $pageTitle =
     'Nova izlaznica';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $userId =
     $_SESSION['user_id'];

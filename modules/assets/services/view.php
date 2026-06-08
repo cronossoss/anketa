@@ -4,11 +4,15 @@ $pageTitle = "Pregled servisa";
 
 $currentPage = 'asset-services';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 require_login();
 
-require_role(['admin', 'it']);
+if (!canAccessInventory()) {
+
+    http_response_code(403);
+    exit('403 Forbidden');
+}
 
 $id = (int) ($_GET['id'] ?? 0);
 

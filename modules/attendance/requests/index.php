@@ -110,10 +110,6 @@ usort(
 
         <div>
 
-            <h3 class="mb-1">
-                Moji zahtevi
-            </h3>
-
             <div class="text-muted">
                 Pregled svih zahteva
             </div>

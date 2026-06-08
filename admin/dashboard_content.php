@@ -1,196 +1,319 @@
-<div class="row g-4">
+<div class="container-fluid">
 
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="mb-4">
 
-        <div class="dashboard-card">
-
-            <div class="dashboard-card-icon">
-                <i class="fa-solid fa-sitemap"></i>
-            </div>
-
-            <div class="dashboard-card-content">
-
-                <h3>Organizacija</h3>
-
-                <p>
-                    Upravljanje organizacijom firme
-                </p>
-
-                <a
-                    href="<?= url('admin/organization.php"') ?>"
-                    class="btn btn-primary">
-                    Organizacija
-                </a>
-
-            </div>
-
-        </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="dashboard-card">
-
-            <div class="dashboard-card-icon">
-                <i class="fa-solid fa-people-group"></i>
-            </div>
-
-            <div class="dashboard-card-content">
-
-                <h3>Zaposleni</h3>
-
-                <p>
-                    Upravljanje podacima o zaposlenima
-                </p>
-
-                <a
-                    href="<?= url('admin/employees.php"') ?>"
-                    class="btn btn-primary">
-                    Zaposleni
-                </a>
-
-            </div>
-
-        </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-
-        <div class="dashboard-card">
-
-            <div class="dashboard-card-icon">
-                <i class="fa-solid fa-users"></i>
-            </div>
-
-            <div class="dashboard-card-content">
-
-                <h3>Korisnici</h3>
-
-                <p>
-                    Upravljanje nalozima za pristup aplikaciji
-                </p>
-
-                <a
-                    href="<?= url('admin/users.php"') ?>"
-                    class="btn btn-primary">
-                    Korisnici
-                </a>
-
-            </div>
-
+        <div class="alert alert-light border">
+            Dobrodošli u integrisani informacioni sistem - IIS
         </div>
 
     </div>
 
-    <div class="row g-4">
+    <!-- KADROVI -->
 
-        <div class="col-12 col-sm-6 col-xl-3">
+    <h5 class="mb-3 text-uppercase text-muted">
+        Kadrovi
+    </h5>
 
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6 col-xl-3">
+
+            	<div class="dashboard-card">
+
+                        <div class="dashboard-card-header">
+
+                            <div class="dashboard-card-title">
+
+                                <i class="bi bi-diagram-3"></i>
+
+                                <span>Organizacija</span>
+
+                            </div>
+
+                            <a href="#" class="btn btn-sm btn-primary">
+                                Otvori
+                            </a>
+
+                        </div>
+
+                        <div class="dashboard-card-description">
+
+                            Organizacione jedinice i hijerarhija
+
+                        </div>
+
+                    </div>
+
+        </div>
+
+        <div class="col-md-6 col-xl-3">
 
             <div class="dashboard-card">
 
-                <div class="dashboard-card-icon">
-                    <i class="fas fa-laptop"></i>
-                </div>
+                <div class="dashboard-card-header">
 
-                <div class="dashboard-card-content">
+                    <div class="dashboard-card-title">
 
-                    <h3>Inventar</h3>
+                        <i class="bi bi-people"></i>
 
-                    <p>
-                        Upravljanje IT opremom i inventarom
-                    </p>
+                        <span>Zaposleni</span>
 
-                    <a
-                        href="<?= url('modules/assets/items/index.php"') ?>"
-                        class="btn btn-primary">
-                        Inventar
+                    </div>
+
+                    <a href="#" class="btn btn-sm btn-primary">
+                        Otvori
                     </a>
 
                 </div>
 
-            </div>
+                <div class="dashboard-card-description">
 
-        </div>
-
-        <div class="col-12 col-sm-6 col-xl-3">
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-card-icon">
-                    <i class="fa-solid fa-chart-bar"></i>
-                </div>
-
-                <div class="dashboard-card-content">
-
-                    <h3>Izveštaji</h3>
-
-                    <p>
-                        Prikazivanje izveštaja
-                    </p>
-
-                    <a
-                        href="<?= url('admin/reports.php"') ?>"
-                        class="btn btn-primary">
-                        Izveštaji
-                    </a>
+                    Evidencija zaposlenih
 
                 </div>
 
             </div>
+
         </div>
-
-        <div class="col-12 col-sm-6 col-xl-3">
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-card-icon">
-                    <i class="fa-brands fa-perbyte"></i>
-                </div>
-
-                <div class="dashboard-card-content">
-
-                    <h3>Evidencija</h3>
-
-                    <p>
-                        Prikaz podataka o upotrebi aplikacije
-                    </p>
-
-                    <a
-                        href="<?= url('admin/audit_logs.php"') ?>"
-                        class="btn btn-primary">
-                        Evidencija
-                    </a>
-
-                </div>
-
-            </div>
-        </div>
-
-
-
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-
-
-
-
-
-
-
-
 
     </div>
+
+    <!-- PRISUSTVO -->
+
+    <h5 class="mb-3 text-uppercase text-muted">
+        Prisustvo
+    </h5>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6 col-xl-3">
+
+            	<div class="dashboard-card">
+
+                    <div class="dashboard-card-header">
+
+                        <div class="dashboard-card-title">
+
+                            <i class="bi bi-calendar-check"></i>
+
+                            <span>Prisustvo</span>
+
+                        </div>
+
+                        <a href="#" class="btn btn-sm btn-primary">
+                            Otvori
+                        </a>
+
+                    </div>
+
+                    <div class="dashboard-card-description">
+
+                        Trenutno stanje zaposlenih
+
+                    </div>
+
+                </div>
+
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+
+            	<div class="dashboard-card">
+
+                    <div class="dashboard-card-header">
+
+                        <div class="dashboard-card-title">
+
+                            <i class="bi bi-calendar-x"></i>
+
+                            <span>Odsustva</span>
+
+                        </div>
+
+                        <a href="#" class="btn btn-sm btn-primary">
+                            Otvori
+                        </a>
+
+                    </div>
+
+                    <div class="dashboard-card-description">
+
+                        Upravljanje odsustvima
+
+                    </div>
+
+                </div>
+
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+
+            	<div class="dashboard-card">
+
+                    <div class="dashboard-card-header">
+
+                        <div class="dashboard-card-title">
+
+                            <i class="bi bi-door-open"></i>
+
+                            <span>Izlaznice</span>
+
+                        </div>
+
+                        <a href="#" class="btn btn-sm btn-primary">
+                            Otvori
+                        </a>
+
+                    </div>
+
+                    <div class="dashboard-card-description">
+
+                        Evidencija izlaznica
+
+                    </div>
+
+                </div>
+
+        </div>
+
+    </div>
+
+    <!-- IT INVENTAR -->
+
+    <h5 class="mb-3 text-uppercase text-muted">
+        IT Inventar
+    </h5>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6 col-xl-3">
+
+            	<div class="dashboard-card">
+
+                    <div class="dashboard-card-header">
+
+                        <div class="dashboard-card-title">
+
+                            <i class="bi bi-pc-display"></i>
+
+                            <span>Inventar</span>
+
+                        </div>
+
+                        <a href="#" class="btn btn-sm btn-primary">
+                            Otvori
+                        </a>
+
+                    </div>
+
+                    <div class="dashboard-card-description">
+
+                        Pregled IT opreme
+
+                    </div>
+
+                </div>
+
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+
+            	<div class="dashboard-card">
+
+                    <div class="dashboard-card-header">
+
+                        <div class="dashboard-card-title">
+
+                            <i class="bi bi-person-workspace"></i>
+
+                            <span>Zaduženja</span>
+
+                        </div>
+
+                        <a href="#" class="btn btn-sm btn-primary">
+                            Otvori
+                        </a>
+
+                    </div>
+
+                    <div class="dashboard-card-description">
+
+                        Pregled zaduženja opreme
+
+                    </div>
+
+                </div>
+
+        </div>
+
+    </div>
+
+    <!-- ADMINISTRACIJA -->
+
+    <h5 class="mb-3 text-uppercase text-muted">
+        Administracija
+    </h5>
+
+    <div class="row g-3">
+
+        <div class="col-md-6 col-xl-3">
+
+            	<div class="dashboard-card">
+
+                    <div class="dashboard-card-header">
+
+                        <div class="dashboard-card-title">
+
+                            <i class="bi bi-person-badge"></i>
+
+                            <span>Korisnici</span>
+
+                        </div>
+
+                        <a href="#" class="btn btn-sm btn-primary">
+                            Otvori
+                        </a>
+
+                    </div>
+
+                    <div class="dashboard-card-description">
+
+                        Upravljanje korisničkim nalozima
+
+                    </div>
+
+                </div>
+
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="dashboard-card">
+
+                <div class="dashboard-card-header">
+
+                    <div class="dashboard-card-title">
+
+                        <i class="bi bi-clock-history"></i>
+
+                        <span>Audit log</span>
+
+                    </div>
+
+                    <a href="#" class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
+
+                </div>
+
+                <div class="dashboard-card-description">
+
+                    Evidencija aktivnosti sistema
+
+                </div>
+
+            </div>
+
+    </div>
+
+</div>

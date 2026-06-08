@@ -6,11 +6,15 @@ $pageTitle = "Inventar";
 
 $currentPage = 'assets-dashboard';
 
-include ROOT_PATH . '/layouts/admin_layout_start.php';
+include ROOT_PATH . '/layouts/layout_start.php';
 
 require_login();
 
-require_role(['admin', 'it']);
+if (!canAccessInventory()) {
+
+    http_response_code(403);
+    exit('403 Forbidden');
+}
 
 /* =========================
    COUNTERS
@@ -54,12 +58,7 @@ $repairAssets = $conn
 
         <div class="d-flex justify-content-between align-items-center mb-4">
 
-            <h3 class="mb-0">
-
-                Inventar
-
-            </h3>
-
+ 
             <a
                 href="<?= url('modules/assets/assets/index.php') ?>"
                 class="btn btn-primary">
@@ -174,4 +173,4 @@ $repairAssets = $conn
 
 </main>
 
-<?php include "../../layouts/footer.php"; ?>
+<?php include "../../layouts/layout_end.php"; ?>

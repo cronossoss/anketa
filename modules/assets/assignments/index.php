@@ -4,11 +4,15 @@ $pageTitle = "Zaduženja";
 
 $currentPage = 'asset-assignments';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 require_login();
 
-require_role(['admin', 'it']);
+if (!canAccessInventory()) {
+
+    http_response_code(403);
+    exit('403 Forbidden');
+}
 
 $search = trim($_GET['search'] ?? '');
 
@@ -88,12 +92,7 @@ $result = $conn->query("
 
     <div class="page-card">
 
-        <h4 class="mb-4">
-
-            Aktivna zaduženja
-
-        </h4>
-
+ 
         <!-- SEARCH -->
 
         <form
@@ -806,4 +805,4 @@ document
 
 </script>
 
-<?php include "../../../layouts/footer.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

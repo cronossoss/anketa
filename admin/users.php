@@ -1,7 +1,8 @@
 <?php
 
 $pageTitle = "Korisnički nalozi";
-include "../layouts/admin_layout_start.php";
+
+include "../layouts/layout_start.php";
 
 require_login();
 require_role(['admin', 'it']);
@@ -16,6 +17,22 @@ $roles = [
     'hr' => 'HR',
     'manager' => 'Manager',
     'user' => 'User'
+];
+
+$permissions = [
+
+    'inventory'         => 'IT Inventar',
+
+    'attendance_admin'  => 'Administracija prisustva',
+
+    'organization'      => 'Organizacija',
+
+    'employees'         => 'Zaposleni',
+
+    'users'             => 'Korisnici',
+
+    'audit'             => 'Audit log'
+
 ];
 
 $employees = $conn->query("
@@ -59,7 +76,6 @@ $users = $conn->query("
 
         <?php endif; ?>
 
-        <h3>Korisnici</h3>
 
         <div class="card p-3 mb-3 shadow-sm">
 
@@ -208,6 +224,17 @@ $users = $conn->query("
 
                                     </form>
 
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-info permission-btn"
+                                        data-user-id="<?= $u['id'] ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#permissionsModal">
+
+                                        <i class="bi bi-shield-check"></i>
+
+                                    </button>
+
                                     <form
                                         method="POST"
                                         action="<?= url('admin/actions/users_delete.php') ?>"
@@ -294,6 +321,17 @@ $users = $conn->query("
 
                                         </form>
 
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-warning permission-btn"
+                                            data-user-id="<?= $u['id'] ?>"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#permissionsModal">
+
+                                            <i class="bi bi-shield-check"></i>
+
+                                        </button>
+
                                     </div>
 
                                 </td>
@@ -308,6 +346,168 @@ $users = $conn->query("
         </div>
     </div>
 
+    <div
+        class="modal fade"
+        id="permissionsModal"
+        tabindex="-1">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <form
+                    method="post"
+                    action="<?= url('admin/actions/users_save_permissions.php') ?>">
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="<?= csrf_token() ?>">
+
+                    <input
+                        type="hidden"
+                        name="user_id"
+                        id="permissionUserId">
+
+                    <div class="modal-header">
+
+                        <h5 class="modal-title">
+
+                            Dozvole korisnika
+
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        <?php foreach ($permissions as $key => $label): ?>
+
+                            <div class="form-check mb-2">
+
+                                <input
+                                    class="form-check-input permission-checkbox"
+                                    type="checkbox"
+                                    name="permissions[]"
+                                    value="<?= $key ?>"
+                                    id="perm_<?= $key ?>">
+
+                                <label
+                                    class="form-check-label"
+                                    for="perm_<?= $key ?>">
+
+                                    <?= e($label) ?>
+
+                                </label>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
+
+                            Sačuvaj
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </main>
 
-<?php include "../layouts/footer.php"; ?>
+<script>
+
+document
+.querySelectorAll('.permission-btn')
+.forEach(btn => {
+
+    btn.addEventListener(
+        'click',
+        async function () {
+
+            const userId =
+                this.dataset.userId;
+
+            document
+            .getElementById(
+                'permissionUserId'
+            )
+            .value =
+                userId;
+
+            document
+            .querySelectorAll(
+                '.permission-checkbox'
+            )
+            .forEach(cb => {
+
+                cb.checked = false;
+
+            });
+
+            try {
+
+                const response =
+                    await fetch(
+
+                        APP.baseUrl +
+                        '/admin/actions/users_get_permissions.php?id=' +
+                        userId
+
+                    );
+
+                const data =
+                    await response.json();
+
+                data.permissions
+                .forEach(permission => {
+
+                    const checkbox =
+                        document.querySelector(
+                            '[value="' +
+                            permission +
+                            '"]'
+                        );
+
+                    if (checkbox) {
+
+                        checkbox.checked = true;
+
+                    }
+
+                });
+
+            } catch (e) {
+
+                console.error(e);
+
+            }
+
+        }
+    );
+
+});
+
+</script>
+
+<?php include "../layouts/layout_end.php"; ?>
+

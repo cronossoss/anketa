@@ -9,7 +9,7 @@ require_once '../../../helpers/format.php';
 
 $pageTitle = 'Zahtevi zaposlenih';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $currentEmployeeId = null;
 
@@ -176,10 +176,6 @@ usort(
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-
-            <h3 class="mb-1">
-                Zahtevi zaposlenih
-            </h3>
 
             <div class="text-muted">
                 Zahtevi koji čekaju odobrenje

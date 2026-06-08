@@ -9,7 +9,7 @@ require_once '../helpers/organization.php';
 
 $pageTitle = 'Evidencija odsustava';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $status = $_GET['status'] ?? '';
 $type   = $_GET['type'] ?? '';

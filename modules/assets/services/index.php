@@ -1,14 +1,18 @@
 <?php
 
-$pageTitle = "Servisi";
+$pageTitle = "Servis i intervencije";
 
 $currentPage = 'asset-services';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 require_login();
 
-require_role(['admin', 'it']);
+if (!canAccessInventory()) {
+
+    http_response_code(403);
+    exit('403 Forbidden');
+}
 
 $search = trim($_GET['search'] ?? '');
 
@@ -95,12 +99,7 @@ $result = $stmt->get_result();
 
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
 
-            <h4 class="mb-0">
-
-                Servisi i intervencije
-
-            </h4>
-
+ 
             <a
                 href="create.php"
                 class="btn btn-danger">
@@ -519,4 +518,4 @@ $result = $stmt->get_result();
 
 </style>
 
-<?php include "../../../layouts/footer.php"; ?>
+<?php include "../../../layouts/layout_end.php"; ?>

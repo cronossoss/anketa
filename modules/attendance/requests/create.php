@@ -6,7 +6,7 @@ require_login();
 
 $pageTitle = 'Novi zahtev';
 
-include "../../../layouts/admin_layout_start.php";
+include "../../../layouts/layout_start.php";
 
 $exitTypes = $conn->query("
     SELECT id, name

@@ -263,7 +263,7 @@ require_once HELPERS_PATH . '/response.php';
 
 require_once HELPERS_PATH . '/redirect.php';
 
-// require_once HELPERS_PATH . '/permissions.php';
+require_once HELPERS_PATH . '/permissions.php';
 
 // require_once HELPERS_PATH . '/validation.php';
 

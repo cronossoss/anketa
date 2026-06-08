@@ -18,18 +18,69 @@ body.modal-open {
 }
 
 .content {
-    padding: 20px;
+    padding: 12px 20px !important;
 }
 
 .dashboard-card {
-    border: 0;
-    border-radius: 18px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #edf0f4;
     transition: 0.2s;
+    height: 100%;
 }
 
 .dashboard-card:hover {
     transform: translateY(-2px);
+}
+
+.dashboard-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.dashboard-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.dashboard-card-title i {
+    font-size: 22px;
+}
+
+.dashboard-card-description {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.dashboard-card .btn {
+    padding: 4px 10px;
+    font-size: 13px;
+}
+
+.app-brand-short {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.app-brand-full {
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 4px;
+    line-height: 1.3;
+}
+
+.nav-item .mt-2 .mb-1 {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
 }
 
 .sidebar {
@@ -42,8 +93,8 @@ body.modal-open {
 
 .sidebar small {
     font-size: 10px;
-    opacity: .65;
-    letter-spacing: .8px;
+    opacity: 0.65;
+    letter-spacing: 0.8px;
 }
 
 .sidebar h4 {
@@ -54,10 +105,10 @@ body.modal-open {
 
 .sidebar .nav-link,
 .offcanvas .nav-link {
-    padding: 4px 8px;
+    padding: 2px 4px !important;
     font-size: 14px;
     border-radius: 10px;
-    margin-bottom: 2px;
+    margin-bottom: 0.5px;
     transition: 0.2s;
     text-decoration: none !important;
 }
@@ -75,7 +126,7 @@ body.modal-open {
 
 .sidebar .nav-link.active,
 .offcanvas .nav-link.active {
-    background: rgba(255,255,255,.22);
+    background: rgba(255, 255, 255, 0.22);
     color: #fff !important;
     font-weight: 600;
 }
@@ -92,7 +143,16 @@ body.modal-open {
 }
 
 .offcanvas {
-    width: 260px;
+    width: 280px;
+}
+
+.offcanvas .nav-link {
+    padding: 8px 10px;
+    border-radius: 8px;
+}
+
+.offcanvas .nav-link.active {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .topbar {
@@ -115,6 +175,36 @@ body.modal-open {
     top: 0;
 
     z-index: 100;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.page-title {
+    margin: 0;
+    white-space: nowrap;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.topbar-announcements {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    height: 24px;
+}
+
+.announcement-track {
+    position: absolute;
+    white-space: nowrap;
+    animation: ticker 25s linear infinite;
+    color: #910d2a;
+    font-size: 20px;
 }
 
 .topbar-left h4 {
@@ -159,7 +249,7 @@ body.modal-open {
     font-size: 11px;
     color: #9ca3af;
     text-transform: uppercase;
-    letter-spacing: .5px;
+    letter-spacing: 0.5px;
 }
 
 /* =========================

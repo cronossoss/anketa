@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
                 <h2 class="fw-bold login-title">
-                    Dobrodošli na portal
+                    Integrisani informacioni sistem
                     HK "Krušik" a.d. Valjevo
                 </h2>
 
@@ -119,9 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </p>
 
             </div>
-
-
-
 
             <h4>Prijava</h4>
 

@@ -2,7 +2,7 @@
 
 $pageTitle = "Organizacija";
 
-include "../layouts/admin_layout_start.php";
+include "../layouts/layout_start.php";
 require_once '../helpers/audit.php';
 
 require_login();
@@ -437,4 +437,4 @@ $managers = $conn->query("
 
 
 
-<?php include "../layouts/admin_layout_end.php"; ?>
+<?php include "../layouts/layout_end.php"; ?>
