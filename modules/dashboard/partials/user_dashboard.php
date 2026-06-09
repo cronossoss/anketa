@@ -1,13 +1,30 @@
 <?php
 
 $employeeId =
-    $_SESSION['employee_id'] ?? 0;
+    (int)($_SESSION['employee_id'] ?? 0);
 
 /*
 |--------------------------------------------------------------------------
 | GODIŠNJI ODMOR
 |--------------------------------------------------------------------------
 */
+
+$stmt = $conn->prepare("
+    SELECT id
+    FROM attendance_absence_types
+    WHERE category = 'vacation'
+    LIMIT 1
+");
+
+$stmt->execute();
+
+$vacationType =
+    $stmt
+        ->get_result()
+        ->fetch_assoc();
+
+$vacationTypeId =
+    (int)($vacationType['id'] ?? 0);
 
 $annualLeaveDays = 0;
 
@@ -24,16 +41,160 @@ $stmt->bind_param(
 
 $stmt->execute();
 
-$result =
+$employee =
     $stmt
         ->get_result()
         ->fetch_assoc();
 
-if ($result) {
+$annualLeaveDays =
+    (int)($employee['annual_leave_days'] ?? 0);
 
-    $annualLeaveDays =
-        (int)$result['annual_leave_days'];
+$usedLeaveDays = 0;
+
+if ($vacationTypeId) {
+
+    $stmt = $conn->prepare("
+        SELECT
+            SUM(
+                DATEDIFF(
+                    DATE(date_to),
+                    DATE(date_from)
+                ) + 1
+            ) AS days_used
+        FROM attendance_absences
+        WHERE employee_id = ?
+          AND absence_type_id = ?
+          AND status = 'approved'
+    ");
+
+    $stmt->bind_param(
+        "ii",
+        $employeeId,
+        $vacationTypeId
+    );
+
+    $stmt->execute();
+
+    $result =
+        $stmt
+            ->get_result()
+            ->fetch_assoc();
+
+    $usedLeaveDays =
+        (int)($result['days_used'] ?? 0);
 }
+
+$remainingLeaveDays =
+    max(
+        0,
+        $annualLeaveDays - $usedLeaveDays
+    );
+
+/*
+|--------------------------------------------------------------------------
+| IZLAZNICE PRIVATNO
+|--------------------------------------------------------------------------
+*/
+
+$stmt = $conn->prepare("
+    SELECT
+        id,
+        monthly_limit_minutes
+    FROM attendance_exit_types
+    WHERE code = 'PRIV'
+    LIMIT 1
+");
+
+$stmt->execute();
+
+$exitType =
+    $stmt
+        ->get_result()
+        ->fetch_assoc();
+
+$privateExitTypeId =
+    (int)($exitType['id'] ?? 0);
+
+$monthlyLimitMinutes =
+    (int)($exitType['monthly_limit_minutes'] ?? 480);
+
+$usedExitMinutes = 0;
+
+if ($privateExitTypeId) {
+
+    $stmt = $conn->prepare("
+        SELECT
+            SUM(
+                TIMESTAMPDIFF(
+                    MINUTE,
+                    date_from,
+                    date_to
+                )
+            ) AS total_minutes
+        FROM attendance_exit_passes
+        WHERE employee_id = ?
+          AND exit_type_id = ?
+          AND status = 'approved'
+          AND YEAR(date_from) = YEAR(CURDATE())
+          AND MONTH(date_from) = MONTH(CURDATE())
+    ");
+
+    $stmt->bind_param(
+        "ii",
+        $employeeId,
+        $privateExitTypeId
+    );
+
+    $stmt->execute();
+
+    $result =
+        $stmt
+            ->get_result()
+            ->fetch_assoc();
+
+    $usedExitMinutes =
+        (int)($result['total_minutes'] ?? 0);
+}
+
+$pendingRequests = 0;
+
+$stmt = $conn->prepare("
+    SELECT COUNT(*) total
+    FROM attendance_absences
+    WHERE employee_id = ?
+      AND status = 'pending'
+");
+
+$stmt->bind_param(
+    "i",
+    $employeeId
+);
+
+$stmt->execute();
+
+$pendingRequests +=
+    (int)$stmt
+        ->get_result()
+        ->fetch_assoc()['total'];
+
+$stmt = $conn->prepare("
+    SELECT COUNT(*) total
+    FROM attendance_exit_passes
+    WHERE employee_id = ?
+      AND status = 'pending'
+");
+
+$stmt->bind_param(
+    "i",
+    $employeeId
+);
+
+$stmt->execute();
+
+$pendingRequests +=
+    (int)$stmt
+        ->get_result()
+        ->fetch_assoc()['total'];
 
 /*
 |--------------------------------------------------------------------------
@@ -89,11 +250,9 @@ $overtimeHours = 0;
 
                     <?= $annualLeaveDays - $usedLeaveDays ?>
 
-                    <small class="text-muted">
-
-                        / <?= $annualLeaveDays ?>
-
-                    </small>
+                        <small class="text-muted">
+                            / <?= $annualLeaveDays ?>
+                        </small>
 
                 </div>
 
@@ -117,10 +276,10 @@ $overtimeHours = 0;
 
                     <?= $exitHoursUsed ?>
 
+                    <?= round($usedExitMinutes / 60, 1) ?>h
+
                     <small class="text-muted">
-
-                        / 8h
-
+                        / <?= round($monthlyLimitMinutes / 60, 1) ?>h
                     </small>
 
                 </div>
@@ -193,7 +352,7 @@ $overtimeHours = 0;
 
             <div class="text-muted">
 
-                Pregled zahteva biće prikazan ovde.
+                <?= $pendingRequests ?>
 
             </div>
 
