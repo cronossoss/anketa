@@ -123,7 +123,7 @@ function getManagedEmployeesCount(
         ->fetch_assoc()['total'];
 }
 
-function getManagedEmployees(
+function getManagedEmployeesIds(
     mysqli $conn,
     int $managerEmployeeId
 ): array {

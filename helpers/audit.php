@@ -1,11 +1,11 @@
 <?php
 
 function audit_log(
-    $module,
-    $action,
-    $targetId = null,
-    $description = null
-) {
+    string $module,
+    string $action,
+    ?int $targetId = null,
+    ?string $description = null
+): void {
 
     global $conn;
 
@@ -17,6 +17,10 @@ function audit_log(
         $_SERVER['REMOTE_ADDR']
         ?? null;
 
+    $userAgent =
+        $_SERVER['HTTP_USER_AGENT']
+        ?? null;
+
     $stmt = $conn->prepare("
         INSERT INTO audit_logs
         (
@@ -25,20 +29,22 @@ function audit_log(
             action,
             target_id,
             description,
-            ip_address
+            ip_address,
+            user_agent
         )
         VALUES
-        (?, ?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?, ?)
     ");
 
     $stmt->bind_param(
-        "ississ",
+        "ississs",
         $userId,
         $module,
         $action,
         $targetId,
         $description,
-        $ip
+        $ip,
+        $userAgent
     );
 
     $stmt->execute();

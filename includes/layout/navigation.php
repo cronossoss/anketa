@@ -126,6 +126,13 @@ if (canAccessAttendanceAdmin()) {
         ],
 
         [
+            'title' => 'Korekcije',
+            'icon'  => 'bi bi-pencil-square',
+            'url'   => url('modules/attendance/corrections/index.php'),
+            'page'  => 'attendance-corrections'
+        ],
+
+        [
             'title' => 'Trenutno stanje',
             'icon'  => 'bi bi-clock-history',
             'url'   => url('modules/attendance/current_status.php'),

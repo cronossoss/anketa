@@ -2,62 +2,297 @@
 
 require_once ROOT_PATH . '/helpers/organization_tree.php';
 
-$employeeId =
-    $_SESSION['employee_id'];
+require_once ROOT_PATH . '/helpers/manager_dashboard.php';
+
+$managerEmployeeId =
+    (int)$_SESSION['employee_id'];
 
 $employeeCount =
-    getManagedEmployeesCount(
+    getManagedEmployeeCount(
         $conn,
-        $employeeId
+        $managerEmployeeId
     );
 
-$stmt = $conn->prepare("
-    SELECT
-        name
-    FROM organizational_units
-    WHERE manager_employee_id = ?
-    LIMIT 1
-");
+$pendingAbsences =
+    getPendingAbsenceCount(
+        $conn,
+        $managerEmployeeId
+    );
 
-$stmt->bind_param(
-    "i",
-    $employeeId
-);
+$pendingExitPasses =
+    getPendingExitPassCount(
+        $conn,
+        $managerEmployeeId
+    );
 
-$stmt->execute();
+$dangerAnnouncements =
+    (int)$conn
+        ->query("
+            SELECT COUNT(*) total
+            FROM announcements
+            WHERE active = 1
+              AND priority = 'danger'
+        ")
+        ->fetch_assoc()['total'];
+$managedEmployees =
+    getManagedEmployeeIds(
+        $conn,
+        $managerEmployeeId
+    );
 
-$unit =
-    $stmt
-        ->get_result()
-        ->fetch_assoc();
+$presentToday = 0;
+$onLeaveToday = 0;
+$onExitToday = 0;
+$notRecordedToday = 0;
+$notRecordedEmployees = [];
 
-$unitName =
-    $unit['name']
-    ?? 'Nedefinisano';
+if (!empty($managedEmployees)) {
 
-$pendingRequests = 0;
-$newDocuments = 0;
-$reminders = 0;
-$urgentAnnouncements = 0;
+    $employeeIds =
+        implode(
+            ',',
+            array_map(
+                'intval',
+                $managedEmployees
+            )
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | ODSUSTVA DANAS
+    |--------------------------------------------------------------------------
+    */
+
+    $result = $conn->query("
+        SELECT COUNT(DISTINCT employee_id) total
+        FROM attendance_absences
+        WHERE status = 'approved'
+          AND CURDATE()
+              BETWEEN DATE(date_from)
+              AND DATE(date_to)
+          AND employee_id IN ($employeeIds)
+    ");
+
+    $onLeaveToday =
+        (int)$result
+            ->fetch_assoc()['total'];
+
+    /*
+    |--------------------------------------------------------------------------
+    | IZLAZNICE SADA
+    |--------------------------------------------------------------------------
+    */
+
+    $result = $conn->query("
+        SELECT COUNT(DISTINCT employee_id) total
+        FROM attendance_exit_passes
+        WHERE status = 'approved'
+          AND NOW()
+              BETWEEN date_from
+              AND date_to
+          AND employee_id IN ($employeeIds)
+    ");
+
+    $onExitToday =
+        (int)$result
+            ->fetch_assoc()['total'];
+
+    /*
+    |--------------------------------------------------------------------------
+    | EVIDENTIRANI DANAS
+    |--------------------------------------------------------------------------
+    */
+
+    $result = $conn->query("
+        SELECT COUNT(DISTINCT employee_id) total
+        FROM attendance_logs
+        WHERE DATE(access_datetime) = CURDATE()
+        AND employee_id IN ($employeeIds)
+    ");
+
+    $recordedToday =
+        (int)$result
+            ->fetch_assoc()['total'];
+
+    $result = $conn->query("
+        SELECT
+            e.id,
+            e.first_name,
+            e.last_name,
+            e.personal_id
+        FROM employees e
+
+        WHERE e.id IN ($employeeIds)
+
+        AND e.id NOT IN (
+
+                SELECT DISTINCT employee_id
+                FROM attendance_logs
+                WHERE DATE(access_datetime) = CURDATE()
+
+        )
+
+        AND e.id NOT IN (
+
+                SELECT DISTINCT employee_id
+                FROM attendance_absences
+                WHERE status = 'approved'
+                AND CURDATE()
+                    BETWEEN DATE(date_from)
+                    AND DATE(date_to)
+
+        )
+
+        ORDER BY
+            e.last_name,
+            e.first_name
+    ");
+
+    $notRecordedEmployees =
+        $result->fetch_all(MYSQLI_ASSOC);
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRISUTNI
+    |--------------------------------------------------------------------------
+    */
+
+    $notRecordedToday =
+        $employeeCount
+        - $recordedToday
+        - $onLeaveToday;
+
+    if ($notRecordedToday < 0) {
+        $notRecordedToday = 0;
+    }
+
+    $presentToday =
+        $employeeCount
+        - $onLeaveToday
+        - $onExitToday
+        - $notRecordedToday;
+
+    if ($presentToday < 0) {
+        $presentToday = 0;
+    }
+
+    if ($presentToday < 0) {
+        $presentToday = 0;
+    }
+}
+
+$pendingRequests = [];
+
+if (!empty($managedEmployees)) {
+
+    $employeeIds =
+        implode(
+            ',',
+            array_map(
+                'intval',
+                $managedEmployees
+            )
+        );
+
+    $sql = "
+
+        SELECT
+            a.id,
+            'absence' AS request_type,
+            e.first_name,
+            e.last_name,
+            t.name AS type_name,
+            a.date_from,
+            a.date_to,
+            a.created_at
+
+        FROM attendance_absences a
+
+        INNER JOIN employees e
+            ON e.id = a.employee_id
+
+        INNER JOIN attendance_absence_types t
+            ON t.id = a.absence_type_id
+
+        WHERE a.status = 'pending'
+          AND a.employee_id IN ($employeeIds)
+
+        UNION ALL
+
+        SELECT
+            p.id,
+            'exit' AS request_type,
+            e.first_name,
+            e.last_name,
+            t.name AS type_name,
+            p.date_from,
+            p.date_to,
+            p.created_at
+
+        FROM attendance_exit_passes p
+
+        INNER JOIN employees e
+            ON e.id = p.employee_id
+
+        INNER JOIN attendance_exit_types t
+            ON t.id = p.exit_type_id
+
+        WHERE p.status = 'pending'
+          AND p.employee_id IN ($employeeIds)
+
+        ORDER BY created_at DESC
+
+        LIMIT 5
+    ";
+
+    $pendingRequests =
+        $conn
+        ->query($sql)
+        ->fetch_all(MYSQLI_ASSOC);
+}
 ?>
 
 <div class="row g-3 mb-4">
 
-    <div class="col-md-6 col-xl-3">
+    <div class="col-md-3">
+
+        <a
+            href="<?= url('modules/attendance/approval_requests/index.php') ?>"
+            class="text-decoration-none text-reset">
+
+            <div class="dashboard-card">
+
+                <div class="dashboard-card-title">
+
+                    Zahtevi
+
+                </div>
+
+                <div class="dashboard-card-value">
+
+                    <?= $pendingAbsences + $pendingExitPasses ?>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+    <div class="col-md-3">
 
         <div class="dashboard-card">
 
             <div class="dashboard-card-title">
 
-                <i class="bi bi-check2-square"></i>
-
-                Zahtevi za odobrenje
+                Odsustva
 
             </div>
 
             <div class="dashboard-card-value">
 
-                <?= $pendingRequests ?>
+                <?= $pendingAbsences ?>
 
             </div>
 
@@ -65,21 +300,19 @@ $urgentAnnouncements = 0;
 
     </div>
 
-    <div class="col-md-6 col-xl-3">
+    <div class="col-md-3">
 
         <div class="dashboard-card">
 
             <div class="dashboard-card-title">
 
-                <i class="bi bi-folder2-open"></i>
-
-                Dokumenta
+                Izlaznice
 
             </div>
 
             <div class="dashboard-card-value">
 
-                <?= $newDocuments ?>
+                <?= $pendingExitPasses ?>
 
             </div>
 
@@ -87,43 +320,19 @@ $urgentAnnouncements = 0;
 
     </div>
 
-    <div class="col-md-6 col-xl-3">
+    <div class="col-md-3">
 
         <div class="dashboard-card">
 
             <div class="dashboard-card-title">
 
-                <i class="bi bi-bell"></i>
-
-                Podsetnici
+                Obaveštenja
 
             </div>
 
             <div class="dashboard-card-value">
 
-                <?= $reminders ?>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-md-6 col-xl-3">
-
-        <div class="dashboard-card">
-
-            <div class="dashboard-card-title">
-
-                <i class="bi bi-megaphone"></i>
-
-                Hitna obaveštenja
-
-            </div>
-
-            <div class="dashboard-card-value">
-
-                <?= $urgentAnnouncements ?>
+                <?= $dangerAnnouncements ?>
 
             </div>
 
@@ -149,49 +358,69 @@ $urgentAnnouncements = 0;
 
         <h4>
 
-            <?= e($unitName) ?>
+            <?= e($_SESSION['department_name'] ?? '') ?>
 
         </h4>
 
-        <div class="row mt-3">
+        <div class="row text-center">
 
-            <div class="col-md-3">
+            <div class="col-md-2">
 
-                <strong>
-                    Zaposlenih:
-                </strong>
+                <div class="text-muted small">
+                    Zaposlenih
+                </div>
 
-                <?= $employeeCount ?>
-
-            </div>
-
-            <div class="col-md-3">
-
-                <strong>
-                    Prisutnih:
-                </strong>
-
-                0
+                <div class="fs-3 fw-bold">
+                    <?= $employeeCount ?>
+                </div>
 
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
 
-                <strong>
-                    Odsutnih:
-                </strong>
+                <div class="text-muted small">
+                    Prisutnih
+                </div>
 
-                0
+                <div class="fs-3 fw-bold text-success">
+                    <?= $presentToday ?>
+                </div>
 
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
 
-                <strong>
-                    Na GO:
-                </strong>
+                <div class="text-muted small">
+                    Odsustvo
+                </div>
 
-                0
+                <div class="fs-3 fw-bold text-warning">
+                    <?= $onLeaveToday ?>
+                </div>
+
+            </div>
+
+            <div class="col-md-2">
+
+                <div class="text-muted small">
+                    Izlaznica
+                </div>
+
+                <div class="fs-3 fw-bold text-info">
+                    <?= $onExitToday ?>
+                </div>
+
+            </div>
+
+            <div class="col-md-2">
+
+                <div class="text-muted small">
+                    Neevidentirani
+                </div>
+
+                <div class="fs-3 fw-bold text-danger">
+                    <?= $notRecordedToday ?>
+                </div>
 
             </div>
 
@@ -201,78 +430,349 @@ $urgentAnnouncements = 0;
 
 </div>
 
-<div class="row g-3">
+<div class="card shadow-sm mb-4">
 
-    <div class="col-md-3">
+    <div class="card-header">
 
-        <a
-            href="<?= url('organization/my_ou.php') ?>"
-            class="dashboard-action text-decoration-none">
-
-            <i class="bi bi-diagram-3"></i>
-
-            <span class="dashboard-action-title">
-
-                Moja OJ
-
-            </span>
-
-        </a>
+        <strong>
+            Neevidentirani danas
+        </strong>
 
     </div>
 
-    <div class="col-md-3">
+    <div class="card-body">
 
-        <a
-            href="#"
-            class="dashboard-action text-decoration-none">
+        <?php if (empty($notRecordedEmployees)): ?>
 
-            <i class="bi bi-check2-square"></i>
+            <div class="text-success">
 
-                <span class="dashboard-action-title">
+                Nema neevidentiranih zaposlenih.
 
-                Odobravanje zahteva
+            </div>
 
-            </span>
+        <?php else: ?>
 
-        </a>
+            <div class="list-group">
 
-    </div>
+                <?php foreach ($notRecordedEmployees as $employee): ?>
 
-    <div class="col-md-3">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
 
-        <a
-            href="#"
-            class="dashboard-action text-decoration-none">
+                        <div>
 
-            <i class="bi bi-folder2-open"></i>
+                            <strong>
 
-                <span class="dashboard-action-title">
+                                <?= e(
+                                    $employee['first_name']
+                                        . ' '
+                                        . $employee['last_name']
+                                ) ?>
 
-                Dokumenta
+                            </strong>
 
-            </span>
+                            <div class="small text-muted">
 
-        </a>
+                                <?= e(
+                                    $employee['personal_id']
+                                ) ?>
 
-    </div>
+                            </div>
 
-    <div class="col-md-3">
+                        </div>
 
-        <a
-            href="#"
-            class="dashboard-action text-decoration-none">
+                        <button
+                            class="btn btn-warning btn-sm confirm-attendance-btn"
+                            data-employee-id="<?= $employee['id'] ?>"
+                            data-employee-name="<?= e(
+                                                    $employee['first_name'] . ' ' .
+                                                        $employee['last_name']
+                                                ) ?>">
+                            Potvrdi prisustvo
+                        </button>
 
-            <i class="bi bi-file-earmark-bar-graph"></i>
+                    </div>
 
-            <span class="dashboard-action-title">
+                <?php endforeach; ?>
 
-                Izveštaji
+            </div>
 
-            </span>
-
-        </a>
+        <?php endif; ?>
 
     </div>
 
 </div>
+
+<div class="card shadow-sm">
+
+    <div class="card-header d-flex justify-content-between">
+
+        <strong>
+            Zahtevi za odobrenje
+        </strong>
+
+        <a href="<?= url('modules/attendance/approval_requests/index.php') ?>">
+            Prikaži sve
+        </a>
+
+    </div>
+
+    <div class="card-body p-0">
+
+        <?php if (empty($pendingRequests)): ?>
+
+            <div class="p-3 text-muted">
+
+                Nema zahteva za odobrenje.
+
+            </div>
+
+        <?php else: ?>
+
+            <div class="table-responsive">
+
+                <table class="table mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Zaposleni</th>
+
+                            <th>Tip</th>
+
+                            <th>Period</th>
+
+                            <th>Podneto</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <?php foreach ($pendingRequests as $request): ?>
+
+                            <tr>
+
+                                <td>
+
+                                    <?= e(
+                                        $request['first_name']
+                                            . ' '
+                                            . $request['last_name']
+                                    ) ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?= e(
+                                        $request['type_name']
+                                    ) ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?= e(
+                                        date(
+                                            'd.m.Y',
+                                            strtotime(
+                                                $request['date_from']
+                                            )
+                                        )
+                                    ) ?>
+
+                                    -
+
+                                    <?= e(
+                                        date(
+                                            'd.m.Y',
+                                            strtotime(
+                                                $request['date_to']
+                                            )
+                                        )
+                                    ) ?>
+
+                                </td>
+
+                                <td>
+
+                                    <?= e(
+                                        date(
+                                            'd.m.Y H:i',
+                                            strtotime(
+                                                $request['created_at']
+                                            )
+                                        )
+                                    ) ?>
+
+                                </td>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        <?php endif; ?>
+
+    </div>
+
+</div>
+
+<div
+    class="modal fade"
+    id="confirmAttendanceModal">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="<?= url(
+                            'modules/attendance/actions/confirm_attendance.php'
+                        ) ?>">
+
+                <input
+                    type="hidden"
+                    name="csrf"
+                    value="<?= csrf_token() ?>">
+
+                <input
+                    type="hidden"
+                    name="employee_id"
+                    id="confirmEmployeeId">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Korekcija prisustva
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <p id="confirmEmployeeText"></p>
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Datum
+
+                            </label>
+
+                            <input
+                                type="date"
+                                name="correction_date"
+                                class="form-control"
+                                value="<?= date('Y-m-d') ?>"
+                                required>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Vreme dolaska
+
+                            </label>
+
+                            <input
+                                type="time"
+                                name="correction_time"
+                                class="form-control"
+                                value="07:00"
+                                required>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Razlog korekcije
+
+                        </label>
+
+                        <textarea
+                            name="reason"
+                            class="form-control"
+                            rows="4"
+                            required></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="submit"
+                        class="btn btn-warning">
+
+                        Sačuvaj korekciju
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document
+        .querySelectorAll(
+            '.confirm-attendance-btn'
+        )
+        .forEach(btn => {
+
+            btn.addEventListener(
+                'click',
+                () => {
+
+                    document.getElementById(
+                            'confirmEmployeeId'
+                        ).value =
+                        btn.dataset.employeeId;
+
+                    document.getElementById(
+                            'confirmEmployeeText'
+                        ).innerText =
+                        'Potvrđujete prisustvo zaposlenog: ' +
+                        btn.dataset.employeeName;
+
+                    new bootstrap.Modal(
+                        document.getElementById(
+                            'confirmAttendanceModal'
+                        )
+                    ).show();
+                }
+            );
+        });
+</script>
