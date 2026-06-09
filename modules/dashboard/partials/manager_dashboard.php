@@ -5,27 +5,6 @@ require_once ROOT_PATH . '/helpers/organization_tree.php';
 $employeeId =
     $_SESSION['employee_id'];
 
-$stmt = $conn->prepare("
-    SELECT
-        first_name,
-        last_name,
-        annual_leave_days
-    FROM employees
-    WHERE id = ?
-");
-
-$stmt->bind_param(
-    "i",
-    $employeeId
-);
-
-$stmt->execute();
-
-$employee =
-    $stmt
-    ->get_result()
-    ->fetch_assoc();
-
 $employeeCount =
     getManagedEmployeesCount(
         $conn,
@@ -33,7 +12,8 @@ $employeeCount =
     );
 
 $stmt = $conn->prepare("
-    SELECT name
+    SELECT
+        name
     FROM organizational_units
     WHERE manager_employee_id = ?
     LIMIT 1
@@ -48,119 +28,36 @@ $stmt->execute();
 
 $unit =
     $stmt
-    ->get_result()
-    ->fetch_assoc();
+        ->get_result()
+        ->fetch_assoc();
 
 $unitName =
     $unit['name']
-    ?? 'Nije definisano';
+    ?? 'Nedefinisano';
 
+$pendingRequests = 0;
+$newDocuments = 0;
+$reminders = 0;
+$urgentAnnouncements = 0;
 ?>
 
-<div class="page-card">
+<div class="row g-3 mb-4">
 
-    <div class="mb-4">
+    <div class="col-md-6 col-xl-3">
 
-        <h3 class="mb-1">
+        <div class="dashboard-card">
 
-            Dobrodošli,
-            <?= e($employee['first_name']) ?>
+            <div class="dashboard-card-title">
 
-        </h3>
+                <i class="bi bi-check2-square"></i>
 
-        <div class="text-muted">
-
-            Pregled organizacione jedinice
-
-        </div>
-
-    </div>
-
-    <div class="row g-3 mb-4">
-
-        <div class="col-md-6 col-xl-3">
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-card-title">
-
-                    <i class="bi bi-people"></i>
-
-                    Zaposlenih
-
-                </div>
-
-                <div class="dashboard-card-value">
-
-                    <?= $employeeCount ?>
-
-                </div>
+                Zahtevi za odobrenje
 
             </div>
 
-        </div>
+            <div class="dashboard-card-value">
 
-        <div class="col-md-6 col-xl-3">
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-card-title">
-
-                    <i class="bi bi-calendar-check"></i>
-
-                    Godišnji odmor
-
-                </div>
-
-                <div class="dashboard-card-value">
-
-                    <?= (int)$employee['annual_leave_days'] ?>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-6 col-xl-3">
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-card-title">
-
-                    <i class="bi bi-door-open"></i>
-
-                    Izlaznice
-
-                </div>
-
-                <div class="dashboard-card-value">
-
-                    0 / 8h
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-6 col-xl-3">
-
-            <div class="dashboard-card">
-
-                <div class="dashboard-card-title">
-
-                    <i class="bi bi-send-check"></i>
-
-                    Zahtevi
-
-                </div>
-
-                <div class="dashboard-card-value">
-
-                    0
-
-                </div>
+                <?= $pendingRequests ?>
 
             </div>
 
@@ -168,90 +65,213 @@ $unitName =
 
     </div>
 
-    <div class="card shadow-sm mb-4">
+    <div class="col-md-6 col-xl-3">
 
-        <div class="card-header">
+        <div class="dashboard-card">
 
-            <strong>
+            <div class="dashboard-card-title">
 
-                Moja organizaciona jedinica
+                <i class="bi bi-folder2-open"></i>
 
-            </strong>
+                Dokumenta
+
+            </div>
+
+            <div class="dashboard-card-value">
+
+                <?= $newDocuments ?>
+
+            </div>
 
         </div>
 
-        <div class="card-body">
+    </div>
 
-            <h5>
+    <div class="col-md-6 col-xl-3">
 
-                <?= e($unitName) ?>
+        <div class="dashboard-card">
 
-            </h5>
+            <div class="dashboard-card-title">
 
-            <p class="mb-0">
+                <i class="bi bi-bell"></i>
 
-                Broj zaposlenih:
+                Podsetnici
+
+            </div>
+
+            <div class="dashboard-card-value">
+
+                <?= $reminders ?>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-card-title">
+
+                <i class="bi bi-megaphone"></i>
+
+                Hitna obaveštenja
+
+            </div>
+
+            <div class="dashboard-card-value">
+
+                <?= $urgentAnnouncements ?>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-header">
+
+        <strong>
+
+            Moja organizaciona jedinica
+
+        </strong>
+
+    </div>
+
+    <div class="card-body">
+
+        <h4>
+
+            <?= e($unitName) ?>
+
+        </h4>
+
+        <div class="row mt-3">
+
+            <div class="col-md-3">
+
                 <strong>
-
-                    <?= $employeeCount ?>
-
+                    Zaposlenih:
                 </strong>
 
-            </p>
+                <?= $employeeCount ?>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+                    Prisutnih:
+                </strong>
+
+                0
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+                    Odsutnih:
+                </strong>
+
+                0
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+                    Na GO:
+                </strong>
+
+                0
+
+            </div>
 
         </div>
 
     </div>
 
-    <div class="row g-3">
+</div>
 
-        <div class="col-md-3">
+<div class="row g-3">
 
-            <a
-                href="<?= url('modules/attendance/my_ou/index.php') ?>"
-                class="btn btn-primary w-100">
+    <div class="col-md-3">
+
+        <a
+            href="<?= url('organization/my_ou.php') ?>"
+            class="dashboard-action text-decoration-none">
+
+            <i class="bi bi-diagram-3"></i>
+
+            <span class="dashboard-action-title">
 
                 Moja OJ
 
-            </a>
+            </span>
 
-        </div>
+        </a>
 
-        <div class="col-md-3">
+    </div>
 
-            <a
-                href="<?= url('modules/attendance/approval_requests/index.php') ?>"
-                class="btn btn-primary w-100">
+    <div class="col-md-3">
 
-                Zahtevi zaposlenih
+        <a
+            href="#"
+            class="dashboard-action text-decoration-none">
 
-            </a>
+            <i class="bi bi-check2-square"></i>
 
-        </div>
+                <span class="dashboard-action-title">
 
-        <div class="col-md-3">
+                Odobravanje zahteva
 
-            <a
-                href="<?= url('modules/attendance/my_attendance/index.php') ?>"
-                class="btn btn-primary w-100">
+            </span>
 
-                Moje prisustvo
+        </a>
 
-            </a>
+    </div>
 
-        </div>
+    <div class="col-md-3">
 
-        <div class="col-md-3">
+        <a
+            href="#"
+            class="dashboard-action text-decoration-none">
 
-            <a
-                href="<?= url('modules/attendance/requests/index.php') ?>"
-                class="btn btn-primary w-100">
+            <i class="bi bi-folder2-open"></i>
 
-                Moji zahtevi
+                <span class="dashboard-action-title">
 
-            </a>
+                Dokumenta
 
-        </div>
+            </span>
+
+        </a>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <a
+            href="#"
+            class="dashboard-action text-decoration-none">
+
+            <i class="bi bi-file-earmark-bar-graph"></i>
+
+            <span class="dashboard-action-title">
+
+                Izveštaji
+
+            </span>
+
+        </a>
 
     </div>
 

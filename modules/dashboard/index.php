@@ -16,15 +16,32 @@ include "../../layouts/layout_start.php";
 |--------------------------------------------------------------------------
 */
 
-if (has_role(['admin', 'hr', 'it'])) {
+switch ($_SESSION['role']) {
 
-    include "../../admin/dashboard_content.php";
-} elseif (has_role(['manager'])) {
+    case 'admin':
 
-    include "partials/manager_dashboard.php";
-} else {
+        include "partials/admin_dashboard.php";
+        break;
 
-    include "partials/user_dashboard.php";
+    case 'hr':
+
+        include "partials/hr_dashboard.php";
+        break;
+
+    case 'it':
+
+        include "partials/it_dashboard.php";
+        break;
+
+    case 'manager':
+
+        include "partials/manager_dashboard.php";
+        break;
+
+    default:
+
+        include "partials/user_dashboard.php";
+        break;
 }
 
 include "../../layouts/layout_end.php";

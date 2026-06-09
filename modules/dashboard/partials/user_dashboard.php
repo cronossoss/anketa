@@ -3,82 +3,171 @@
 $employeeId =
     $_SESSION['employee_id'] ?? 0;
 
-$employee = null;
+/*
+|--------------------------------------------------------------------------
+| GODIŠNJI ODMOR
+|--------------------------------------------------------------------------
+*/
 
-if ($employeeId) {
+$annualLeaveDays = 0;
 
-    $stmt = $conn->prepare("
-        SELECT annual_leave_days
-        FROM employees
-        WHERE id = ?
-    ");
+$stmt = $conn->prepare("
+    SELECT annual_leave_days
+    FROM employees
+    WHERE id = ?
+");
 
-    $stmt->bind_param(
-        "i",
-        $employeeId
-    );
+$stmt->bind_param(
+    "i",
+    $employeeId
+);
 
-    $stmt->execute();
+$stmt->execute();
 
-    $employee =
-        $stmt
+$result =
+    $stmt
         ->get_result()
         ->fetch_assoc();
+
+if ($result) {
+
+    $annualLeaveDays =
+        (int)$result['annual_leave_days'];
 }
 
-$annualLeaveDays =
-    $employee['annual_leave_days']
-    ?? 0;
+/*
+|--------------------------------------------------------------------------
+| PLACEHOLDER
+|--------------------------------------------------------------------------
+*/
+
+$usedLeaveDays = 0;
+
+$exitHoursUsed = 0;
+
+$monthlyWorkHours = 0;
+
+$overtimeHours = 0;
 
 ?>
 
-<div class="row g-3 mb-4">
+<div class="page-card">
 
-    <div class="col-md-6 col-xl-3">
+    <div class="mb-4">
 
-        <div class="dashboard-card">
+        <h3 class="mb-1">
 
-            <div class="dashboard-card-header">
+            Moj portal
+
+        </h3>
+
+        <div class="text-muted">
+
+            Lični pregled aktivnosti i statusa
+
+        </div>
+
+    </div>
+
+    <!-- KARTICE -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="dashboard-card">
 
                 <div class="dashboard-card-title">
 
                     <i class="bi bi-calendar-check"></i>
 
-                    <span>Godišnji odmor</span>
+                    Godišnji odmor
+
+                </div>
+
+                <div class="dashboard-card-value">
+
+                    <?= $annualLeaveDays - $usedLeaveDays ?>
+
+                    <small class="text-muted">
+
+                        / <?= $annualLeaveDays ?>
+
+                    </small>
 
                 </div>
 
             </div>
 
-            <div class="dashboard-card-description">
-
-                <?= $annualLeaveDays ?> dana
-
-            </div>
-
         </div>
 
-    </div>
+        <div class="col-md-6 col-xl-3">
 
-    <div class="col-md-6 col-xl-3">
-
-        <div class="dashboard-card">
-
-            <div class="dashboard-card-header">
+            <div class="dashboard-card">
 
                 <div class="dashboard-card-title">
 
                     <i class="bi bi-door-open"></i>
 
-                    <span>Izlaznice</span>
+                    Izlaznice
+
+                </div>
+
+                <div class="dashboard-card-value">
+
+                    <?= $exitHoursUsed ?>
+
+                    <small class="text-muted">
+
+                        / 8h
+
+                    </small>
 
                 </div>
 
             </div>
 
-            <div class="dashboard-card-description">
+        </div>
 
-                0h / 8h
+        <div class="col-md-6 col-xl-3">
+
+            <div class="dashboard-card">
+
+                <div class="dashboard-card-title">
+
+                    <i class="bi bi-clock-history"></i>
+
+                    Radni sati
+
+                </div>
+
+                <div class="dashboard-card-value">
+
+                    <?= $monthlyWorkHours ?>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="dashboard-card">
+
+                <div class="dashboard-card-title">
+
+                    <i class="bi bi-alarm"></i>
+
+                    Prekovremeno
+
+                </div>
+
+                <div class="dashboard-card-value">
+
+                    <?= $overtimeHours ?>
+
+                </div>
 
             </div>
 
@@ -86,25 +175,25 @@ $annualLeaveDays =
 
     </div>
 
-    <div class="col-md-6 col-xl-3">
+    <!-- MOJI ZAHTEVI -->
 
-        <div class="dashboard-card">
+    <div class="card shadow-sm mb-4">
 
-            <div class="dashboard-card-header">
+        <div class="card-header">
 
-                <div class="dashboard-card-title">
+            <strong>
 
-                    <i class="bi bi-clock"></i>
+                Moji zahtevi
 
-                    <span>Radni sati</span>
+            </strong>
 
-                </div>
+        </div>
 
-            </div>
+        <div class="card-body">
 
-            <div class="dashboard-card-description">
+            <div class="text-muted">
 
-                0 h
+                Pregled zahteva biće prikazan ovde.
 
             </div>
 
@@ -112,27 +201,73 @@ $annualLeaveDays =
 
     </div>
 
-    <div class="col-md-6 col-xl-3">
+    <!-- OBAVEŠTENJA -->
 
-        <div class="dashboard-card">
+    <div class="card shadow-sm">
 
-            <div class="dashboard-card-header">
+        <div class="card-header">
 
-                <div class="dashboard-card-title">
+            <strong>
 
-                    <i class="bi bi-graph-up"></i>
+                Obaveštenja
 
-                    <span>Prekovremeno</span>
+            </strong>
+
+        </div>
+
+        <div class="card-body">
+
+            <?php
+
+            $announcements =
+                $conn->query("
+                    SELECT
+                        title,
+                        priority,
+                        created_at
+                    FROM announcements
+                    WHERE active = 1
+                    ORDER BY created_at DESC
+                    LIMIT 5
+                ");
+
+            ?>
+
+            <?php if ($announcements->num_rows): ?>
+
+                <ul class="list-group list-group-flush">
+
+                    <?php while ($a = $announcements->fetch_assoc()): ?>
+
+                        <li class="list-group-item">
+
+                            <strong>
+
+                                <?= e($a['title']) ?>
+
+                            </strong>
+
+                            <div class="small text-muted">
+
+                                <?= e($a['created_at']) ?>
+
+                            </div>
+
+                        </li>
+
+                    <?php endwhile; ?>
+
+                </ul>
+
+            <?php else: ?>
+
+                <div class="text-muted">
+
+                    Nema aktivnih obaveštenja.
 
                 </div>
 
-            </div>
-
-            <div class="dashboard-card-description">
-
-                0 h
-
-            </div>
+            <?php endif; ?>
 
         </div>
 

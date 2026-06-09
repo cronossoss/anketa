@@ -78,6 +78,37 @@
 
         </div>
 
+        <div class="col-md-6 col-xl-3">
+
+            <div class="dashboard-card">
+
+                <div class="dashboard-card-header">
+
+                    <div class="dashboard-card-title">
+
+                        <i class="bi bi-file-check"></i>
+
+                        <span>Dokumenta</span>
+
+                    </div>
+
+                    <a href="<?= url('admin/employee_documents.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
+
+                </div>
+
+                <div class="dashboard-card-description">
+
+                    Evidencija dokumenta zaposlenih
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
     <!-- PRISUSTVO -->
@@ -253,6 +284,37 @@
 
         </div>
 
+        <div class="col-md-6 col-xl-3">
+
+            <div class="dashboard-card">
+
+                <div class="dashboard-card-header">
+
+                    <div class="dashboard-card-title">
+
+                        <i class="bi bi-tools"></i>
+
+                        <span>Servis</span>
+
+                    </div>
+
+                    <a href="<?= url('modules/assets/services/index.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
+
+                </div>
+
+                <div class="dashboard-card-description">
+
+                    Pregled servisa opreme
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
     <!-- ADMINISTRACIJA -->
@@ -317,6 +379,37 @@
                 <div class="dashboard-card-description">
 
                     Evidencija aktivnosti sistema
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="dashboard-card">
+
+                <div class="dashboard-card-header">
+
+                    <div class="dashboard-card-title">
+
+                        <i class="bi bi-gear"></i>
+
+                        <span>Podesavanja</span>
+
+                    </div>
+
+                    <a href="<?= url('admin/settings.php') ?>"
+                        class="btn btn-sm btn-primary">
+                        Otvori
+                    </a>
+
+                </div>
+
+                <div class="dashboard-card-description">
+
+                    Podešavanja aplikacije
 
                 </div>
 

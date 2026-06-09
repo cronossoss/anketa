@@ -200,16 +200,11 @@ body.modal-open {
 }
 
 .announcement-track {
-
     display: inline-block;
 
     padding-left: 100%;
 
-    animation:
-        announcement-scroll
-        35s
-        linear
-        infinite;
+    animation: announcement-scroll 35s linear infinite;
 
     color: #6b7280;
 
@@ -239,8 +234,45 @@ body.modal-open {
     border: 2px solid #f1f3f5;
 }
 
-@keyframes announcement-scroll {
+.dashboard-action {
+    display: flex;
 
+    align-items: center;
+
+    gap: 12px;
+
+    background: #fff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    padding: 18px 20px;
+
+    color: #111827;
+
+    height: 100%;
+
+    transition: 0.2s;
+}
+
+.dashboard-action:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    color: #0d6efd;
+}
+
+.dashboard-action i {
+    font-size: 24px;
+}
+
+.dashboard-action-title {
+    font-weight: 600;
+}
+
+@keyframes announcement-scroll {
     0% {
         transform: translateX(0);
     }
@@ -251,11 +283,9 @@ body.modal-open {
 }
 
 @media (max-width: 768px) {
-
     .topbar-announcements {
         display: none;
     }
-
 }
 
 .user-info {
