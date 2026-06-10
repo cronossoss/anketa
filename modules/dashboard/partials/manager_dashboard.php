@@ -481,18 +481,176 @@ if (!empty($managedEmployees)) {
                         </div>
 
                         <button
-                            class="btn btn-warning btn-sm confirm-attendance-btn"
+                            class="btn btn-warning btn-sm resolve-status-btn"
                             data-employee-id="<?= $employee['id'] ?>"
                             data-employee-name="<?= e(
-                                                    $employee['first_name'] . ' ' .
-                                                        $employee['last_name']
-                                                ) ?>">
-                            Potvrdi prisustvo
+                                $employee['first_name'] . ' ' .
+                                $employee['last_name']
+                            ) ?>">
+                            Razreši status
                         </button>
 
                     </div>
 
                 <?php endforeach; ?>
+
+            </div>
+
+        <?php endif; ?>
+
+    </div>
+
+</div>
+
+<?php
+
+$followUpCases = [];
+
+if (!empty($managedEmployees)) {
+
+    $employeeIds =
+        implode(
+            ',',
+            array_map(
+                'intval',
+                $managedEmployees
+            )
+        );
+
+    $followUpCases =
+        $conn->query("
+            SELECT
+
+                a.id,
+
+                e.first_name,
+                e.last_name,
+
+                t.name AS absence_type,
+
+                a.date_from
+
+            FROM attendance_absences a
+
+            INNER JOIN employees e
+                ON e.id = a.employee_id
+
+            INNER JOIN attendance_absence_types t
+                ON t.id = a.absence_type_id
+
+            WHERE a.employee_id IN ($employeeIds)
+
+                AND a.status = 'approved'
+
+                AND a.follow_up_required = 1
+
+                AND a.closed_at IS NULL
+
+                            ORDER BY
+                                a.date_from DESC
+
+                            LIMIT 10
+                        ")->fetch_all(MYSQLI_ASSOC);
+                }
+
+?>
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-header">
+
+        <strong>
+
+            Otvoreni slučajevi
+
+        </strong>
+
+    </div>
+
+    <div class="card-body">
+
+        <?php if (empty($followUpCases)): ?>
+
+            <div class="text-success">
+
+                Nema otvorenih slučajeva.
+
+            </div>
+
+        <?php else: ?>
+
+            <div class="table-responsive">
+
+                <table class="table table-sm align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Zaposleni</th>
+
+                            <th>Status</th>
+
+                            <th>Od datuma</th>
+
+                            <th>Akcija</th>
+
+                            
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <?php foreach ($followUpCases as $case): ?>
+
+                            <tr>
+
+                                <td>
+                                    <?= e(
+                                        $case['first_name']
+                                        . ' '
+                                        . $case['last_name']
+                                    ) ?>
+                                </td>
+
+                                <td>
+                                    <?= e(
+                                        $case['absence_type']
+                                    ) ?>
+                                </td>
+
+                                <td>
+                                    <?= date(
+                                        'd.m.Y',
+                                        strtotime(
+                                            $case['date_from']
+                                        )
+                                    ) ?>
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="<?= url(
+                                            'modules/attendance/corrections/view.php?id='
+                                            . $case['id']
+                                        ) ?>"
+                                        class="btn btn-sm btn-primary">
+
+                                        Pregled
+
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                            <?php endforeach; ?>   
+
+                    </tbody>
+
+                </table>
 
             </div>
 
@@ -627,7 +785,8 @@ if (!empty($managedEmployees)) {
 
 <div
     class="modal fade"
-    id="confirmAttendanceModal">
+    id="resolveStatusModal"
+    tabindex="-1">
 
     <div class="modal-dialog">
 
@@ -636,8 +795,8 @@ if (!empty($managedEmployees)) {
             <form
                 method="POST"
                 action="<?= url(
-                            'modules/attendance/actions/confirm_attendance.php'
-                        ) ?>">
+                    'modules/attendance/actions/resolve_employee_status.php'
+                ) ?>">
 
                 <input
                     type="hidden"
@@ -647,13 +806,13 @@ if (!empty($managedEmployees)) {
                 <input
                     type="hidden"
                     name="employee_id"
-                    id="confirmEmployeeId">
+                    id="resolveEmployeeId">
 
                 <div class="modal-header">
 
                     <h5 class="modal-title">
 
-                        Korekcija prisustva
+                        Razreši status zaposlenog
 
                     </h5>
 
@@ -667,43 +826,61 @@ if (!empty($managedEmployees)) {
 
                 <div class="modal-body">
 
-                    <p id="confirmEmployeeText"></p>
+                    <p
+                        id="resolveEmployeeText"
+                        class="fw-semibold">
+                    </p>
 
-                    <div class="row mb-3">
+                    <div class="mb-3">
 
-                        <div class="col-md-6">
+                        <label class="form-label">
 
-                            <label class="form-label">
+                            Status zaposlenog
 
-                                Datum
+                        </label>
 
-                            </label>
+                        <select
+                            name="resolution_type"
+                            class="form-select"
+                            required>
 
-                            <input
-                                type="date"
-                                name="correction_date"
-                                class="form-control"
-                                value="<?= date('Y-m-d') ?>"
-                                required>
+                            <option value="present">
 
-                        </div>
+                                Prisutan
 
-                        <div class="col-md-6">
+                            </option>
 
-                            <label class="form-label">
+                            <option value="vacation">
 
-                                Vreme dolaska
+                                Godišnji odmor
 
-                            </label>
+                            </option>
 
-                            <input
-                                type="time"
-                                name="correction_time"
-                                class="form-control"
-                                value="07:00"
-                                required>
+                            <option value="doctor">
 
-                        </div>
+                                Odlazak kod lekara
+
+                            </option>
+
+                            <option value="business_trip">
+
+                                Službeni put
+
+                            </option>
+
+                            <option value="unpaid_leave">
+
+                                Neplaćeno odsustvo
+
+                            </option>
+
+                            <option value="unexcused">
+
+                                Neopravdani izostanak
+
+                            </option>
+
+                        </select>
 
                     </div>
 
@@ -711,7 +888,7 @@ if (!empty($managedEmployees)) {
 
                         <label class="form-label">
 
-                            Razlog korekcije
+                            Napomena
 
                         </label>
 
@@ -728,10 +905,19 @@ if (!empty($managedEmployees)) {
                 <div class="modal-footer">
 
                     <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Otkaži
+
+                    </button>
+
+                    <button
                         type="submit"
                         class="btn btn-warning">
 
-                        Sačuvaj korekciju
+                        Sačuvaj
 
                     </button>
 
@@ -746,33 +932,39 @@ if (!empty($managedEmployees)) {
 </div>
 
 <script>
-    document
-        .querySelectorAll(
-            '.confirm-attendance-btn'
-        )
-        .forEach(btn => {
 
-            btn.addEventListener(
-                'click',
-                () => {
+document
+    .querySelectorAll(
+        '.resolve-status-btn'
+    )
+    .forEach(btn => {
 
+        btn.addEventListener(
+            'click',
+            () => {
+
+                document
+                    .getElementById(
+                        'resolveEmployeeId'
+                    )
+                    .value =
+                    btn.dataset.employeeId;
+
+                document
+                    .getElementById(
+                        'resolveEmployeeText'
+                    )
+                    .innerText =
+                    'Zaposleni: ' +
+                    btn.dataset.employeeName;
+
+                new bootstrap.Modal(
                     document.getElementById(
-                            'confirmEmployeeId'
-                        ).value =
-                        btn.dataset.employeeId;
+                        'resolveStatusModal'
+                    )
+                ).show();
+            }
+        );
+    });
 
-                    document.getElementById(
-                            'confirmEmployeeText'
-                        ).innerText =
-                        'Potvrđujete prisustvo zaposlenog: ' +
-                        btn.dataset.employeeName;
-
-                    new bootstrap.Modal(
-                        document.getElementById(
-                            'confirmAttendanceModal'
-                        )
-                    ).show();
-                }
-            );
-        });
 </script>
