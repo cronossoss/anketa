@@ -383,9 +383,96 @@ include "../../../layouts/layout_start.php";
 
         </div>
 
+        <button
+            class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#closeCaseModal">
+
+            Zatvori slučaj
+
+        </button>
+
     <?php endif; ?>
 
 </div>
+
+<?php if (!$case['closed_at']): ?>
+
+<div
+    class="modal fade"
+    id="closeCaseModal">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="<?= url(
+                    'modules/attendance/corrections/close_case.php'
+                ) ?>">
+
+                <input
+                    type="hidden"
+                    name="csrf"
+                    value="<?= csrf_token() ?>">
+
+                <input
+                    type="hidden"
+                    name="absence_id"
+                    value="<?= $case['id'] ?>">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Zatvaranje slučaja
+
+                    </h5>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Napomena
+
+                        </label>
+
+                        <textarea
+                            name="closure_note"
+                            class="form-control"
+                            rows="4"
+                            required></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="submit"
+                        class="btn btn-success">
+
+                        Zatvori slučaj
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<?php endif; ?>
 
 <?php
 include "../../../layouts/layout_end.php";
