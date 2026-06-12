@@ -487,7 +487,7 @@ if (!empty($managedEmployees)) {
                                 $employee['first_name'] . ' ' .
                                 $employee['last_name']
                             ) ?>">
-                            Razreši status
+                            Otvori slučaj
                         </button>
 
                     </div>
@@ -795,7 +795,7 @@ if (!empty($managedEmployees)) {
             <form
                 method="POST"
                 action="<?= url(
-                    'modules/attendance/actions/resolve_employee_status.php'
+                    'modules/attendance/actions/create_case.php'
                 ) ?>">
 
                 <input
@@ -812,7 +812,7 @@ if (!empty($managedEmployees)) {
 
                     <h5 class="modal-title">
 
-                        Razreši status zaposlenog
+                        Otvori slučaj
 
                     </h5>
 
@@ -840,44 +840,32 @@ if (!empty($managedEmployees)) {
                         </label>
 
                         <select
-                            name="resolution_type"
+                            name="case_type"
                             class="form-select"
                             required>
 
-                            <option value="present">
-
-                                Prisutan
-
-                            </option>
-
-                            <option value="vacation">
-
-                                Godišnji odmor
-
+                            <option value="missing_attendance">
+                                Neevidentiran dolazak
                             </option>
 
                             <option value="doctor">
-
                                 Odlazak kod lekara
-
                             </option>
 
                             <option value="business_trip">
-
                                 Službeni put
-
                             </option>
 
-                            <option value="unpaid_leave">
-
-                                Neplaćeno odsustvo
-
+                            <option value="private_exit">
+                                Privatni izlazak
                             </option>
 
-                            <option value="unexcused">
+                            <option value="official_exit">
+                                Službeni izlazak
+                            </option>
 
-                                Neopravdani izostanak
-
+                            <option value="tardiness">
+                                Kašnjenje
                             </option>
 
                         </select>
@@ -893,7 +881,7 @@ if (!empty($managedEmployees)) {
                         </label>
 
                         <textarea
-                            name="reason"
+                            name="description"
                             class="form-control"
                             rows="4"
                             required></textarea>
@@ -917,7 +905,7 @@ if (!empty($managedEmployees)) {
                         type="submit"
                         class="btn btn-warning">
 
-                        Sačuvaj
+                        Otvori slučaj
 
                     </button>
 
